@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    entrypoint: .docker/entrypoint.sh
+    container_name: social-committee
+    ports:
+      - "3001:3000"
+      - "5555:5555"
+    volumes:
+      - .:/home/node/app
+    depends_on:
+      - db
+
+  db:
+    build: .docker/postgres
+    container_name: committee-postgres
+    restart: always
+    tty: true
+    ports:
+      - "5432:5432"
+      - "5556:5556"
+    volumes:
+      - .docker/dbdata:/var/lib/postgresql/dbdata
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=social-committee
