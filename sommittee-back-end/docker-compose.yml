@@ -7,7 +7,7 @@ services:
     container_name: social-committee
     ports:
       - "3001:3000"
-      - "5555:5555"
+      - "5555:5557"
     volumes:
       - .:/home/node/app
     depends_on:
@@ -25,4 +25,4 @@ services:
       - .docker/dbdata:/var/lib/postgresql/dbdata
     environment:
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=social-committee
+      - POSTGRES_DB=socialcommittee

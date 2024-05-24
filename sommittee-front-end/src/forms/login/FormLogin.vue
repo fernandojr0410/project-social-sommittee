@@ -72,8 +72,11 @@ export default {
         },
         redirectRecoverPassword() {
             this.$router.push('./RecoverPassword')
-        }
-    },
+        },
+        getFindById() {
+
+        },
+    }
 }
 </script>
 

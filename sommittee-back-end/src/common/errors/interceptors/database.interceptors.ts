@@ -7,18 +7,18 @@ import { DatabaseError } from '../types/databaseError';
 
 @Injectable()
 export class DatabaseInterception implements NestInterceptor {
-    intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-        return next.handle().pipe(
-            catchError((error) => {
-                if (isPrismaError(error)) {
-                    error = handleDatabaseErrors(error);
-                }
-                if (error instanceof DatabaseError) {
-                    throw new BadRequestException(error.message)
-                } else {
-                    throw error;
-                }
-            })
-        )
-    }
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    return next.handle().pipe(
+      catchError((error) => {
+        if (isPrismaError(error)) {
+          error = handleDatabaseErrors(error);
+        }
+        if (error instanceof DatabaseError) {
+          throw new BadRequestException(error.message)
+        } else {
+          throw error;
+        }
+      })
+    )
+  }
 }

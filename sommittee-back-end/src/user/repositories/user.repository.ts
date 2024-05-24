@@ -6,44 +6,47 @@ import { UpdateUserDto } from "../dto/update-user.dto";
 
 @Injectable()
 export class UserRepository {
+  constructor(private readonly prisma: PrismaService) {
+  }
 
-    constructor(private readonly prisma: PrismaService) {
-        console.log('Repositório: Usuário criado!')
-    }
+  async create(createUserDto: CreateUserDto): Promise<UserEntity> {
+    return this.prisma.user.create({
+      data: createUserDto
+    });
+  }
 
-    async create(createUserDto: CreateUserDto): Promise<UserEntity> {
-        return this.prisma.user.create({
-            data: {
-                ...createUserDto
-            }
-        })
-    }
+  async findAll(): Promise<UserEntity[]> {
+    return this.prisma.user.findMany();
+  }
 
-    async findAll(): Promise<UserEntity[]> {
-        return this.prisma.user.findMany()
-    }
+  async findOne(id: string): Promise<UserEntity> {
+    return this.prisma.user.findUnique({
+      where: {
+        id,
+      }
+    });
+  }
 
-    async findOne(id: number): Promise<UserEntity> {
-        return this.prisma.user.findUnique({
-            where: {
-                id,
-            }
-        })
-    }
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<UserEntity> {
+    return this.prisma.user.update({
+      where: { id },
+      data: updateUserDto
+    });
+  }
 
-    async update(id: number, updateUserDto: UpdateUserDto): Promise<UserEntity> {
-        return this.prisma.user.update({
-            where: { id },
-            data: updateUserDto
-        })
-    }
+  async remove(id: string): Promise<UserEntity> {
+    return this.prisma.user.delete({
+      where: {
+        id,
+      }
+    });
+  }
 
-    async remove(id: number): Promise<UserEntity> {
-        return this.prisma.user.delete({
-            where: {
-                id,
-            }
-        })
-    }
-
+  async findByEmail(email: string): Promise<UserEntity> {
+    return this.prisma.user.findUnique({
+      where: {
+        email,
+      }
+    });
+  }
 }

@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
 }
 
 datasource db {
@@ -8,15 +9,34 @@ datasource db {
 }
 
 model User {
-  id              Int      @id @default(autoincrement())
-  name            String
-  surname         String
-  email           String   @unique
-  telephone       String   @db.Char(15)
-  password        String
-  confirmPassword String
-  admin           Boolean  @default(false)
-  createdAt       DateTime @default(now())
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  name      String
+  surname   String
+  email     String   @unique
+  telephone String   @db.Char(15)
+  password  String
+  role      Role
+  createdAt DateTime @default(now())
+  Token     Token[]
 
-  @@map("usuários")
+  @@map("users")
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  OPERATOR
+}
+
+model Token {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  access_token String
+  is_revoked   Boolean  @default(false)
+  user         User     @relation(fields: [user_id], references: [id])
+  user_id      String   @db.Uuid()
+  type         String   @default("login")
+
+  @@map("tokens")
 }
