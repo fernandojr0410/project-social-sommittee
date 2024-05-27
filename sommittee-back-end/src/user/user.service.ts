@@ -1,7 +1,6 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { UserRepository } from "./repositories/user.repository";
 import { JwtService } from '@nestjs/jwt';
-import { UnauthorizedInterception } from "src/common/errors/interceptors/unauthorized.interceptor";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { NotFoundError } from "src/common/errors/types/notFoundError";
@@ -20,21 +19,27 @@ export class UserService {
   }
 
   async verifyUserPassword(email: string, password: string) {
-    const user = await this.repository.findByEmail(email);
+    const user = await this.repository.findProfile(email);
     if (!user) {
       return false;
     }
     return await bcryptjs.compare(password, user.password);
   }
 
+
   async signIn(email: string, password: string): Promise<{ access_token: string }> {
-    const user = await this.repository.findByEmail(email);
-    if (!user || !(await bcryptjs.compare(password, user.password))) {
-      throw new UnauthorizedInterception();
-    }
-    const payload = { id: user.id, name: user.name };
+    const user = await this.findUserEmailPassword(email, password);
+
+    await this.repository.updateLastAction(user.id, 'login');
+    const payload = { id: user.id, name: user.name, email: user.email };
+
     const accessToken = await this.jwtService.signAsync(payload);
+
     return { access_token: accessToken };
+  }
+
+  async updateLastAction(userId: string, lastAction: string) {
+    return this.repository.updateLastAction(userId, lastAction);
   }
 
   async create(createUserDto: CreateUserDto) {
@@ -66,14 +71,31 @@ export class UserService {
   }
 
   async findUserEmailPassword(email: string, password: string) {
-    const user = await this.repository.findByEmail(email)
+    const user = await this.repository.findProfile(email)
+
     if (!user) {
       throw new NotFoundError("Usuario não encontrado!")
     }
+
     const userPassword = await bcryptjs.compare(password, user.password)
+
     if (!userPassword) {
       throw new NotFoundError("Email ou senha incorretos!")
     }
+
     return user
+  }
+
+  async findProfile(email: string) {
+    try {
+      const userEmail = await this.repository.findProfile(email);
+      if (!userEmail) {
+        throw new NotFoundException("Usuário não encontrado!");
+      }
+      return userEmail;
+    } catch (error) {
+      throw new NotFoundException("Usuário não encontrado!");
+    }
+
   }
 }

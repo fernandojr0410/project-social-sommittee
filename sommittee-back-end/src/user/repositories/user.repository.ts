@@ -27,6 +27,30 @@ export class UserRepository {
     });
   }
 
+  async findProfile(email: string): Promise<UserEntity> {
+    return this.prisma.user.findUnique({
+      where: {
+        email,
+      }
+    })
+  }
+
+  async updateLastAction(userId: string, lastAction: string) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { lastAction },
+    });
+  }
+
+  async findUserEmailPassword(email: string, password: string) {
+    return this.prisma.user.findFirst({
+      where: {
+        email,
+        password,
+      },
+    });
+  }
+
   async update(id: string, updateUserDto: UpdateUserDto): Promise<UserEntity> {
     return this.prisma.user.update({
       where: { id },
@@ -38,14 +62,6 @@ export class UserRepository {
     return this.prisma.user.delete({
       where: {
         id,
-      }
-    });
-  }
-
-  async findByEmail(email: string): Promise<UserEntity> {
-    return this.prisma.user.findUnique({
-      where: {
-        email,
       }
     });
   }

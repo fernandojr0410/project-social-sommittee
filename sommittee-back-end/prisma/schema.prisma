@@ -17,6 +17,7 @@ model User {
   password  String
   role      Role
   createdAt DateTime @default(now())
+  lastAction String? 
   Token     Token[]
 
   @@map("users")

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, Res, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req, Res, UnauthorizedException, UseGuards } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -18,15 +18,34 @@ export class UserController {
 
   @UseGuards(AuthGuard)
   @Get()
-  async findAll() {
-    const dataUser = await this.userService.findAll()
-    return dataUser
+  async findAll(@Req() request) {
+    const userEmail = request.user.email
+    const user = await this.userService.findProfile(userEmail);
+    await this.userService.updateLastAction(user.id, 'findAll');
+    const dataUsers = await this.userService.findAll()
+    return { userEmail, dataUsers };
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('profile')
+  async getProfile(@Req() request) {
+    const userEmail = request.user.email;
+    const userProfile = await this.userService.findProfile(userEmail)
+
+    if (!userProfile) {
+      throw new UnauthorizedException("Usuário não encontrado!")
+    }
+
+    await this.userService.updateLastAction(userProfile.id, 'profile')
+
+    return userProfile
   }
 
   @UseGuards(AuthGuard)
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const dataUser = await this.userService.findOne(id)
+    await this.userService.updateLastAction(dataUser.id, 'findOne')
     return dataUser
   }
 
@@ -34,6 +53,7 @@ export class UserController {
   @Put(':id')
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     const dataUser = await this.userService.update(id, updateUserDto)
+    await this.userService.updateLastAction(dataUser.id, 'update')
     return dataUser
   }
 
@@ -41,13 +61,13 @@ export class UserController {
   @Delete(':id')
   async remove(@Param('id') id: string) {
     const dataUser = await this.userService.remove(id)
+    await this.userService.updateLastAction(dataUser.id, 'remove')
     return dataUser
   }
 
   @Post('login')
   async loginUser(@Body() body: any) {
     try {
-      await this.userService.findUserEmailPassword(body.email, body.password)
       const accessToken = await this.userService.signIn(body.email, body.password)
       return accessToken
     } catch (error) {
