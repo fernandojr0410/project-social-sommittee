@@ -1,18 +1,24 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { UserRepository } from "./repositories/user.repository";
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { UserRepository } from './repositories/user.repository';
 import { JwtService } from '@nestjs/jwt';
-import { CreateUserDto } from "./dto/create-user.dto";
-import { UpdateUserDto } from "./dto/update-user.dto";
-import { NotFoundError } from "src/common/errors/types/notFoundError";
-import * as bcryptjs from "bcryptjs"
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { NotFoundError } from 'src/common/errors/types/notFoundError';
+import * as bcryptjs from 'bcryptjs';
+import { Logger } from '@nestjs/common';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly repository: UserRepository, private readonly jwtService: JwtService) { }
+  constructor(
+    private readonly repository: UserRepository,
+    private readonly jwtService: JwtService,
+    private readonly logger: Logger
+  ) { }
 
   async createUserWithHashedPassword(createUserDto: CreateUserDto) {
     const hashedPassword = await bcryptjs.hash(createUserDto.password, 10);
     const user = await this.repository.create({ ...createUserDto, password: hashedPassword });
+    this.logger.log(`User ${user.name} created!`);
     return {
       message: `User ${user.name} created!`
     };
@@ -25,7 +31,6 @@ export class UserService {
     }
     return await bcryptjs.compare(password, user.password);
   }
-
 
   async signIn(email: string, password: string): Promise<{ access_token: string }> {
     const user = await this.findUserEmailPassword(email, password);
@@ -48,16 +53,17 @@ export class UserService {
 
   async findAll() {
     const users = await this.repository.findAll();
+    this.logger.log('findAll method called', { count: users.length });
     return users.map(e => {
-      const { password, ...result } = e
-      return result
-    })
+      const { password, ...result } = e;
+      return result;
+    });
   }
 
   async findOne(id: string) {
     const user = await this.repository.findOne(id);
     if (!user) {
-      throw new NotFoundError("Usuário não encontrado!");
+      throw new NotFoundError('Usuário não encontrado!');
     }
     return user;
   }
@@ -71,31 +77,30 @@ export class UserService {
   }
 
   async findUserEmailPassword(email: string, password: string) {
-    const user = await this.repository.findProfile(email)
+    const user = await this.repository.findProfile(email);
 
     if (!user) {
-      throw new NotFoundError("Usuario não encontrado!")
+      throw new NotFoundError('Usuario não encontrado!');
     }
 
-    const userPassword = await bcryptjs.compare(password, user.password)
+    const userPassword = await bcryptjs.compare(password, user.password);
 
     if (!userPassword) {
-      throw new NotFoundError("Email ou senha incorretos!")
+      throw new NotFoundError('Email ou senha incorretos!');
     }
 
-    return user
+    return user;
   }
 
   async findProfile(email: string) {
     try {
       const userEmail = await this.repository.findProfile(email);
       if (!userEmail) {
-        throw new NotFoundException("Usuário não encontrado!");
+        throw new NotFoundException('Usuário não encontrado!');
       }
       return userEmail;
     } catch (error) {
-      throw new NotFoundException("Usuário não encontrado!");
+      throw new NotFoundException('Usuário não encontrado!');
     }
-
   }
 }

@@ -1,0 +1,4 @@
+apiVersion: v1
+name: loki
+urls:
+  - https://grafana.github.io/loki/charts
