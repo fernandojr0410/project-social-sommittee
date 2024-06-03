@@ -1,14 +1,14 @@
 <template>
-    <FormLogin />
+  <FormLogin />
 </template>
 
 <script>
-import FormLogin from '@/forms/login/FormLogin.vue';
+import FormLogin from "@/forms/login/FormLogin.vue";
 
 export default {
-    name: "LoginCollaborator",
-    components: {
-        FormLogin
-    }
+  name: "LoginCollaborator",
+  components: {
+    FormLogin
+  }
 };
 </script>

@@ -18,14 +18,16 @@ function createWinstonLogger() {
     level: 'info',
     format: format.combine(
       format.timestamp(),
-      format.json()
+      format.json(),
+      format.metadata()
     ),
     transports: [
       new transports.Console(),
       new LokiTransport({
+        verbose: true,
         host: 'http://localhost:3100',
         json: true,
-        labels: { job: 'nestjs-app' }
+        labels: { job: 'combined_logs' }
       })
     ],
   });

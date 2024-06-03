@@ -6,7 +6,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { NotFoundError } from 'src/common/errors/types/notFoundError';
 import * as bcryptjs from 'bcryptjs';
 import { Logger } from '@nestjs/common';
-
 @Injectable()
 export class UserService {
   constructor(
@@ -18,7 +17,7 @@ export class UserService {
   async createUserWithHashedPassword(createUserDto: CreateUserDto) {
     const hashedPassword = await bcryptjs.hash(createUserDto.password, 10);
     const user = await this.repository.create({ ...createUserDto, password: hashedPassword });
-    this.logger.log(`User ${user.name} created!`);
+    this.logger.log("Usou a rota Register - Usuário cadastrado!")
     return {
       message: `User ${user.name} created!`
     };
@@ -34,12 +33,15 @@ export class UserService {
 
   async signIn(email: string, password: string): Promise<{ access_token: string }> {
     const user = await this.findUserEmailPassword(email, password);
-
     await this.repository.updateLastAction(user.id, 'login');
+    this.logger.log('info', {
+      message: 'Usuário fez o login',
+      userId: user.id,
+      name: user.name,
+      surname: user.surname
+    });
     const payload = { id: user.id, name: user.name, email: user.email };
-
     const accessToken = await this.jwtService.signAsync(payload);
-
     return { access_token: accessToken };
   }
 
@@ -53,7 +55,7 @@ export class UserService {
 
   async findAll() {
     const users = await this.repository.findAll();
-    this.logger.log('findAll method called', { count: users.length });
+    this.logger.log('Usou a rota FindAll - Filtrado todos usuários!', { count: users.length });
     return users.map(e => {
       const { password, ...result } = e;
       return result;
@@ -62,6 +64,7 @@ export class UserService {
 
   async findOne(id: string) {
     const user = await this.repository.findOne(id);
+    this.logger.log('Usou a rota FindAll - Filtrado todos usuários!', { count: user });
     if (!user) {
       throw new NotFoundError('Usuário não encontrado!');
     }
