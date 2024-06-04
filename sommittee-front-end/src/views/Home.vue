@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <div class="flex items-center justify-between bg-gray-primary p-6">
-      <div class="flex">
+  <div class="min-h-screen flex flex-col">
+    <div class="flex items-center justify-between bg-gray-primary p-2">
+      <div class="flex pl-10">
         <img :src="imgSoon" :alt="altSoon" class="h-24">
         <img :src="imgWritingLogo" :alt="altWritingLogo" class="h-20">
       </div>
@@ -17,8 +17,8 @@
         </Router-link>
       </div>
     </div>
-    <div class="relative">
-      <img src="../assets/img/backgroundTeam.png" alt="" class="w-full">
+    <div class="relative min-h-screen">
+      <img src="../assets/img/backgroundTeam.png" alt="" class="w-full ">
       <div class="absolute inset-0 flex items-center justify-center p-4">
         <div class="flex flex-col text-6xl text-white gap-2">
           <span class="font-bold">Seja a mudança</span>
@@ -48,15 +48,17 @@ export default {
 </script>
 
 <style scoped>
+.min-h-screen {
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
 .relative::before {
   content: '';
   position: absolute;
   inset: 0;
   background-image: linear-gradient(to bottom, rgba(253, 197, 58, 0.6), rgba(253, 117, 48, 0.6));
-}
-
-.relative img {
-  position: relative;
-  z-index: -1;
 }
 </style>

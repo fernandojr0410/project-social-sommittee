@@ -75,5 +75,4 @@ export class UserController {
       throw new UnauthorizedError("Email ou senha não encontrado! Verifique suas credenciais e tente novamente.")
     }
   }
-
 }

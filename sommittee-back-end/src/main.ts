@@ -7,7 +7,7 @@ import { DatabaseInterception } from './common/errors/interceptors/database.inte
 import { NotFoundInterception } from './common/errors/interceptors/notFound.interceptors';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: true });
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
     forbidNonWhitelisted: true,
@@ -17,7 +17,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(new DatabaseInterception());
   app.useGlobalInterceptors(new UnauthorizedInterception());
   app.useGlobalInterceptors(new NotFoundInterception());
-  const port = process.env.PORT || 3001;
+  const port = process.env.PORT || 3001
   await app.listen(port);
 }
 bootstrap();
