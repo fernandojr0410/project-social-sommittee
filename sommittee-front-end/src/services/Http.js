@@ -1,71 +1,42 @@
 import axios from 'axios'
-import qs from 'qs'
 
+axios.defaults.timeout = 300000
+axios.defaults.baseURL = process.env.VUE_APP_API_URL
+axios.defaults.headers.Authorization = `Bearer ${localStorage.getItem(
+  '@sommittee.access_token'
+)}`
 class Http {
+
   constructor(path) {
     this.path = path
   }
 
+  HTTP_CONFIG = {
+    "Content-type": "application/json",
+    'Authorization': 'Bearer ' + this.token,
+  }
+
   loggout() {
-    localStorage.removeItem('jwt_token')
-    localStorage.reload()
+    localStorage.removeItem('@sommittee.access_token')
+    window.location.reload(); 
   }
 
-  checkExpires ({ response }) {
-    if(response.data.type === 'expires_token') {
-      this.loggout
+  checkExpires(error) {
+    if (error.response && error.response.data.type === 'expires_token') {
+      this.loggout()
     }
   }
 
-  async index(path) {
+  async post(path, body) {
     try {
-      const { data } = await axios.get(this.path + (typeof path === 'string' ? path : (typeof path === 'object' ? `?${qs.stringify(path)}` : '')))
+      const { data } = await axios.post(this.path + (path || ""), body, this.HTTP_CONFIG)
       return data
-    } catch (e) {
-      this.checkExpires(e)
-      throw new Error(e.response.error)
+    } catch (error) {
+      this.checkExpires(error)
+      throw error;
     }
   }
 
-  async show (id = '') {
-    try {
-      const { data } = await axios.get(this.path + (id[0] !== '/' ? '/' : '') + id)
-      return data
-    } catch (e) {
-      this.checkExpires(e)
-      throw new Error(e.response.data.error)
-    }
-  }
-
-  async store (path, payload, headers) {
-    try {
-      const { data } = await axios.post(this.path + (typeof path === 'string' ? (path[0] === '/' ? path : `/${path}`) : ''), payload || path, headers || {})
-      return data
-    } catch (e) {
-      this.checkExpires(e)
-      throw new Error(e.response.data.error)
-    }
-  }
-
-  async update (id, payload) {
-    try {
-      const { data } = await axios.put(this.path + (id[0] !== '/' ? '/' : '') + id, payload)
-      return data
-    } catch (e) {
-      this.checkExpires(e)
-      throw new Error(e.response.data.error)
-    }
-  }
-
-  async destroy (id) {
-    try {
-      const { data } = await axios.delete(this.path + (id ? ((id[0] !== '/' ? '/' : '') + id) : ''))
-      return data
-    } catch (e) {
-      this.checkExpires(e)
-      throw new Error(e.response.data.error)
-    }
-  }
 }
 
 export default Http
