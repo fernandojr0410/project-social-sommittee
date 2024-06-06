@@ -1,16 +1,39 @@
 <template>
-  <div class="modal" v-if="value">
-    <div class="modal-content">
-      <button class="close" @click="closeModal">&times;</button>
-      <h2>{{ title }}</h2>
-      <p>{{ text }}</p>
-    </div>
+  <div class="text-center">
+    <v-dialog v-model="dialog" width="500">
+      <v-card style="display: flex; flex-direction: column; gap: 20px">
+        <v-card-title
+          class="text-h5 grey lighten-2"
+          style="display: flex; justify-content: center"
+        >
+          {{ title }}
+        </v-card-title>
+
+        <v-card-text style="font-size: 16px; font-weight: bold">
+          {{ text }}
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            text
+            class="modalButton"
+            @click="handleButtonClick"
+            style="font-size: 16px; color: white; font-weight: bold"
+          >
+            {{ buttonText }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script>
 export default {
-  name: "Modal",
+  name: 'Modal',
   props: {
     value: {
       type: Boolean,
@@ -18,51 +41,40 @@ export default {
     },
     title: {
       type: String,
+      default: '',
     },
     text: {
-      type: String
-    }
-  },
-  methods: {
-    closeModal() {
-      this.$emit("input", false);
+      type: String,
+      default: '',
+    },
+    buttonText: {
+      type: String,
+      default: 'OK',
     },
   },
-};
+  data() {
+    return {
+      dialog: this.value,
+    }
+  },
+  watch: {
+    value(newValue) {
+      this.dialog = newValue
+    },
+  },
+  methods: {
+    handleButtonClick() {
+      this.dialog = false
+      this.$emit('input', false)
+    },
+  },
+}
 </script>
 
 <style scoped>
-.modal {
-  display: block;
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-
-.modal-content {
-  background-color: white;
-  margin: 15% auto;
-  padding: 20px;
-  border: 1px solid #888;
-  border-radius: 10px;
-  width: 80%;
-}
-
-.close {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
+.v-btn {
+  background-color: var(--gray-primary);
+  color: white;
   font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-  color: black;
-  text-decoration: none;
-  cursor: pointer;
 }
 </style>

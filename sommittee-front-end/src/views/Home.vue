@@ -1,64 +1,140 @@
 <template>
-  <div class="min-h-screen flex flex-col">
-    <div class="flex items-center justify-between bg-gray-primary p-2">
-      <div class="flex pl-10">
-        <img :src="imgSoon" :alt="altSoon" class="h-24">
-        <img :src="imgWritingLogo" :alt="altWritingLogo" class="h-20">
-      </div>
-
-      <div>
-        <Router-link to="/LoginCollaborator" class="flex gap-1 items-center pr-10" @click="login()">
-          <div>
-            <v-icon size="50">mdi-account-circle</v-icon>
+  <v-app>
+    <v-main>
+      <div class="background-container">
+        <div
+          style="
+            display: flex;
+            padding: 10px;
+            justify-content: space-between;
+            width: 100%;
+            padding-inline: 60px;
+          "
+        >
+          <div style="display: flex; align-items: center">
+            <img :src="imgSoon" :alt="altSoon" style="height: 100px" />
+            <img
+              :src="imgWritingLogo"
+              :alt="altWritingLogo"
+              style="height: 80px"
+            />
           </div>
-          <div>
-            <span class="text-2xl text-gray-secundary">Entrar</span>
+          <div
+            v-if="isLoggedIn"
+            style="display: flex; align-items: center; padding-top: 28px"
+          >
+            <p style="font-size: 24px; font-weight: 500">Olá, {{ userName }}</p>
           </div>
-        </Router-link>
-      </div>
-    </div>
-    <div class="relative min-h-screen">
-      <img src="../assets/img/backgroundTeam.png" alt="" class="w-full ">
-      <div class="absolute inset-0 flex items-center justify-center p-4">
-        <div class="flex flex-col text-6xl text-white gap-2">
-          <span class="font-bold">Seja a mudança</span>
-          <span>Que você quer</span>
+          <div v-else style="display: flex; cursor: pointer">
+            <div
+              style="display: flex; align-items: center; gap: 2px"
+              @click="login"
+            >
+              <v-icon size="50">mdi-account-circle</v-icon>
+              <span style="font-size: 26px; font-weight: 500">
+                <span style="font-size: 26px; font-weight: 500">Entrar</span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="background-image-container">
+          <img
+            src="../assets/img/backgroundTeam.png"
+            alt=""
+            class="background-image"
+          />
+          <div class="gradient-overlay"></div>
+        </div>
+        <div class="text-overlay">
+          <span style="font-weight: bold">Seja a mudança</span>
+          <span>que você quer</span>
           <span>ver no mundo.</span>
         </div>
       </div>
-    </div>
-  </div>
+    </v-main>
+  </v-app>
 </template>
 
 <script>
+import API from '@/services/module/API'
+
 export default {
-  name: "Home",
+  name: 'Home',
   data() {
     return {
-      imgSoon: require("../assets/img/soon.png"),
-      altSoon: "Imagem Logo",
-      imgWritingLogo: require("../assets/img/writingLogo.png"),
-      altWritingLogo: "Escrita Imagem Logo"
+      imgSoon: require('../assets/img/soon.png'),
+      altSoon: 'Imagem Logo',
+      imgWritingLogo: require('../assets/img/writingLogo.png'),
+      altWritingLogo: 'Escrita Imagem Logo',
+      isLoggedIn: false,
+      userName: '',
     }
   },
-  login() {
-    this.$router.push('/LoginCollaborator')
-  }
+  methods: {
+    async dataProfileUser() {
+      try {
+        const token = localStorage.getItem('@sommittee.access_token')
+        const userDetails = await API.getUserProfile(token)
+
+        this.userName = `${userDetails.name}`
+
+        this.isLoggedIn = true
+      } catch (error) {
+        console.error('Erro ao obter detalhes do usuário:', error)
+      }
+    },
+    login() {
+      this.$router.push('/LoginCollaborator')
+    },
+  },
+  created() {
+    const token = localStorage.getItem('@sommittee.access_token')
+    if (token) {
+      this.dataProfileUser()
+    }
+  },
 }
 </script>
 
 <style scoped>
-.min-h-screen {
-  height: 100vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+.background-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 
-.relative::before {
-  content: '';
+.background-image-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.background-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gradient-overlay {
   position: absolute;
   inset: 0;
-  background-image: linear-gradient(to bottom, rgba(253, 197, 58, 0.6), rgba(253, 117, 48, 0.6));
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, #fbbf24, #fb923c);
+  opacity: 0.6;
+}
+
+.text-overlay {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  top: 58%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  font-size: 50px;
 }
 </style>

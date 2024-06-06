@@ -1,15 +1,5 @@
-// import Vue from 'vue';
-
-
-// Vue.use(Vuetify);
-
-// export default new Vuetify({
-// });
-
 import Vue from 'vue'
-import Vuetify from 'vuetify/lib/framework';
-// import 'vuetify/dist/vuetify.min.css'
-import '@/assets/main.scss'
+import Vuetify from 'vuetify/lib/framework'
 
 Vue.use(Vuetify)
 
@@ -34,7 +24,10 @@ export default new Vuetify({
         info: '#42a5f5', // Azul claro para representar confiabilidade e estabilidade
         success: '#4caf50', // Verde para representar prosperidade e crescimento
         warning: '#ffd54f', // Amarelo para representar precaução e atenção
-      }
-    }
-  }
+      },
+    },
+    gray: {
+      primary: '#D9D9D9',
+    },
+  },
 })

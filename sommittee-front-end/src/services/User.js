@@ -1,10 +1,9 @@
-import axios from "axios";
-import Http from "./Http";
+import axios from 'axios'
+import Http from './Http'
 
 class User extends Http {
-
   constructor() {
-    super('users/');
+    super('users/')
   }
 
   async login(data) {
@@ -12,6 +11,16 @@ class User extends Http {
     localStorage.setItem('@sommittee.access_token', access_token)
     axios.defaults.headers.Authorization = `Bearer ${access_token}`
   }
+
+  async profile() {
+    try {
+      const response = await this.get('profile')
+      return response
+    } catch (error) {
+      console.error('Erro ao obter detalhes do usuário:', error)
+      throw error
+    }
+  }
 }
 
-export default User;
+export default User

@@ -1,62 +1,127 @@
 <template>
-  <div class="background-container">
-    <img src="@/assets/img/imgFundo.png" alt="" class="background-image">
-    <div class="gradient-overlay"></div>
+  <v-app>
+    <v-main>
+      <v-container fluid class="pa-0">
+        <div class="background-container">
+          <img
+            src="@/assets/img/imgFundo.png"
+            alt=""
+            class="background-image"
+          />
+          <div class="gradient-overlay"></div>
 
-    <v-card class="bg-black">
-      <v-card-title class="custom-card-title">Login</v-card-title>
-      <v-text-field outlined :append-icon="'mdi-email'" v-model="inputEmail" label="Email" />
+          <v-card
+            class="pa-10"
+            style="display: flex; flex-direction: column; width: 30%"
+          >
+            <v-card-title
+              style="
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                gap: 14px;
+                font-size: 30px;
+                font-weight: bold;
+                padding-bottom: 30px;
+              "
+            >
+              Login
+              <div class="line-divider"></div>
+            </v-card-title>
 
-      <v-text-field outlined :type="showPassword ? 'text' : 'password'"
-        :append-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'" v-model="inputPassword" placeholder="**********"
-        label="Senha" @click:append="togglePasswordVisibility" />
-      <v-btn @click="fetchData" color="primary" block dark>
-        Entrar
-      </v-btn>
-      <Modal v-model="showModal" title="Error" text="Conta não encontrada" buttoncloseModal="OK" />
-    </v-card>
-  </div>
+            <v-text-field
+              outlined
+              :append-icon="'mdi-email'"
+              v-model="inputEmail"
+              label="Email"
+            />
+
+            <v-text-field
+              outlined
+              :type="showPassword ? 'text' : 'password'"
+              :append-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
+              v-model="inputPassword"
+              label="Senha"
+              @click:append="togglePasswordVisibility"
+            />
+
+            <div class="my-password">
+              <span>Esqueci minha senha</span>
+            </div>
+
+            <v-btn
+              @click="fetchData"
+              color="primary"
+              block
+              dark
+              style="display: flex; width: 50%"
+            >
+              Entrar
+            </v-btn>
+            <Modal
+              :value="showModal"
+              @input="showModal = $event"
+              :title="modalTitle"
+              :text="modalText"
+              :button="modalButton"
+            />
+          </v-card>
+        </div>
+      </v-container>
+    </v-main>
+  </v-app>
 </template>
 
 <script>
-import Modal from "@/components/modal/Modal.vue"
-import API from "@/services/module/API";
+import Modal from '@/components/modal/Modal.vue'
+import API from '@/services/module/API'
 
 export default {
-  name: "FormLogin",
+  name: 'FormLogin',
   components: {
-    Modal
+    Modal,
   },
   data() {
     return {
-      inputEmail: "",
-      inputPassword: "",
+      inputEmail: '',
+      inputPassword: '',
       showPassword: false,
       visible: false,
+      modalTitle: '',
+      modalText: '',
+      modalButton: false,
       msg: {
-        email: "",
-        password: "",
+        email: '',
+        password: '',
       },
-      showModal: false
-    };
+      showModal: false,
+    }
   },
   methods: {
     togglePasswordVisibility() {
       this.showPassword = !this.showPassword
     },
     async fetchData() {
-      console.log("entrou no fetch");
       const requestBody = {
         email: this.inputEmail,
         password: this.inputPassword,
-      };
-      try {
-        await API.user.login(requestBody);
-      } catch (error) {
-        console.log("error", error)
-        this.showModal = true;
       }
-    }
+      try {
+        await API.user.login(requestBody)
+        this.$router.push({ path: '/Home' })
+      } catch (error) {
+        this.openModal(
+          'Conta não encontada!',
+          'Email ou senha não encontrado! Verifique suas credenciais e tente novamente.'
+        )
+      }
+    },
+    openModal(title, text, boolean) {
+      this.modalTitle = title
+      this.modalText = text
+      this.modalButton = boolean
+      this.showModal = true
+    },
   },
 }
 </script>
@@ -85,44 +150,17 @@ export default {
   opacity: 0.6;
 }
 
-/* .card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 30%;
-  padding: 6px;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.custom-card-title {
-  font-size: 30px;
-  font-weight: bold;
-  position: relative;
-  margin-bottom: 40px;
-}
-
-.custom-card-title::after {
-  content: '';
-  position: absolute;
-  bottom: -10px;
-  left: 0;
-  width: 100%;
-  border-bottom: 2px solid #222;
-}
-
-
- */
-
-
-/* .v-btn {
-  display: flex;
-  justify-content: center;
-  background-color: #222 !important;
-  color: white;
-  font-weight: bold;
-  width: 40%;
+.line-divider {
+  width: 50%;
+  height: 2px;
+  background-color: black;
   margin-bottom: 20px;
-} */
+}
+
+.my-password {
+  display: flex;
+  justify-content: end;
+  margin-bottom: 40px;
+  font-weight: bold;
+}
 </style>
