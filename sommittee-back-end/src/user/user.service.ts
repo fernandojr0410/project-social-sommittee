@@ -4,46 +4,16 @@ import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { NotFoundError } from 'src/common/errors/types/notFoundError';
-import * as bcryptjs from 'bcryptjs';
+
 import { Logger } from '@nestjs/common';
 @Injectable()
 export class UserService {
   constructor(
     private readonly repository: UserRepository,
-    private readonly jwtService: JwtService,
     private readonly logger: Logger
   ) { }
 
-  async createUserWithHashedPassword(createUserDto: CreateUserDto) {
-    const hashedPassword = await bcryptjs.hash(createUserDto.password, 10);
-    const user = await this.repository.create({ ...createUserDto, password: hashedPassword });
-    this.logger.log("Usou a rota Register - Usuário cadastrado!")
-    return {
-      message: `User ${user.name} created!`
-    };
-  }
 
-  async verifyUserPassword(email: string, password: string) {
-    const user = await this.repository.findProfile(email);
-    if (!user) {
-      return false;
-    }
-    return await bcryptjs.compare(password, user.password);
-  }
-
-  async signIn(email: string, password: string): Promise<{ access_token: string }> {
-    const user = await this.findUserEmailPassword(email, password);
-    await this.repository.updateLastAction(user.id, 'login');
-    this.logger.log('info', {
-      message: 'Usuário fez o login',
-      userId: user.id,
-      name: user.name,
-      surname: user.surname
-    });
-    const payload = { id: user.id, name: user.name, email: user.email };
-    const accessToken = await this.jwtService.signAsync(payload);
-    return { access_token: accessToken };
-  }
 
   async updateLastAction(userId: string, lastAction: string) {
     return this.repository.updateLastAction(userId, lastAction);
@@ -79,21 +49,6 @@ export class UserService {
     return this.repository.remove(id);
   }
 
-  async findUserEmailPassword(email: string, password: string) {
-    const user = await this.repository.findProfile(email);
-
-    if (!user) {
-      throw new NotFoundError('Usuario não encontrado!');
-    }
-
-    const userPassword = await bcryptjs.compare(password, user.password);
-
-    if (!userPassword) {
-      throw new NotFoundError('Email ou senha incorretos!');
-    }
-
-    return user;
-  }
 
   async findProfile(email: string) {
     try {

@@ -10,43 +10,34 @@
           />
           <div class="gradient-overlay"></div>
 
-          <v-card
-            class="pa-10"
-            style="display: flex; flex-direction: column; width: 30%"
-          >
+          <v-card class="pa-10 pt-8" style="max-width: 450px; width: 100%">
             <v-card-title
-              style="
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                gap: 14px;
-                font-size: 30px;
-                font-weight: bold;
-                padding-bottom: 30px;
-              "
+              class="d-flex flex-column justify-center font-weight-bold"
+              style="font-size: 30px; border-bottom: 0.5px solid black"
             >
               Login
-              <div class="line-divider"></div>
             </v-card-title>
 
-            <v-text-field
-              outlined
-              :append-icon="'mdi-email'"
-              v-model="inputEmail"
-              label="Email"
-            />
+            <div class="mt-8">
+              <v-text-field
+                outlined
+                :append-icon="'mdi-email'"
+                v-model="inputEmail"
+                label="Email"
+              />
 
-            <v-text-field
-              outlined
-              :type="showPassword ? 'text' : 'password'"
-              :append-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
-              v-model="inputPassword"
-              label="Senha"
-              @click:append="togglePasswordVisibility"
-            />
+              <v-text-field
+                outlined
+                :type="showPassword ? 'text' : 'password'"
+                :append-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
+                v-model="inputPassword"
+                label="Senha"
+                @click:append="togglePasswordVisibility"
+              />
 
-            <div class="my-password">
-              <span>Esqueci minha senha</span>
+              <div class="my-password">
+                <span>Esqueci minha senha</span>
+              </div>
             </div>
 
             <v-btn

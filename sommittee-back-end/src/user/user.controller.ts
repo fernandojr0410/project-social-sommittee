@@ -4,15 +4,20 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UnauthorizedError } from "src/common/errors/types/unauthorizedError";
 import { AuthGuard } from "src/config/auth/auth.guard";
+import { AuthService } from "src/config/auth/auth.service";
+
 
 
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) { }
+  constructor(
+    private readonly userService: UserService,
+    private readonly authService: AuthService
+  ) { }
 
   @Post('register')
   async create(@Body() createUserDto: CreateUserDto) {
-    const dataUser = await this.userService.createUserWithHashedPassword(createUserDto)
+    const dataUser = await this.authService.createUserWithHashedPassword(createUserDto)
     return dataUser
   }
 
@@ -68,7 +73,7 @@ export class UserController {
   @Post('login')
   async loginUser(@Body() body: any) {
     try {
-      const accessToken = await this.userService.signIn(body.email, body.password)
+      const accessToken = await this.authService.signIn(body.email, body.password)
       return accessToken
     } catch (error) {
       console.error(error)
