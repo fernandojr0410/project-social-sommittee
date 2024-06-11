@@ -1,14 +1,31 @@
 <template>
-  <div id="app">
-    <router-view></router-view>
-  </div>
+  <v-app>
+    <Header></Header>
+    <v-main>
+      <router-view></router-view>
+    </v-main>
+  </v-app>
 </template>
 
 <script>
+import Header from '@/components/header/Header.vue'
 
 export default {
-  name: "App",
-};
+  name: 'App',
+  components: {
+    Header,
+  },
+  data() {
+    return {
+      currentPageName: '',
+    }
+  },
+  watch: {
+    $route(to, from) {
+      this.currentPageName = to.meta.name || 'Unnamed Page'
+    },
+  },
+}
 </script>
 
 <style>

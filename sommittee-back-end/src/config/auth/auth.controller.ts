@@ -8,7 +8,6 @@ import {
   Request,
   UseGuards
 } from '@nestjs/common';
-// import { Auth } from 'typeorm';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './auth.guard';
 

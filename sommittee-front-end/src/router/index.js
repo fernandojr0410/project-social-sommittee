@@ -1,15 +1,20 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home'
-import LoginCollaborator from '../views/LoginCollaborator'
-
+import MyData from '../views/MyData'
 Vue.use(VueRouter)
 
 const routes = [
-  { path: '/Home', component: Home },
-  { path: '/LoginCollaborator', component: LoginCollaborator },
-  // { path: "/RegistrationCollaborator", component: RegistrationCollaborator },
-  // { path: "/RecoverPassword", component: RecoverPassword },
+  {
+    path: '/home',
+    component: Home,
+    meta: { title: 'Dashboard' },
+  },
+  {
+    path: '/my-data',
+    component: MyData,
+    meta: { title: 'Meus Dados' },
+  },
 ]
 
 const router = new VueRouter({

@@ -1,15 +1,21 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { CreateUserDto } from "../dto/create-user.dto";
 import { UserEntity } from "../entities/user.entity";
 import { PrismaService } from "../../prisma/prisma.service";
 import { UpdateUserDto } from "../dto/update-user.dto";
+import { PasswordService } from "../password.service";
 
 @Injectable()
 export class UserRepository {
-  constructor(private readonly prisma: PrismaService) {
+  constructor(private readonly prisma: PrismaService, private readonly passwordService: PasswordService,) {
   }
 
   async create(createUserDto: CreateUserDto): Promise<UserEntity> {
+    // Verificar se a senha atende aos critérios
+    if (!this.passwordService.validatePassword(createUserDto.password)) {
+      throw new UnauthorizedException('Senha inválida');
+    }
+
     return this.prisma.user.create({
       data: createUserDto
     });

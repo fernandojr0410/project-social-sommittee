@@ -15,16 +15,27 @@ export class AuthService {
     private logger: Logger,
   ) { }
 
+
   async createUserWithHashedPassword(createUserDto: CreateUserDto) {
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
     const user = await this.userRepository.create({
       ...createUserDto,
       password: hashedPassword,
     });
-    this.logger.log('Usuário cadastrado!', user);
-    return {
-      message: `User ${user.name} created!`,
-    };
+
+    if (!user) {
+      this.logger.error('Error creating user:', user);
+      return { message: 'Error creating user' };
+    }
+
+    this.logger.log('info', 'Usuário cadastrado!', { user });
+
+    if (!user.name) {
+      this.logger.error('Error: User not definedName', { user });
+      return { message: 'Error: User not definedName' };
+    }
+
+    return { message: `User ${user.name} created!` };
   }
 
   async verifyUserPassword(email: string, password: string) {

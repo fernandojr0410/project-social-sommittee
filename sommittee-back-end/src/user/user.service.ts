@@ -1,16 +1,18 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { UserRepository } from './repositories/user.repository';
-import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { NotFoundError } from 'src/common/errors/types/notFoundError';
 
 import { Logger } from '@nestjs/common';
+import { PasswordService } from './password.service';
+
 @Injectable()
 export class UserService {
   constructor(
     private readonly repository: UserRepository,
-    private readonly logger: Logger
+    private readonly logger: Logger,
+    private readonly passwordService: PasswordService,
   ) { }
 
 
@@ -34,7 +36,7 @@ export class UserService {
 
   async findOne(id: string) {
     const user = await this.repository.findOne(id);
-    this.logger.log('Usou a rota FindAll - Filtrado todos usuários!', { count: user });
+    this.logger.log('Usou a rota FindOne - Filtrado apenas um usuário!', { count: user });
     if (!user) {
       throw new NotFoundError('Usuário não encontrado!');
     }
@@ -59,6 +61,12 @@ export class UserService {
       return userEmail;
     } catch (error) {
       throw new NotFoundException('Usuário não encontrado!');
+    }
+  }
+
+  async login(username: string, password: string) {
+    if (!this.passwordService.validatePassword(password)) {
+      throw new UnauthorizedException('Senha inválida');
     }
   }
 }

@@ -5,6 +5,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { UnauthorizedError } from "src/common/errors/types/unauthorizedError";
 import { AuthGuard } from "src/config/auth/auth.guard";
 import { AuthService } from "src/config/auth/auth.service";
+import { PasswordService } from "./password.service";
 
 
 
@@ -12,13 +13,19 @@ import { AuthService } from "src/config/auth/auth.service";
 export class UserController {
   constructor(
     private readonly userService: UserService,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly passwordService: PasswordService,
   ) { }
 
   @Post('register')
   async create(@Body() createUserDto: CreateUserDto) {
+    const errors = this.passwordService.validatePassword(createUserDto.password);
+    if (errors.length > 0) {
+      throw new UnauthorizedException(`Senha inválida: ${errors.join(', ')}`);
+    }
+
     const dataUser = await this.authService.createUserWithHashedPassword(createUserDto)
-    return dataUser
+    return dataUser;
   }
 
   @UseGuards(AuthGuard)

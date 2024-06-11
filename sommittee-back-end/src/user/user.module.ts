@@ -7,6 +7,7 @@ import { loggerProvider } from '../log/logger';
 import { AuthModule } from 'src/config/auth/auth.module';
 import { JwtService } from '@nestjs/jwt';
 import { AuthService } from 'src/config/auth/auth.service';
+import { PasswordService } from './password.service';
 
 
 
@@ -21,6 +22,7 @@ import { AuthService } from 'src/config/auth/auth.service';
     UserRepository,
     PrismaService,
     loggerProvider,
+    PasswordService
   ],
 })
 export class UserModule { }
