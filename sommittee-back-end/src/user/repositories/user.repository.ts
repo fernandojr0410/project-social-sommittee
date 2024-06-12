@@ -11,7 +11,6 @@ export class UserRepository {
   }
 
   async create(createUserDto: CreateUserDto): Promise<UserEntity> {
-    // Verificar se a senha atende aos critérios
     if (!this.passwordService.validatePassword(createUserDto.password)) {
       throw new UnauthorizedException('Senha inválida');
     }

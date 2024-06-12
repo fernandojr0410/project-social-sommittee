@@ -1,7 +1,9 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home'
-import MyData from '../views/MyData'
+import Home from '@/views/Home.vue'
+import MyData from '@/views/MyData.vue'
+import LoginCollaborator from '@/views/LoginCollaborator.vue'
+
 Vue.use(VueRouter)
 
 const routes = [
@@ -14,6 +16,11 @@ const routes = [
     path: '/my-data',
     component: MyData,
     meta: { title: 'Meus Dados' },
+  },
+  {
+    path: '/login-collaborator',
+    component: LoginCollaborator,
+    meta: { title: 'Login' },
   },
 ]
 

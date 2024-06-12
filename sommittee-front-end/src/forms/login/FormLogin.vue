@@ -99,7 +99,7 @@ export default {
       }
       try {
         await API.user.login(requestBody)
-        this.$router.push({ path: '/Home' })
+        this.$router.push({ path: '/home' })
       } catch (error) {
         this.openModal(
           'Conta não encontada!',

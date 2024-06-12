@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-app-bar dark clipped-left app>
-      <v-app-bar-nav-icon @click="toggleDrawer()">
+      <v-app-bar-nav-icon @click="toggleDrawer">
         <v-icon>mdi-menu</v-icon>
       </v-app-bar-nav-icon>
       <div>
@@ -18,44 +18,47 @@
 
       <v-spacer></v-spacer>
 
-      <div>
-        <v-icon size="45" @click="expand = !expand" class="mr-10">
-          mdi-account-circle
-        </v-icon>
-      </div>
-    </v-app-bar>
-
-    <v-expand-transition>
-      <v-card v-show="expand" class="user-card" max-width="230">
-        <div class="d-flex align-center pl-6">
-          <v-icon size="45">mdi-account-circle</v-icon>
-          <div>
-            <v-card-title>{{ name }} {{ surname }}</v-card-title>
-            <v-card-subtitle class="email-title">
-              {{ email }}
-            </v-card-subtitle>
+      <v-menu
+        offset-y
+        v-model="expand"
+        :close-on-content-click="false"
+        transition="scale-transition"
+      >
+        <template v-slot:activator="{ on, attrs }">
+          <v-icon size="45" class="mr-10" v-bind="attrs" v-on="on">
+            mdi-account-circle
+          </v-icon>
+        </template>
+        <v-card class="user-card" style="width: 250px">
+          <div class="d-flex align-center">
+            <v-icon size="45" class="pl-2" color="#ffa500">
+              mdi-account-circle
+            </v-icon>
+            <div class="d-flex flex-column pr-10">
+              <v-card-title>{{ name }} {{ surname }}</v-card-title>
+              <v-card-subtitle class="email-title">
+                {{ email }}
+              </v-card-subtitle>
+            </div>
           </div>
-        </div>
-        <v-divider></v-divider>
-        <v-list>
-          <v-list-item @click="viewProfile">
-            <router-link
-              to="/my-data"
-              class="list-item-title text-decoration-none"
-            >
-              <v-icon size="25" color="#ffa500">mdi-cog</v-icon>
-              Meus Dados
-            </router-link>
-          </v-list-item>
-          <v-list-item @click="logout">
-            <v-list-item-title>
-              <v-icon size="25" color="#ffa500">mdi-exit-to-app</v-icon>
-              Sair
-            </v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-card>
-    </v-expand-transition>
+          <v-divider></v-divider>
+          <v-list>
+            <v-list-item link @click="viewProfile">
+              <v-list-item-icon>
+                <v-icon size="25" color="#ffa500">mdi-cog</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>Meus dados</v-list-item-title>
+            </v-list-item>
+            <v-list-item link @click="logout">
+              <v-list-item-icon>
+                <v-icon size="25" color="#ffa500">mdi-exit-to-app</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>Sair</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-card>
+      </v-menu>
+    </v-app-bar>
 
     <v-navigation-drawer
       v-model="drawer"
@@ -80,14 +83,13 @@
             class="menu-item"
           >
             <v-list-item-icon>
-              <v-icon class="mr-40">{{ item.icon }}</v-icon>
+              <v-icon>{{ item.icon }}</v-icon>
             </v-list-item-icon>
             <v-list-item-title>{{ item.text }}</v-list-item-title>
           </v-list-item>
         </v-list-item-group>
       </v-list>
     </v-navigation-drawer>
-    <router-view></router-view>
   </div>
 </template>
 
@@ -95,7 +97,7 @@
 import API from '@/services/module/API'
 
 export default {
-  name: 'Home',
+  name: 'Header',
   data() {
     return {
       path: '',
@@ -136,6 +138,7 @@ export default {
     },
     viewProfile() {
       if (this.$route.path !== '/my-data') {
+        this.$router.push('/my-data')
       }
     },
     logout() {
@@ -193,18 +196,7 @@ export default {
 }
 
 .user-card {
-  position: absolute;
-  right: 30px;
-  top: 70px;
-  z-index: 10;
   background-color: white;
   color: black;
 }
-
-/* .email-title {
-  max-width: calc(100% - 120px);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-} */
 </style>

@@ -1,16 +1,14 @@
 <template>
-  <div>
-    <H1>Meus Dados</H1>
-  </div>
+  <FormMyData />
 </template>
 
 <script>
-import Header from '../components/header/Header.vue'
+import FormMyData from '@/forms/myData/FormMyData.vue'
 
 export default {
   name: 'MyData',
   components: {
-    Header,
+    FormMyData,
   },
 }
 </script>

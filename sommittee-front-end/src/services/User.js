@@ -21,6 +21,22 @@ class User extends Http {
       throw error
     }
   }
+
+  async update(token, id, data) {
+    try {
+      console.log('Dados enviados na requisição:', data)
+      const response = await this.put(`${id}`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      return response.data
+    } catch (error) {
+      console.error('Erro ao atualizar usuário:', error)
+      throw error
+    }
+  }
 }
 
 export default User

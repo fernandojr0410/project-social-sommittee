@@ -1,10 +1,9 @@
 <template>
-  <v-container fluid>Olá</v-container>
+  <h1>Home</h1>
 </template>
 
 <script>
 export default {
   name: 'Home',
-  components: {},
 }
 </script>

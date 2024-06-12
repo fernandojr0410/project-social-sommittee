@@ -107,6 +107,21 @@ class Http {
       throw error
     }
   }
+
+  async put(path, body, params = {}) {
+    try {
+      const { data } = await axios.put(this.path + (path || ''), body, {
+        headers: this.HTTP_CONFIG,
+        params,
+      })
+      console.log("data http", data)
+      return data
+    } catch (error) {
+      console.log("erro http", error)
+      this.checkExpires(error)
+      throw error
+    }
+  }
 }
 
 export default Http

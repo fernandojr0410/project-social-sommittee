@@ -15,16 +15,6 @@ export default {
   components: {
     Header,
   },
-  data() {
-    return {
-      currentPageName: '',
-    }
-  },
-  watch: {
-    $route(to, from) {
-      this.currentPageName = to.meta.name || 'Unnamed Page'
-    },
-  },
 }
 </script>
 

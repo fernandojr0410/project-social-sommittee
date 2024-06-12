@@ -10,6 +10,14 @@ class API {
       throw error
     }
   }
+
+  static async updateUserProfile(token, id, profileData) {
+    try {
+      return await this.user.put(token, id, profileData)
+    } catch (error) {
+      throw error
+    }
+  }
 }
 
 export default API
