@@ -5,7 +5,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { UnauthorizedError } from "src/common/errors/types/unauthorizedError";
 import { AuthGuard } from "src/config/auth/auth.guard";
 import { AuthService } from "src/config/auth/auth.service";
-import { PasswordService } from "./password.service";
+import { PasswordService } from "../config/password/password.service";
 
 
 

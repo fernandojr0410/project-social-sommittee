@@ -4,12 +4,12 @@
       <v-card style="display: flex; flex-direction: column; gap: 20px">
         <v-card-title
           class="text-h5 grey lighten-2"
-          style="display: flex; justify-content: center"
+          style="display: flex; justify-content: center; font-weight: bold"
         >
           {{ title }}
         </v-card-title>
 
-        <v-card-text style="font-size: 16px; font-weight: bold">
+        <v-card-text style="font-size: 18px; font-weight: bold">
           {{ text }}
         </v-card-text>
 
@@ -17,12 +17,7 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn
-            text
-            class="modalButton"
-            @click="handleButtonClick"
-            style="font-size: 16px; color: white; font-weight: bold"
-          >
+          <v-btn text @click="handleButtonClick" class="buttonModal">
             {{ buttonText }}
           </v-btn>
         </v-card-actions>
@@ -72,8 +67,8 @@ export default {
 </script>
 
 <style scoped>
-.v-btn {
-  background-color: var(--gray-primary);
+.buttonModal {
+  background-color: black;
   color: white;
   font-weight: bold;
 }

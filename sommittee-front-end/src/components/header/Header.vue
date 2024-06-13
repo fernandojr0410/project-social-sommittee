@@ -94,6 +94,7 @@
 </template>
 
 <script>
+import { EventBus } from '@/config/EventBus'
 import API from '@/services/module/API'
 
 export default {
@@ -118,23 +119,32 @@ export default {
       ],
     }
   },
+  created() {
+    EventBus.$on('userLoggedIn', this.profileUser)
+    this.profileUser()
+  },
+  profileUser() {
+    this.isLoggedIn = true
+    this.fetchUserInfo()
+  },
   methods: {
-    async dataProfileUser() {
+    async profileUser() {
       try {
         const token = localStorage.getItem('@sommittee.access_token')
         if (token) {
-          const userDetails = await API.getUserProfile(token)
-          this.name = userDetails.name
-          this.surname = userDetails.surname
-          this.email = userDetails.email
+          const userProfile = await API.getUserProfile(token)
+          this.name = userProfile.name
+          this.surname = userProfile.surname
+          this.email = userProfile.email
           this.isLoggedIn = true
         }
       } catch (error) {
-        console.error('Erro ao obter detalhes do usuário:', error)
+        throw error
       }
     },
+
     login() {
-      this.$router.push('/LoginCollaborator')
+      this.$router.push('/login-collaborator')
     },
     viewProfile() {
       if (this.$route.path !== '/my-data') {
@@ -144,7 +154,10 @@ export default {
     logout() {
       localStorage.removeItem('@sommittee.access_token')
       this.isLoggedIn = false
-      this.$router.push('/home')
+      this.$router.push('/login-collaborator')
+    },
+    beforeDestroy() {
+      EventBus.$off('userLoggedIn', this.handleUserLoggedIn)
     },
     handleMenuItemClick(item) {
       this.$router.push(item.to)
@@ -175,9 +188,9 @@ export default {
       }
     },
   },
-  created() {
-    this.dataProfileUser()
-  },
+  // created() {
+  //   this.dataProfileUser()
+  // },
 }
 </script>
 
@@ -194,9 +207,11 @@ export default {
 .menu-item:hover .v-icon {
   color: #fff !important;
 }
+.v-list-item--active .v-list-item__title {
+  color: #fff !important;
+}
 
-.user-card {
-  background-color: white;
-  color: black;
+.v-list-item--active {
+  background-color: #f2522e !important;
 }
 </style>

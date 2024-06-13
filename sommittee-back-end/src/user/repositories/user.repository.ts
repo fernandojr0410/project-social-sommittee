@@ -3,7 +3,7 @@ import { CreateUserDto } from "../dto/create-user.dto";
 import { UserEntity } from "../entities/user.entity";
 import { PrismaService } from "../../prisma/prisma.service";
 import { UpdateUserDto } from "../dto/update-user.dto";
-import { PasswordService } from "../password.service";
+import { PasswordService } from "../../config/password/password.service";
 
 @Injectable()
 export class UserRepository {

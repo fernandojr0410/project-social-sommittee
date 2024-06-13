@@ -7,9 +7,13 @@ class User extends Http {
   }
 
   async login(data) {
-    const { access_token } = await this.post('login', data)
-    localStorage.setItem('@sommittee.access_token', access_token)
-    axios.defaults.headers.Authorization = `Bearer ${access_token}`
+    try {
+      const { access_token } = await this.post('login', data)
+      localStorage.setItem('@sommittee.access_token', access_token)
+      axios.defaults.headers.Authorization = `Bearer ${access_token}`
+    } catch (error) {
+      throw error
+    }
   }
 
   async profile() {
@@ -17,14 +21,12 @@ class User extends Http {
       const response = await this.get('profile')
       return response
     } catch (error) {
-      console.error('Erro ao obter detalhes do usuário:', error)
       throw error
     }
   }
 
   async update(token, id, data) {
     try {
-      console.log('Dados enviados na requisição:', data)
       const response = await this.put(`${id}`, data, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -33,7 +35,15 @@ class User extends Http {
       })
       return response.data
     } catch (error) {
-      console.error('Erro ao atualizar usuário:', error)
+      throw error
+    }
+  }
+
+  async updatedLogin(dataLogin) {
+    try {
+      const response = await this.post('login', dataLogin)
+      return response
+    } catch (error) {
       throw error
     }
   }

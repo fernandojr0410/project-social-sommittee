@@ -18,6 +18,14 @@ class API {
       throw error
     }
   }
+
+  static async updatedLogin(dataLogin) {
+    try {
+      return await this.user.updatedLogin(dataLogin)
+    } catch (error) {
+      throw error
+    }
+  }
 }
 
 export default API

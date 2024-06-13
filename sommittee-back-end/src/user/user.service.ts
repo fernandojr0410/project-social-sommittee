@@ -5,7 +5,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { NotFoundError } from 'src/common/errors/types/notFoundError';
 
 import { Logger } from '@nestjs/common';
-import { PasswordService } from './password.service';
+
+import { PasswordService } from 'src/config/password/password.service';
 
 @Injectable()
 export class UserService {
@@ -43,7 +44,17 @@ export class UserService {
     return user;
   }
 
+  // async update(id: string, updateUserDto: UpdateUserDto) {
+  //   return this.repository.update(id, updateUserDto);
+  // }
   async update(id: string, updateUserDto: UpdateUserDto) {
+    if (updateUserDto.password) {
+      const passwordValidationErrors = await this.passwordService.validatePassword(updateUserDto.password);
+      if (passwordValidationErrors.length > 0) {
+        throw new Error
+      }
+      updateUserDto.password = await this.passwordService.hashPassword(updateUserDto.password);
+    }
     return this.repository.update(id, updateUserDto);
   }
 
