@@ -62,10 +62,12 @@ export class UserController {
   }
 
   @UseGuards(AuthGuard)
-  @Put(':id')
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    const dataUser = await this.userService.update(id, updateUserDto)
+  @Put('profile')
+  async update(@Req() req, @Body() updateUserDto: UpdateUserDto) {
+    console.log("antes", updateUserDto)
+    const dataUser = await this.userService.update(req.user.id, updateUserDto)
     await this.userService.updateLastAction(dataUser.id, 'update')
+    console.log("depois", dataUser)
     return dataUser
   }
 

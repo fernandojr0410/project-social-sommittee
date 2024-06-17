@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="user">
     <v-app-bar dark clipped-left app>
       <v-app-bar-nav-icon @click="toggleDrawer">
         <v-icon>mdi-menu</v-icon>
@@ -35,9 +35,9 @@
               mdi-account-circle
             </v-icon>
             <div class="d-flex flex-column pr-10">
-              <v-card-title>{{ name }} {{ surname }}</v-card-title>
+              <v-card-title>{{ user.name }} {{ user.surname }}</v-card-title>
               <v-card-subtitle class="email-title">
-                {{ email }}
+                {{ user.email }}
               </v-card-subtitle>
             </div>
           </div>
@@ -94,8 +94,7 @@
 </template>
 
 <script>
-import { EventBus } from '@/config/EventBus'
-import API from '@/services/module/API'
+import { mapState } from 'vuex'
 
 export default {
   name: 'Header',
@@ -119,52 +118,10 @@ export default {
       ],
     }
   },
-  created() {
-    EventBus.$on('userLoggedIn', this.profileUser)
-    this.profileUser()
-  },
-  profileUser() {
-    this.isLoggedIn = true
-    this.fetchUserInfo()
-  },
-  methods: {
-    async profileUser() {
-      try {
-        const token = localStorage.getItem('@sommittee.access_token')
-        if (token) {
-          const userProfile = await API.getUserProfile(token)
-          this.name = userProfile.name
-          this.surname = userProfile.surname
-          this.email = userProfile.email
-          this.isLoggedIn = true
-        }
-      } catch (error) {
-        throw error
-      }
-    },
-
-    login() {
-      this.$router.push('/login-collaborator')
-    },
-    viewProfile() {
-      if (this.$route.path !== '/my-data') {
-        this.$router.push('/my-data')
-      }
-    },
-    logout() {
-      localStorage.removeItem('@sommittee.access_token')
-      this.isLoggedIn = false
-      this.$router.push('/login-collaborator')
-    },
-    beforeDestroy() {
-      EventBus.$off('userLoggedIn', this.handleUserLoggedIn)
-    },
-    handleMenuItemClick(item) {
-      this.$router.push(item.to)
-    },
-    toggleDrawer() {
-      this.drawer = !this.drawer
-    },
+  computed: {
+    ...mapState({
+      user: (state) => state.auth.user,
+    }),
   },
   watch: {
     '$route.path': {
@@ -188,9 +145,28 @@ export default {
       }
     },
   },
-  // created() {
-  //   this.dataProfileUser()
-  // },
+  methods: {
+    login() {
+      this.$router.push('/login-collaborator')
+    },
+    viewProfile() {
+      if (this.$route.path !== '/my-data') {
+        this.$router.push('/my-data')
+      }
+    },
+    logout() {
+      this.$store.dispatch('auth/logout')
+    },
+    handleMenuItemClick(item) {
+      if (this.$route.path === item.to) {
+        return false
+      }
+      this.$router.push(item.to)
+    },
+    toggleDrawer() {
+      this.drawer = !this.drawer
+    },
+  },
 }
 </script>
 

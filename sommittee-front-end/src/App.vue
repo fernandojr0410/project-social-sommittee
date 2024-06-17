@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <Header v-if="showHeader"></Header>
+    <Header></Header>
     <v-main>
       <router-view></router-view>
     </v-main>
@@ -15,19 +15,12 @@ export default {
   components: {
     Header,
   },
-  computed: {
-    showHeader() {
-      const currentRoute = this.$route.name
-
-      const isAuthenticated = this.isAuthenticated()
-
-      return currentRoute !== 'login' && isAuthenticated
-    },
+  mounted() {
+    this.fetchUser()
   },
   methods: {
-    isAuthenticated() {
-      const accessToken = localStorage.getItem('@sommittee.access_token')
-      return !!accessToken
+    async fetchUser() {
+      await this.$store.dispatch('auth/fetchUser')
     },
   },
 }

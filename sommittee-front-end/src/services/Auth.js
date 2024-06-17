@@ -1,9 +1,10 @@
 import axios from 'axios'
 import Http from './Http'
 
-class User extends Http {
+class Auth extends Http {
   constructor() {
     super('users/')
+    // super('auth/')
   }
 
   async login(data) {
@@ -20,10 +21,8 @@ class User extends Http {
     return await this.get('profile')
   }
 
-  async update(id, data) {
-    const response = await this.put(`${id}`, data)
-
-    return response.data
+  async updateProfile(data) {
+    return await this.put(`profile`, data)
   }
 
   async updatedLogin(dataLogin) {
@@ -36,4 +35,4 @@ class User extends Http {
   }
 }
 
-export default User
+export default Auth

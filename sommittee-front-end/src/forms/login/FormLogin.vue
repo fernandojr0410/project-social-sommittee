@@ -59,8 +59,6 @@
 
 <script>
 import Modal from '@/components/modal/Modal.vue'
-import { EventBus } from '@/config/EventBus'
-import API from '@/services/module/API'
 
 export default {
   name: 'FormLogin',
@@ -89,14 +87,10 @@ export default {
         password: this.inputPassword,
       }
       try {
-        const response = await API.updatedLogin(requestBody)
-
-        if (response && response.access_token) {
-          const token = response.access_token
-          localStorage.setItem('@sommittee.access_token', token)
-          EventBus.$emit('userLoggedIn')
-          this.$router.push('/home')
-        }
+        const response = await this.$store.dispatch('auth/login', requestBody)
+        await this.$store.dispatch('auth/fetchUser')
+        console.log('response', response)
+        this.$router.push('/home')
       } catch (error) {
         this.openModal(
           'Conta não encontrada!',
