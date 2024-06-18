@@ -1,26 +1,66 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { PrismaService } from "src/prisma/prisma.service";
+import { UpdatePasswordDto } from "./dto/updatePassword-auth-dto";
+import * as bcrypt from 'bcryptjs';
+import { UpdateUserDto } from "src/user/dto/update-user.dto";
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  constructor(private readonly prisma: PrismaService) { }
+
+  async loginUser(email: string, password: string) {}
+
+  async getProfile(id: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: id },
+    });
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado!');
+    }
+    return user;
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  async updatePassword(id: string, updatePasswordDto: UpdatePasswordDto) {
+    const { oldPassword, newPassword } = updatePasswordDto;
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: id
+      }
+    });
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado!');
+    }
+
+    const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
+    if (!isPasswordValid) {
+      throw new NotFoundException('Senha antiga incorreta!');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, await bcrypt.genSalt());
+
+    await this.prisma.user.update({
+      where: {
+        id: id
+      },
+      data: {
+        password: hashedPassword
+      }
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
+  async changeProfile(id: string, updateUserDto: UpdateUserDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    })
+    if (!user) {
+      throw new NotFoundException('Usúario não encontrado!')
+    }
+    const updatedUser = await this.prisma.user.update({
+      where: { id },
+      data: updateUserDto
+    })
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+    console.log("updatedUser", updatedUser)
+    return updatedUser
   }
 }

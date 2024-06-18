@@ -64,10 +64,8 @@ export class UserController {
   @UseGuards(AuthGuard)
   @Put('profile')
   async update(@Req() req, @Body() updateUserDto: UpdateUserDto) {
-    console.log("antes", updateUserDto)
     const dataUser = await this.userService.update(req.user.id, updateUserDto)
     await this.userService.updateLastAction(dataUser.id, 'update')
-    console.log("depois", dataUser)
     return dataUser
   }
 
@@ -77,16 +75,5 @@ export class UserController {
     const dataUser = await this.userService.remove(id)
     await this.userService.updateLastAction(dataUser.id, 'remove')
     return dataUser
-  }
-
-  @Post('login')
-  async loginUser(@Body() body: any) {
-    try {
-      const accessToken = await this.authService.signIn(body.email, body.password)
-      return accessToken
-    } catch (error) {
-      console.error(error)
-      throw new UnauthorizedError("Email ou senha não encontrado! Verifique suas credenciais e tente novamente.")
-    }
   }
 }

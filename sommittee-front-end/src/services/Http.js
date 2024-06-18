@@ -59,6 +59,7 @@ class Http {
         headers: this.HTTP_CONFIG,
         params,
       })
+
       return data
     } catch (error) {
       this.checkExpires(error)

@@ -19,13 +19,15 @@ const getters = {
 const actions = {
   async fetchUser({ commit }) {
     const user = await API.auth.profile()
-    console.log(user)
     commit('SET_USER', user)
   },
+
   async updateProfile({ commit }, payload) {
     const user = await API.auth.updateProfile(payload)
+    console.log('user', user)
     commit('SET_USER', user)
   },
+
   async logout({ commit }) {
     commit('SET_USER', null)
     localStorage.removeItem('@sommittee.access_token')
@@ -34,6 +36,12 @@ const actions = {
 
   async login(_, requestBody) {
     return await API.auth.login(requestBody)
+  },
+
+  async updatePassword({ commit }, payload) {
+    console.log('payload', payload)
+    const response = await API.auth.updatePassword(payload)
+    commit('SET_USER', response)
   },
 }
 

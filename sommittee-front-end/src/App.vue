@@ -1,7 +1,8 @@
 <template>
   <v-app>
     <Header></Header>
-    <v-main>
+    <v-main class="grey lighten-4">
+    <!-- <v-main class="deep-orange lighten-1"> -->
       <router-view></router-view>
     </v-main>
   </v-app>

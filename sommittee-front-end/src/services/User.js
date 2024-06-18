@@ -22,7 +22,6 @@ class User extends Http {
 
   async update(id, data) {
     const response = await this.put(`${id}`, data)
-
     return response.data
   }
 
