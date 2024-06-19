@@ -33,7 +33,7 @@ function createWinstonLogger() {
   });
 }
 
-export const loggerProvider = {
+export const LoggerProvider = {
   provide: Logger,
   useValue: createWinstonLogger(),
 };

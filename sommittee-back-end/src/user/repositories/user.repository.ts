@@ -3,17 +3,16 @@ import { CreateUserDto } from "../dto/create-user.dto";
 import { UserEntity } from "../entities/user.entity";
 import { PrismaService } from "../../prisma/prisma.service";
 import { UpdateUserDto } from "../dto/update-user.dto";
-import { PasswordService } from "../../config/password/password.service";
 
 @Injectable()
 export class UserRepository {
-  constructor(private readonly prisma: PrismaService, private readonly passwordService: PasswordService,) {
+  constructor(private readonly prisma: PrismaService) {
   }
 
   async create(createUserDto: CreateUserDto): Promise<UserEntity> {
-    if (!this.passwordService.validatePassword(createUserDto.password)) {
-      throw new UnauthorizedException('Senha inválida');
-    }
+    // if (!this.passwordService.validatePassword(createUserDto.password)) {
+    //   throw new UnauthorizedException('Senha inválida');
+    // }
 
     return this.prisma.user.create({
       data: createUserDto
@@ -25,7 +24,7 @@ export class UserRepository {
   }
 
   async findOne(id: string): Promise<UserEntity> {
-    return this.prisma.user.findUnique({
+    return this.prisma.user.findFirst({
       where: {
         id,
       }
@@ -33,7 +32,7 @@ export class UserRepository {
   }
 
   async findProfile(email: string): Promise<UserEntity> {
-    return this.prisma.user.findUnique({
+    return this.prisma.user.findFirst({
       where: {
         email,
       }
@@ -57,7 +56,7 @@ export class UserRepository {
   }
 
   async findUserByEmail(email: string): Promise<UserEntity | null> {
-    return this.prisma.user.findUnique({
+    return this.prisma.user.findFirst({
       where: {
         email,
       },

@@ -1,16 +1,16 @@
 import { Body, Controller, Get, Post, Put, Req, UseGuards } from "@nestjs/common";
 import { AuthService } from "./auth.service";
-
 import { UpdatePasswordDto } from "./dto/updatePassword-auth-dto";
-import { AuthGuard } from "src/config/auth/auth.guard";
+import { AuthGuard } from "./auth.guard";
 import { UpdateUserDto } from "src/user/dto/update-user.dto";
 
 
 @Controller('users/auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(
+    private readonly authService: AuthService,
 
-
+  ) { }
 
   @UseGuards(AuthGuard)
   @Get('profile')
@@ -29,5 +29,19 @@ export class AuthController {
   async changeProfile(@Req() req, @Body() updateUserDto: UpdateUserDto) {
     const updateUser = await this.authService.changeProfile(req.user.id, updateUserDto)
     return updateUser
+  }
+
+  @Post('login')
+  async login(@Body() body) {
+    const { email, password } = body;
+    return this.authService.login(email, password);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('logout')
+  async logout(@Req() req) {
+    const userId = req.user.id;
+    await this.authService.logout(userId);
+    return { message: 'Logout Realizado!' };
   }
 } 

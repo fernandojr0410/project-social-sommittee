@@ -5,29 +5,45 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { jwtConstants } from '../jwtConstants';
+import { jwtConstants } from './jwtConstants';
 import { Request } from 'express';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private jwtService: JwtService) { }
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly prisma: PrismaService
+  ) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
-    try {
-      if (token) {
-        const payload = await this.jwtService.verifyAsync(token, {
-          secret: jwtConstants.secret
-        });
-        request.user = payload;
-        return true;
-      }
-    } catch {
-      throw new UnauthorizedException();
+    if (!token) {
+      throw new UnauthorizedException('Token not found');
     }
-    return false;
+
+    try {
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: jwtConstants.secret,
+      });
+
+      const tokenInDb = await this.prisma.token.findFirst({
+        where: {
+          access_token: token,
+        },
+      });
+
+      if (!tokenInDb || tokenInDb.is_revoked) {
+        throw new UnauthorizedException('Token Revogado!');
+      }
+
+      request.user = payload;
+      return true;
+    } catch {
+      throw new UnauthorizedException('Token Inválido!');
+    }
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {

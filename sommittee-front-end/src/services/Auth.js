@@ -21,12 +21,22 @@ class Auth extends Http {
   }
 
   async updatePassword(requestBody) {
-    console.log('requestBody', requestBody)
     return await this.put('password', requestBody)
   }
 
   async updatedLogin(dataLogin) {
     return await this.post('login', dataLogin)
+  }
+
+  async logout() {
+    const accessToken = localStorage.getItem('@sommittee.access_token')
+    if (!accessToken) {
+      throw new Error('Nenhum token de acesso encontrado!')
+    }
+    await this.post('logout', {})
+
+    localStorage.removeItem('@sommittee.access_token')
+    delete axios.defaults.headers.Authorization
   }
 }
 

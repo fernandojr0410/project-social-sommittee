@@ -29,13 +29,16 @@ const actions = {
   },
 
   async logout({ commit }) {
+    await API.auth.logout()
     commit('SET_USER', null)
     localStorage.removeItem('@sommittee.access_token')
     location.reload()
   },
 
-  async login(_, requestBody) {
-    return await API.auth.login(requestBody)
+  async login({ commit }, requestBody) {
+    await API.auth.login(requestBody)
+    const user = await API.auth.profile()
+    commit('SET_USER', user)
   },
 
   async updatePassword({ commit }, payload) {

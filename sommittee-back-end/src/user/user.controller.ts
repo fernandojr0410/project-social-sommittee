@@ -2,10 +2,7 @@ import { Body, Controller, Delete, Get, Param, Post, Put, Req, UnauthorizedExcep
 import { UserService } from "./user.service";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { CreateUserDto } from "./dto/create-user.dto";
-import { UnauthorizedError } from "src/common/errors/types/unauthorizedError";
-import { AuthGuard } from "src/config/auth/auth.guard";
-import { AuthService } from "src/config/auth/auth.service";
-import { PasswordService } from "../config/password/password.service";
+import { AuthGuard } from "src/auth/auth.guard";
 
 
 
@@ -13,20 +10,18 @@ import { PasswordService } from "../config/password/password.service";
 export class UserController {
   constructor(
     private readonly userService: UserService,
-    private readonly authService: AuthService,
-    private readonly passwordService: PasswordService,
   ) { }
 
-  @Post('register')
-  async create(@Body() createUserDto: CreateUserDto) {
-    const errors = this.passwordService.validatePassword(createUserDto.password);
-    if (errors.length > 0) {
-      throw new UnauthorizedException(`Senha inválida: ${errors.join(', ')}`);
-    }
+  // @Post('register')
+  // async create(@Body() createUserDto: CreateUserDto) {
+  //   const errors = this.passwordService.validatePassword(createUserDto.password);
+  //   if (errors.length > 0) {
+  //     throw new UnauthorizedException(`Senha inválida: ${errors.join(', ')}`);
+  //   }
 
-    const dataUser = await this.authService.createUserWithHashedPassword(createUserDto)
-    return dataUser;
-  }
+  //   const dataUser = await this.authService.createUserWithHashedPassword(createUserDto)
+  //   return dataUser;
+  // }
 
   @UseGuards(AuthGuard)
   @Get()

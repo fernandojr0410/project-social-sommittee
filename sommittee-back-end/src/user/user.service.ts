@@ -1,22 +1,28 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from './repositories/user.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { NotFoundError } from 'src/common/errors/types/notFoundError';
-
+import * as bcrypt from 'bcryptjs';
 import { Logger } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
 
-import { PasswordService } from 'src/config/password/password.service';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly repository: UserRepository,
+    private readonly prisma: PrismaService,
     private readonly logger: Logger,
-    private readonly passwordService: PasswordService,
   ) { }
 
-
+  async validateUser(email: string, pass: string): Promise<any> {
+    const user = await this.prisma.user.findFirst({ where: { email } });
+    if (user && await bcrypt.compare(pass, user.password)) {
+      return user;
+    }
+    return null;
+  }
 
   async updateLastAction(userId: string, lastAction: string) {
     return this.repository.updateLastAction(userId, lastAction);
@@ -48,36 +54,26 @@ export class UserService {
   //   return this.repository.update(id, updateUserDto);
   // }
   async update(id: string, updateUserDto: UpdateUserDto) {
-    if (updateUserDto.password) {
-      const passwordValidationErrors = await this.passwordService.validatePassword(updateUserDto.password);
-      if (passwordValidationErrors.length > 0) {
-        throw new Error
-      }
-      updateUserDto.password = await this.passwordService.hashPassword(updateUserDto.password);
-    }
+    // if (updateUserDto.password) {
+    //   const passwordValidationErrors = await validatePassword(updateUserDto.password);
+    //   if (passwordValidationErrors.length > 0) {
+    //     throw new Error
+    //   }
+    //   updateUserDto.password = await this.passwordService.hashPassword(updateUserDto.password);
+    // }
     return this.repository.update(id, updateUserDto);
   }
 
   async remove(id: string) {
     return this.repository.remove(id);
-  }
 
+  }
 
   async findProfile(email: string) {
-    try {
-      const userEmail = await this.repository.findProfile(email);
-      if (!userEmail) {
-        throw new NotFoundException('Usuário não encontrado!');
-      }
-      return userEmail;
-    } catch (error) {
+    const userEmail = await this.repository.findProfile(email);
+    if (!userEmail) {
       throw new NotFoundException('Usuário não encontrado!');
     }
-  }
-
-  async login(username: string, password: string) {
-    if (!this.passwordService.validatePassword(password)) {
-      throw new UnauthorizedException('Senha inválida');
-    }
+    return userEmail;
   }
 }
