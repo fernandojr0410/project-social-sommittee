@@ -16,9 +16,9 @@ export class UserService {
     private readonly logger: Logger,
   ) { }
 
-  async validateUser(email: string, pass: string): Promise<any> {
+  async validateUser(email: string, password: string): Promise<any> {
     const user = await this.prisma.user.findFirst({ where: { email } });
-    if (user && await bcrypt.compare(pass, user.password)) {
+    if (user && await bcrypt.compare(password, user.password)) {
       return user;
     }
     return null;

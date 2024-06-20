@@ -1,32 +1,48 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '@/views/Home.vue'
-import MyData from '@/views/MyData.vue'
+import index from '@/forms/myData/index.vue'
 import LoginCollaborator from '@/views/LoginCollaborator.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
-    path: '/home',
+    path: '/',
     component: Home,
-    meta: { title: 'Dashboard' },
+    meta: { title: 'Dashboard', auth: true },
   },
   {
     path: '/my-data',
-    component: MyData,
-    meta: { title: 'Meus Dados' },
+    component: index,
+    meta: { title: 'Meus Dados', auth: true },
   },
   {
-    path: '/login-collaborator',
+    path: '/login',
     component: LoginCollaborator,
     meta: { title: 'Login' },
   },
+  { path: '*', redirect: '/' },
 ]
 
 const router = new VueRouter({
   mode: 'history',
   routes,
+})
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some((record) => record.meta.auth)) {
+    if (!localStorage.getItem('@sommittee.access_token')) {
+      next({
+        path: '/login',
+        query: { redirect: to.fullPath },
+      })
+    } else {
+      next()
+    }
+  } else {
+    next()
+  }
 })
 
 export default router

@@ -83,7 +83,7 @@
             class="menu-item"
           >
             <v-list-item-icon>
-              <v-icon>{{ item.icon }}</v-icon>
+              <v-icon color="#FFF">{{ item.icon }}</v-icon>
             </v-list-item-icon>
             <v-list-item-title>{{ item.text }}</v-list-item-title>
           </v-list-item>
@@ -104,14 +104,13 @@ export default {
       pageName: 'Dashboard',
       imgSoon: require('../../assets/img/soon.png'),
       altSoon: 'Imagem Logo',
-      isLoggedIn: false,
       name: '',
       surname: '',
       email: '',
       drawer: true,
       expand: false,
       menuItems: [
-        { text: 'Home', icon: 'mdi-home', to: '/home' },
+        { text: 'Home', icon: 'mdi-home', to: '/' },
         { text: 'Doações', icon: 'mdi-cart', to: '/Donations' },
         { text: 'Famílias', icon: 'mdi-account-group', to: '/Families' },
         { text: 'Financeiro', icon: 'mdi-currency-usd', to: '/Financial' },

@@ -17,14 +17,14 @@ const getters = {
 }
 
 const actions = {
-  async fetchUser({ commit }) {
+  async login({ commit }, requestBody) {
+    await API.auth.login(requestBody)
     const user = await API.auth.profile()
     commit('SET_USER', user)
   },
 
-  async updateProfile({ commit }, payload) {
-    const user = await API.auth.updateProfile(payload)
-    console.log('user', user)
+  async fetchUser({ commit }) {
+    const user = await API.auth.profile()
     commit('SET_USER', user)
   },
 
@@ -35,14 +35,12 @@ const actions = {
     location.reload()
   },
 
-  async login({ commit }, requestBody) {
-    await API.auth.login(requestBody)
-    const user = await API.auth.profile()
+  async updateProfile({ commit }, payload) {
+    const user = await API.auth.updateProfile(payload)
     commit('SET_USER', user)
   },
 
   async updatePassword({ commit }, payload) {
-    console.log('payload', payload)
     const response = await API.auth.updatePassword(payload)
     commit('SET_USER', response)
   },

@@ -15,6 +15,7 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @Get('profile')
   async getProfile(@Req() req) {
+    console.log("user", req.user)
     return this.authService.getProfile(req.user.id);
   }
 
@@ -42,6 +43,5 @@ export class AuthController {
   async logout(@Req() req) {
     const userId = req.user.id;
     await this.authService.logout(userId);
-    return { message: 'Logout Realizado!' };
   }
 } 

@@ -1,14 +1,14 @@
 <template>
-  <FormMyData />
+  <index />
 </template>
 
 <script>
-import FormMyData from '@/forms/myData/FormMyData.vue'
+import Index from '@/forms/myData/index.vue'
 
 export default {
   name: 'MyData',
   components: {
-    FormMyData,
+    Index,
   },
 }
 </script>

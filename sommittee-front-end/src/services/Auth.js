@@ -34,7 +34,6 @@ class Auth extends Http {
       throw new Error('Nenhum token de acesso encontrado!')
     }
     await this.post('logout', {})
-
     localStorage.removeItem('@sommittee.access_token')
     delete axios.defaults.headers.Authorization
   }

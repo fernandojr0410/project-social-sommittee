@@ -24,6 +24,7 @@ export class AuthService {
   ) { }
 
   async getProfile(id: string) {
+    console.log("id", id)
     const user = await this.prisma.user.findFirst({
       where: { id: id },
     });
@@ -140,7 +141,7 @@ export class AuthService {
       throw new Error('Credenciais Inválidas!');
     }
 
-    const payload = { email: user.email, sub: user.id };
+    const payload = { email: user.email, id: user.id };
     const accessToken = this.jwtService.sign(payload, { secret: jwtConstants.secret });
 
     await this.prisma.token.create({
@@ -172,9 +173,9 @@ export class AuthService {
     });
   }
 
-  async validateUser(email: string, pass: string): Promise<any> {
+  async validateUser(email: string, password: string): Promise<any> {
     const user = await this.prisma.user.findFirst({ where: { email } });
-    if (user && await bcrypt.compare(pass, user.password)) {
+    if (user && await bcrypt.compare(password, user.password)) {
       return user;
     }
     return null;

@@ -195,6 +195,7 @@
       :title="modalTitle"
       :text="modalText"
       :button="modalButton"
+      @confirm="redirectToLogin"
     />
   </v-card>
 </template>
@@ -278,6 +279,11 @@ export default {
           'Sua senha foi alterada com sucesso! Você será deslogado!',
           'OK'
         )
+
+        await this.$store.dispatch('auth/logout')
+        this.showModal = false
+        this.$router.push('/login')
+
         return response
       } catch (error) {
         this.showModal = true
@@ -286,6 +292,7 @@ export default {
           'A senha que você digitou está incorreta, tente novamente!',
           'OK'
         )
+
         throw error
       }
     },
@@ -294,6 +301,7 @@ export default {
         (this.modalText = text),
         (this.modalButton = true)
     },
+    redirectToLogin() {},
   },
 }
 </script>

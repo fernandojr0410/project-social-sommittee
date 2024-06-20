@@ -50,7 +50,7 @@ import FormAuthendicator from './FormAuthendicator.vue'
 import FormPassword from './FormPassword.vue'
 
 export default {
-  name: 'FormMyData',
+  name: 'Index',
   components: {
     FormMyInfo,
     FormAuthendicator,
