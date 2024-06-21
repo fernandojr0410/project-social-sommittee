@@ -60,7 +60,7 @@
       </v-menu>
     </v-app-bar>
 
-    <v-navigation-drawer
+    <!-- <v-navigation-drawer
       v-model="drawer"
       app
       clipped
@@ -89,6 +89,54 @@
           </v-list-item>
         </v-list-item-group>
       </v-list>
+    </v-navigation-drawer> -->
+    <v-navigation-drawer
+      v-model="drawer"
+      app
+      clipped
+      mini-variant.sync="mini"
+      expand-on-hover
+      ref="drawer"
+      dark
+      class="drawer-hover"
+    >
+      <v-list>
+        <v-list-item>
+          <v-list-item-icon>
+            <v-icon>mdi-home</v-icon>
+          </v-list-item-icon>
+
+          <v-list-item-title>Home</v-list-item-title>
+        </v-list-item>
+
+        <v-list-group :value="true" prepend-icon="mdi-cart" color="#FFF">
+          <template v-slot:activator>
+            <v-list-item-title>Doações</v-list-item-title>
+          </template>
+
+          <v-list-group :value="true" no-action sub-group color="#FFF">
+            <template v-slot:activator>
+              <v-list-item-content>
+                <v-list-item-title>Estoque</v-list-item-title>
+              </v-list-item-content>
+            </template>
+
+            <v-list-item
+              v-for="(item, index) in menuItems.doacoes"
+              :key="index"
+              link
+              color="#FFF"
+            >
+              <v-list-item-title>{{ item.text }}</v-list-item-title>
+              <v-icon>{{ item.icon }}</v-icon>
+
+              <!-- <v-list-item-icon>
+                <v-icon>{{ item.icon }}</v-icon>
+              </v-list-item-icon> -->
+            </v-list-item>
+          </v-list-group>
+        </v-list-group>
+      </v-list>
     </v-navigation-drawer>
   </div>
 </template>
@@ -98,6 +146,7 @@ import { mapState } from 'vuex'
 
 export default {
   name: 'Header',
+  components: {},
   data() {
     return {
       path: '',
@@ -108,13 +157,15 @@ export default {
       surname: '',
       email: '',
       drawer: true,
+      mini: true,
       expand: false,
-      menuItems: [
-        { text: 'Home', icon: 'mdi-home', to: '/' },
-        { text: 'Doações', icon: 'mdi-cart', to: '/Donations' },
-        { text: 'Famílias', icon: 'mdi-account-group', to: '/Families' },
-        { text: 'Financeiro', icon: 'mdi-currency-usd', to: '/Financial' },
-      ],
+      menuItems: {
+        doacoes: [
+          { text: 'Cadastrar Roupas', icon: 'mdi-tshirt-crew-outline' },
+          { text: 'Cadastrar Alimentos', icon: 'mdi-food-outline' },
+          { text: 'Registrar Entrega', icon: 'mdi-truck-delivery-outline' },
+        ],
+      },
     }
   },
   computed: {
@@ -127,7 +178,7 @@ export default {
       immediate: true,
       handler: function (path) {
         switch (path) {
-          case '/home':
+          case '/':
             document.title = `Sommittee | Dashboard`
             this.pageName = 'Dashboard'
             break
@@ -163,30 +214,10 @@ export default {
       this.$router.push(item.to)
     },
     toggleDrawer() {
-      this.drawer = !this.drawer
+      ;(this.drawer = !this.drawer), (this.mini = !this.mini)
     },
   },
 }
 </script>
 
-<style scoped>
-.drawer-hover:hover .v-navigation-drawer__content {
-  background-color: #fff !important;
-}
-
-.menu-item:hover {
-  background-color: #f2522e !important;
-  color: #fff !important;
-}
-
-.menu-item:hover .v-icon {
-  color: #fff !important;
-}
-.v-list-item--active .v-list-item__title {
-  color: #fff !important;
-}
-
-.v-list-item--active {
-  background-color: #f2522e !important;
-}
-</style>
+<style scoped></style>
