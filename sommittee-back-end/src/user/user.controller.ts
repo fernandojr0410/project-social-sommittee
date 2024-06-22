@@ -3,6 +3,8 @@ import { UserService } from "./user.service";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { AuthGuard } from "src/auth/auth.guard";
+import { PasswordService } from "src/auth/password/password.service";
+import { AuthService } from "src/auth/auth.service";
 
 
 
@@ -10,6 +12,8 @@ import { AuthGuard } from "src/auth/auth.guard";
 export class UserController {
   constructor(
     private readonly userService: UserService,
+    // private readonly passwordService: PasswordService,
+    // private readonly authService: AuthService
   ) { }
 
   // @Post('register')
@@ -22,6 +26,9 @@ export class UserController {
   //   const dataUser = await this.authService.createUserWithHashedPassword(createUserDto)
   //   return dataUser;
   // }
+
+
+
 
   @UseGuards(AuthGuard)
   @Get()

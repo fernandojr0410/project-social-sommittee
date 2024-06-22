@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from './repositories/user.repository';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { NotFoundError } from 'src/common/errors/types/notFoundError';
 import * as bcrypt from 'bcryptjs';
@@ -16,21 +15,12 @@ export class UserService {
     private readonly logger: Logger,
   ) { }
 
-  async validateUser(email: string, password: string): Promise<any> {
-    const user = await this.prisma.user.findFirst({ where: { email } });
-    if (user && await bcrypt.compare(password, user.password)) {
-      return user;
-    }
-    return null;
-  }
+
 
   async updateLastAction(userId: string, lastAction: string) {
     return this.repository.updateLastAction(userId, lastAction);
   }
 
-  async create(createUserDto: CreateUserDto) {
-    return this.repository.create(createUserDto);
-  }
 
   async findAll() {
     const users = await this.repository.findAll();

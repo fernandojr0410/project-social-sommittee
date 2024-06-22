@@ -10,18 +10,28 @@ import { jwtConstants } from "./jwtConstants";
 import { CreateUserDto } from "src/user/dto/create-user.dto";
 import { PasswordService } from "./password/password.service";
 import { User } from "@prisma/client";
-import { UserService } from "src/user/user.service";
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly userRepository: UserRepository,
-    private userService: UserService,
+
     private readonly passwordService: PasswordService,
     private readonly jwtService: JwtService,
     private readonly logger: Logger
   ) { }
+
+
+
+  async create(createUserDto: CreateUserDto) {
+    const hashedPassword = await bcrypt.hash(createUserDto.password, await bcrypt.genSalt());
+    createUserDto.password = hashedPassword
+    const newUser = await this.userRepository.create(createUserDto);
+    newUser.password = undefined // apaga a propriedade password do objeto
+    return newUser
+  }
+
 
   async getProfile(id: string) {
     console.log("id", id)
@@ -135,8 +145,10 @@ export class AuthService {
 
   }
 
+
+
   async login(email: string, password: string) {
-    const user = await this.userService.validateUser(email, password);
+    const user = await this.validateUser(email, password);
     if (!user) {
       throw new Error('Credenciais Inválidas!');
     }
