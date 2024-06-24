@@ -60,36 +60,6 @@
       </v-menu>
     </v-app-bar>
 
-    <!-- <v-navigation-drawer
-      v-model="drawer"
-      app
-      clipped
-      mini-variant
-      expand-on-hover
-      ref="drawer"
-      dark
-      class="drawer-hover"
-    >
-      <v-list>
-        <v-list-item-group
-          v-model="path"
-          active-class="primary--text text--accent-4"
-        >
-          <v-list-item
-            v-for="(item, index) in menuItems"
-            :key="index"
-            @click="handleMenuItemClick(item)"
-            link
-            class="menu-item"
-          >
-            <v-list-item-icon>
-              <v-icon color="#FFF">{{ item.icon }}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title>{{ item.text }}</v-list-item-title>
-          </v-list-item>
-        </v-list-item-group>
-      </v-list>
-    </v-navigation-drawer> -->
     <v-navigation-drawer
       v-model="drawer"
       app
@@ -98,7 +68,6 @@
       expand-on-hover
       ref="drawer"
       dark
-      class="drawer-hover"
     >
       <v-list>
         <v-list-item>
@@ -128,11 +97,6 @@
               color="#FFF"
             >
               <v-list-item-title>{{ item.text }}</v-list-item-title>
-              <v-icon>{{ item.icon }}</v-icon>
-
-              <!-- <v-list-item-icon>
-                <v-icon>{{ item.icon }}</v-icon>
-              </v-list-item-icon> -->
             </v-list-item>
           </v-list-group>
         </v-list-group>
@@ -219,5 +183,3 @@ export default {
   },
 }
 </script>
-
-<style scoped></style>

@@ -16,7 +16,6 @@ export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly userRepository: UserRepository,
-
     private readonly passwordService: PasswordService,
     private readonly jwtService: JwtService,
     private readonly logger: Logger

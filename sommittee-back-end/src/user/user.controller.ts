@@ -1,34 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Req, UnauthorizedException, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Put, Req, UnauthorizedException, UseGuards } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { UpdateUserDto } from "./dto/update-user.dto";
-import { CreateUserDto } from "./dto/create-user.dto";
 import { AuthGuard } from "src/auth/auth.guard";
-import { PasswordService } from "src/auth/password/password.service";
-import { AuthService } from "src/auth/auth.service";
-
-
 
 @Controller('users')
 export class UserController {
   constructor(
     private readonly userService: UserService,
-    // private readonly passwordService: PasswordService,
-    // private readonly authService: AuthService
   ) { }
-
-  // @Post('register')
-  // async create(@Body() createUserDto: CreateUserDto) {
-  //   const errors = this.passwordService.validatePassword(createUserDto.password);
-  //   if (errors.length > 0) {
-  //     throw new UnauthorizedException(`Senha inválida: ${errors.join(', ')}`);
-  //   }
-
-  //   const dataUser = await this.authService.createUserWithHashedPassword(createUserDto)
-  //   return dataUser;
-  // }
-
-
-
 
   @UseGuards(AuthGuard)
   @Get()

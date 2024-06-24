@@ -39,10 +39,10 @@ export class UserRepository {
     })
   }
 
-  async updateLastAction(userId: string, lastAction: string) {
+  async updateLastAction(userId: string, last_action: string) {
     return this.prisma.user.update({
       where: { id: userId },
-      data: { lastAction },
+      data: { last_action },
     });
   }
 

@@ -9,16 +9,16 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  name       String
-  surname    String
-  email      String   @unique
-  telephone  String   @db.Char(15)
-  password   String
-  role       Role
-  createdAt  DateTime @default(now())
-  lastAction String?
-  Token      Token[]
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  name        String
+  surname     String
+  email       String   @unique
+  telephone   String   @db.Char(15)
+  password    String
+  role        Role
+  created_at  DateTime @default(now())
+  last_action String?
+  Token       Token[]
 
   @@map("users")
 }
@@ -42,3 +42,14 @@ model Token {
   @@map("tokens")
 }
 
+model Address {
+  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  zip_code     String
+  street       String
+  complement   String
+  neighborhood String
+  city         String
+  state        String @db.Char(2)
+
+  @@map("address")
+}

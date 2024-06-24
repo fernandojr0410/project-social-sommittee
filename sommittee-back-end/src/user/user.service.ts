@@ -2,25 +2,18 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from './repositories/user.repository';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { NotFoundError } from 'src/common/errors/types/notFoundError';
-import * as bcrypt from 'bcryptjs';
 import { Logger } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-
-
 @Injectable()
 export class UserService {
   constructor(
     private readonly repository: UserRepository,
-    private readonly prisma: PrismaService,
+
     private readonly logger: Logger,
   ) { }
-
-
 
   async updateLastAction(userId: string, lastAction: string) {
     return this.repository.updateLastAction(userId, lastAction);
   }
-
 
   async findAll() {
     const users = await this.repository.findAll();
