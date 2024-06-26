@@ -20,12 +20,12 @@
     "esModuleInterop": true
   },
   "include": [
-    "src"
+    "src", 
+    "src/**/*.spec.ts"
   ],
   "exclude": [
     "node_modules",
     "build",
     "dist",
-    ".docker"
   ]
 }

@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { PrismaService } from "src/prisma/prisma.service";
+import { PrismaService } from "../../prisma/prisma.service";
 import { CreateAddressDto } from "../dto/create-address.dto";
 import { AddressEntity } from "../entities/address.entity";
 import { UpdateAddressDto } from "../dto/update-address.dto";
@@ -21,10 +21,8 @@ export class AddressRepository {
   }
 
   async findOne(id: string): Promise<AddressEntity> {
-    return await this.prisma.address.findFirst({
-      where: {
-        id,
-      }
+    return await this.prisma.address.findUnique({
+      where: { id }
     })
   }
 
@@ -37,9 +35,7 @@ export class AddressRepository {
 
   async remove(id: string): Promise<AddressEntity> {
     return await this.prisma.address.delete({
-      where: {
-        id
-      }
-    })
+      where: { id }
+    });
   }
 }

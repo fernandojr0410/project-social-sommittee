@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from './repositories/user.repository';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { NotFoundError } from 'src/common/errors/types/notFoundError';
+import { NotFoundError } from '../common/errors/types/notFoundError';
 import { Logger } from '@nestjs/common';
 @Injectable()
 export class UserService {

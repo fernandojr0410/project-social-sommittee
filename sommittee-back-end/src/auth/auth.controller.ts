@@ -1,11 +1,9 @@
-import { Body, Controller, Get, Post, Put, Req, Res, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Post, Put, Req, UseGuards } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { UpdatePasswordDto } from "./dto/updatePassword-auth-dto";
 import { AuthGuard } from "./auth.guard";
-import { UpdateUserDto } from "src/user/dto/update-user.dto";
-import { response } from "express";
-import { CreateUserDto } from "src/user/dto/create-user.dto";
-import { UserService } from "src/user/user.service";
+import { UpdateUserDto } from "../user/dto/update-user.dto";
+import { CreateUserDto } from "../user/dto/create-user.dto";
 
 
 @Controller('users/auth')

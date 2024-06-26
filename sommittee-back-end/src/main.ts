@@ -19,5 +19,9 @@ async function bootstrap() {
   app.useGlobalInterceptors(new NotFoundInterception());
   const port = process.env.PORT || 3001
   await app.listen(port);
+
+  return app
 }
-bootstrap();
+
+bootstrap()
+

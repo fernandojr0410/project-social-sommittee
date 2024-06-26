@@ -12,6 +12,10 @@ export class CreateAddressDto {
 
   @IsString()
   @IsNotEmpty()
+  number: string
+
+  @IsString()
+  @IsNotEmpty()
   complement: string
 
   @IsString()

@@ -1,20 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, } from '@nestjs/common';
 import { CreateAddressDto } from './dto/create-address.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
 import { AddressRepository } from './repository/address.repository';
-import { NotFoundError } from 'src/common/errors/types/notFoundError';
-
+import { NotFoundError } from '../common/errors/types/notFoundError';
 @Injectable()
 export class AddressService {
-
   constructor(private readonly repository: AddressRepository) { }
 
   async create(createAddressDto: CreateAddressDto) {
-    await this.repository.create(createAddressDto)
+    return this.repository.create(createAddressDto)
   }
 
   async findAll() {
-    await this.repository.findAll()
+    return await this.repository.findAll()
   }
 
   async findOne(id: string) {
@@ -26,6 +24,10 @@ export class AddressService {
   }
 
   async update(id: string, updateAddressDto: UpdateAddressDto) {
+    const existingAddress = await this.repository.findOne(id);
+    if (!existingAddress) {
+      throw new Error(`Endereço com ID ${id} não encontrado.`);
+    }
     return await this.repository.update(id, updateAddressDto);
   }
 

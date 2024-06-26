@@ -5,12 +5,12 @@ import { AuthController } from './auth.controller';
 import { jwtConstants } from './jwtConstants';
 import { PassportModule } from "@nestjs/passport";
 import { AuthGuard } from './auth.guard';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { UserModule } from 'src/user/user.module';
-import { UserRepository } from 'src/user/repositories/user.repository';
+import { PrismaService } from '../prisma/prisma.service';
+import { UserModule } from '../user/user.module';
+import { UserRepository } from '../user/repositories/user.repository';
 import { PasswordService } from './password/password.service';
-import { LoggerProvider } from 'src/log/logger';
-import { UserService } from 'src/user/user.service';
+import { LoggerProvider } from '../log/logger';
+import { UserService } from '../user/user.service';
 
 @Module({
   imports: [
@@ -18,7 +18,7 @@ import { UserService } from 'src/user/user.service';
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '24h' }
+      signOptions: { expiresIn: '60s' }
     }),
     UserModule
   ],
