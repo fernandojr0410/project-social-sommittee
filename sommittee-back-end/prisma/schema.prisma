@@ -46,8 +46,8 @@ model Address {
   id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
   zip_code     String
   street       String
-  number       String?
-  complement   String
+  number       String
+  complement   String?
   neighborhood String
   city         String
   state        String @db.Char(2)

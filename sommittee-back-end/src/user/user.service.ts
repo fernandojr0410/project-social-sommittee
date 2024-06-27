@@ -3,6 +3,7 @@ import { UserRepository } from './repositories/user.repository';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { NotFoundError } from '../common/errors/types/notFoundError';
 import { Logger } from '@nestjs/common';
+import * as bcrypt from 'bcryptjs';
 @Injectable()
 export class UserService {
   constructor(
@@ -17,7 +18,6 @@ export class UserService {
 
   async findAll() {
     const users = await this.repository.findAll();
-    this.logger.log('Usou a rota FindAll - Filtrado todos usuários!', { count: users.length });
     return users.map(e => {
       const { password, ...result } = e;
       return result;
@@ -26,11 +26,11 @@ export class UserService {
 
   async findOne(id: string) {
     const user = await this.repository.findOne(id);
-    this.logger.log('Usou a rota FindOne - Filtrado apenas um usuário!', { count: user });
     if (!user) {
       throw new NotFoundError('Usuário não encontrado!');
     }
-    return user;
+    const { password, ...result } = user;
+    return result
   }
 
   // async update(id: string, updateUserDto: UpdateUserDto) {
@@ -45,6 +45,11 @@ export class UserService {
     //   updateUserDto.password = await this.passwordService.hashPassword(updateUserDto.password);
     // }
     return this.repository.update(id, updateUserDto);
+  }
+
+  async generatorPassword(id: string, newPassword: string) {
+    const hashedPassword = await bcrypt.hash(newPassword, 10); // Hash da senha usando bcrypt
+    return this.repository.updatePassword(id, hashedPassword);
   }
 
   async remove(id: string) {

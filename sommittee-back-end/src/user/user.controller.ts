@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, Put, Req, UnauthorizedException, 
 import { UserService } from "./user.service";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { AuthGuard } from "../auth/auth.guard";
+import * as bcrypt from 'bcryptjs';
 
 @Controller('users')
 export class UserController {
@@ -19,19 +20,35 @@ export class UserController {
     return { userEmail, dataUsers };
   }
 
+  // @UseGuards(AuthGuard)
+  // @Get('profile')
+  // async getProfile(@Req() request) {
+  //   const userEmail = request.user.email;
+  //   const userProfile = await this.userService.findProfile(userEmail)
+
+  //   if (!userProfile) {
+  //     throw new UnauthorizedException("Usuário não encontrado!")
+  //   }
+
+  //   await this.userService.updateLastAction(userProfile.id, 'profile')
+
+  //   return userProfile
+  // }
+
   @UseGuards(AuthGuard)
-  @Get('profile')
-  async getProfile(@Req() request) {
-    const userEmail = request.user.email;
-    const userProfile = await this.userService.findProfile(userEmail)
+  @Put(':id')
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    if (updateUserDto.password) {
+      const newPassword = updateUserDto.password;
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      await this.userService.generatorPassword(id, hashedPassword);
 
-    if (!userProfile) {
-      throw new UnauthorizedException("Usuário não encontrado!")
+      return { message: 'Senha atualizada com sucesso' };
+    } else {
+      const dataUser = await this.userService.update(id, updateUserDto);
+      await this.userService.updateLastAction(dataUser.id, 'update');
+      return dataUser;
     }
-
-    await this.userService.updateLastAction(userProfile.id, 'profile')
-
-    return userProfile
   }
 
   @UseGuards(AuthGuard)
@@ -43,8 +60,8 @@ export class UserController {
   }
 
   @UseGuards(AuthGuard)
-  @Put('profile')
-  async update(@Req() req, @Body() updateUserDto: UpdateUserDto) {
+  @Put(':id')
+  async generatorPassword(@Req() req, @Body() updateUserDto: UpdateUserDto) {
     const dataUser = await this.userService.update(req.user.id, updateUserDto)
     await this.userService.updateLastAction(dataUser.id, 'update')
     return dataUser

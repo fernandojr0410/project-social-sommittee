@@ -33,12 +33,11 @@ export class AuthService {
 
 
   async getProfile(id: string) {
-    console.log("id", id)
     const user = await this.prisma.user.findFirst({
       where: { id: id },
     });
     if (!user) {
-      throw new NotFoundException('Usuário não encontrado!');
+      throw new NotFoundException('Usuário não encontrado teste!');
     }
     return user;
   }
@@ -76,14 +75,12 @@ export class AuthService {
       where: { id },
     })
     if (!user) {
-      throw new NotFoundException('Usúario não encontrado!')
+      throw new NotFoundException('Usúario não t!')
     }
     const updatedUser = await this.prisma.user.update({
       where: { id },
       data: updateUserDto
     })
-
-    console.log("updatedUser", updatedUser)
     return updatedUser
   }
 

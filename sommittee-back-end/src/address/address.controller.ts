@@ -23,8 +23,8 @@ export class AddressController {
 
   @UseGuards(AuthGuard)
   @Get(':id')
-  async findOne (@Param('id') id: string) {
-    return await this.addressService.findOne (id)
+  async findOne(@Param('id') id: string) {
+    return await this.addressService.findOne(id)
   }
 
   @UseGuards(AuthGuard)

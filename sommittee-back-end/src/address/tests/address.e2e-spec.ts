@@ -1,124 +1,164 @@
-// import request from 'supertest';
-// import { Test } from '@nestjs/testing';
-// import { INestApplication } from '@nestjs/common';
-// import { AppModule } from '../../app.module'
-
-// describe('Address', () => {
-//   let app: INestApplication;
-
-//   beforeAll(async () => {
-
-//     const moduleRef = await Test.createTestingModule({
-//       imports: [AppModule]
-//     })
-//       .compile();
-
-//     app = moduleRef.createNestApplication();
-//     await app.init();
-
-//     it(`/POST users`, () => {
-//       return request(app.getHttpServer())
-//         .post('/users/auth/login')
-//         .send({ email: 'jeferson.guido@gmail.com', password: 'Teste@123' })
-//         .expect(201)
-//         .then((response) => {
-//           const { token } = response.body.token
-//           expect(token).toBeDefined()
-//           return token
-//         })
-//     })
-
-//   });
-
-//   // it(`/GET address`, () => {
-//   //   return request(app.getHttpServer())
-//   //     .get('/address')
-//   //     .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImplZmVyc29uLmd1aWRvQGdtYWlsLmNvbSIsImlkIjoiNzM1MTFkMGEtNWMzZS00MDI4LTk1OTMtMTgwNjA1ZjY5YWIxIiwiaWF0IjoxNzE5NDAzODk4LCJleHAiOjE3MTk0OTAyOTh9.132Sb-Z-Y-69b_svnumCQ9MN0sKg1TfVOJg350LPj6s')
-//   //     .expect(200)
-//   // });
-
-//   it(`/GET address`, async () => {
-//     const token = await request(app.getHttpServer())
-//       .post('/users/auth')
-//       .send({ email: 'jeferson.guido@gmail.com', password: 'Teste@123' })
-//       .expect(201)
-//       .then((response) => response.body.token)
-
-//     return request(app.getHttpServer())
-//       .get('/address')
-//       .set('Authorization', `Bearer ${token}`)
-//       .expect(200)
-//   })
-
-//   afterAll(async () => {
-//     await app.close();
-//   });
-
-// })
-
-
 import request from 'supertest';
-import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import { AppModule } from '../../app.module';
+import { app, authToken } from '../../global.e2e-spec';
 
-describe('Address', () => {
-  let app: INestApplication;
-  let token: string;
+it('Cadastrando endereço', async () => {
+  const newAddress = {
+    zip_code: "85630489",
+    street: "Rua Para",
+    number: "857",
+    complement: "Casa",
+    neighborhood: "Neva",
+    city: "Cascavel",
+    state: "PR"
+  }
 
-  beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
+  const response = await request(app.getHttpServer())
+    .post('/address')
+    .set('Authorization', `Bearer ${authToken}`)
+    .send(newAddress)
+    .expect(201)
 
-    app = moduleRef.createNestApplication();
-    await app.init();
-  });
+  return response
+})
 
-  afterAll(async () => {
-    await app.close();
-  });
+it('Tentando cadastrar endereço sem os campos', async () => {
+  const newAddress = {
+    zip_code: "85630489",
+    street: "Rua Para",
+    number: "857",
+    complement: null,
+    neighborhood: "Neva",
+    city: "Cascavel",
+    state: "PR"
+  }
 
-  // it('/POST users/auth/login', async () => {
-  //   const response = await request(app.getHttpServer())
-  //     .post('/users/auth/login')
-  //     .send({ email: 'jeferson.guido@gmail.com', password: 'Teste@123' })
-  //     .expect(201);
+  const response = await request(app.getHttpServer())
+    .post('/address')
+    .set('Authorization', `Bearer ${authToken}`)
+    .send(newAddress)
+    .expect(400)
+  return response
+})
 
-  //   const { access_token: authToken } = response.body;
-  //   expect(authToken).toBeDefined();
+it('Negando cadastro de endereço sem autenticação', async () => {
+  const newAddress = {
+    zip_code: "85630489",
+    street: "Rua Para",
+    number: "857",
+    complement: "Casa",
+    neighborhood: "Neva",
+    city: "Cascavel",
+    state: "PR"
+  }
+  const response = await request(app.getHttpServer())
+    .post('/address')
+    .send(newAddress)
+    .expect(401)
 
-  //   token = authToken;
-  // });
+  return response
+})
 
+it('Filtrando todos os endereços', async () => {
+  const response = await request(app.getHttpServer())
+    .get('/address')
+    .set('Authorization', `Bearer ${authToken}`)
+    .expect(200);
 
-  it('/POST - users/auth/login', async () => {
-    const authResponse = await request(app.getHttpServer())
-      .post('/users/auth/login')
-      .send({ email: 'jeferson.guido@gmail.com', password: 'Teste@123' })
-      .expect(201);
+  return response;
+});
 
-    const authToken = authResponse.body.access_token;
-    expect(authToken).toBeDefined();
-    console.log(authToken);
+it('Tentando filtrar todos os endereços sem o token', async () => {
+  const response = await request(app.getHttpServer())
+    .get('/address')
+    .expect(401);
+  return response;
+});
 
+it('Filtrando endereço específico', async () => {
+  const response = await request(app.getHttpServer())
+    .get('/address/025a2e84-6d8e-4c2a-911a-ffbe8d0acfb6')
+    .set('Authorization', `Bearer ${authToken}`)
+    .expect(200)
+  return response
+})
 
-    try {
-      const response = await request(app.getHttpServer())
-        .get('/address')
-        .set('Authorization', `Bearer ${authToken}`)
-        .expect(200);
+it('Tentando filtrar sem o ID correto do endereço específico', async () => {
+  const response = await request(app.getHttpServer())
+    .get('/address/025a2e84-6d8e-4c2a-911a-ffbe8d0acfba')
+    .set('Authorization', `Bearer ${authToken}`)
+    .expect(401)
+  return response
+})
 
-      console.log("Requisição GET /address:", response.body);
-      return response;
-    } catch (error) {
-      if (error.response && error.response.status === 401) {
-        console.error("Token Inválido!");
-        throw error;
-      } else {
-        console.error("Erro requisição GET /address:", error.message);
-        throw error;
-      }
+it('Tentando filtrar endereço específico sem o token', async () => {
+  const response = await request(app.getHttpServer())
+    .get('/address/025a2e84-6d8e-4c2a-911a-ffbe8d0acfb6')
+    .expect(401)
+  return response
+})
+
+it('Atualizando endereço', async () => {
+  try {
+    const updatedAddress = {
+      street: "Rua teste",
     }
-  })
+    const resposne = await request(app.getHttpServer())
+      .put('/address/025a2e84-6d8e-4c2a-911a-ffbe8d0acfb6')
+      .set('Authorization', `Bearer ${authToken}`)
+      .send(updatedAddress)
+      .expect(200)
+    return resposne
+  } catch (error) {
+    if (error.response && error.response.status === 401) {
+      console.error('Token Inválido')
+      throw error
+    } else {
+      console.error('Erro na requisição PUT /address:', error.message)
+      throw error
+    }
+  }
+})
+
+it('Tentando atualizar endereço sem o token', async () => {
+  try {
+    const updatedAddress = {
+      street: "Rua flaksdjfsakl",
+    }
+    const resposne = await request(app.getHttpServer())
+      .put('/address/025a2e84-6d8e-4c2a-911a-ffbe8d0acfb6')
+      .send(updatedAddress)
+      .expect(401)
+    return resposne
+  } catch (error) {
+    if (error.response && error.response.status === 401) {
+      console.error('Token Inválido')
+      throw error
+    } else {
+      console.error('Erro na requisição PUT /address:', error.message)
+      throw error
+    }
+  }
+})
+
+it('Deletando endereço', async () => {
+  const response = await request(app.getHttpServer())
+    .delete('/address/025a2e84-6d8e-4c2a-911a-ffbe8d0acfb6')
+    .set('Authorization', `Bearer ${authToken}`)
+    .expect(200)
+  return response
+})
+
+it('Tentando deletar sem o ID correto do endereço específico', async () => {
+  const response = await request(app.getHttpServer())
+    .delete('/address/025a2e84-6d8e-4c2a-911a-ffbe8d0acfb6')
+    .set('Authorization', `Bearer ${authToken}`)
+    .expect(401)
+  return response
+})
+
+it('Tentando deletar o endereço sem o token', async () => {
+  const response = await request(app.getHttpServer())
+    .delete('/address/025a2e84-6d8e-4c2a-911a-ffbe8d0acfb6')
+    .expect(401)
+  return response
 })

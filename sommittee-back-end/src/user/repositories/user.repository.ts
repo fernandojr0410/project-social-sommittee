@@ -70,6 +70,13 @@ export class UserRepository {
     });
   }
 
+  async updatePassword(id: string, hashedPassword: string): Promise<UserEntity> {
+    return this.prisma.user.update({
+      where: { id },
+      data: { password: hashedPassword }
+    });
+  }
+
   async remove(id: string): Promise<UserEntity> {
     return this.prisma.user.delete({
       where: {
