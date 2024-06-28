@@ -71,7 +71,7 @@ it('Atualizando perfil do usuário', async () => {
     telephone: '45000001111'
   }
   const response = await request(app.getHttpServer())
-    .put('/users/auth/profile')
+    .patch('/users/auth/profile')
     .set('Authorization', `Bearer ${authToken}`)
     .send(updatedUser)
     .expect(200)
@@ -84,7 +84,7 @@ it('Tentando atualizar perfil do usuário sem o token', async () => {
     telephone: '45000001111'
   }
   const response = await request(app.getHttpServer())
-    .put('/users/auth/profile')
+    .patch('/users/auth/profile')
     .send(updatedUser)
     .expect(201)
   return response
@@ -96,7 +96,7 @@ it('Atualizando a senha do usuário', async () => {
     newPassword: "Teste@111"
   }
   const response = await request(app.getHttpServer())
-    .put('/users/auth/password')
+    .patch('/users/auth/password')
     .set('Authorization', `Bearer ${authToken}`)
     .send(newPassword)
     .expect(200)
@@ -109,7 +109,7 @@ it('tentando atualizar a senha do usuário sem o token', async () => {
     newPassword: "Teste@111"
   }
   const response = await request(app.getHttpServer())
-    .put('/users/auth/password')
+    .patch('/users/auth/password')
     .send(newPassword)
     .expect(401)
   return response

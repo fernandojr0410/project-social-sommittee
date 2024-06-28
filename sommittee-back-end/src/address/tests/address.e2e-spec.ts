@@ -98,46 +98,27 @@ it('Tentando filtrar endereço específico sem o token', async () => {
 })
 
 it('Atualizando endereço', async () => {
-  try {
-    const updatedAddress = {
-      street: "Rua teste",
-    }
-    const resposne = await request(app.getHttpServer())
-      .put('/address/025a2e84-6d8e-4c2a-911a-ffbe8d0acfb6')
-      .set('Authorization', `Bearer ${authToken}`)
-      .send(updatedAddress)
-      .expect(200)
-    return resposne
-  } catch (error) {
-    if (error.response && error.response.status === 401) {
-      console.error('Token Inválido')
-      throw error
-    } else {
-      console.error('Erro na requisição PUT /address:', error.message)
-      throw error
-    }
+
+  const updatedAddress = {
+    street: "Rua teste",
   }
+  const resposne = await request(app.getHttpServer())
+    .Patch('/address/025a2e84-6d8e-4c2a-911a-ffbe8d0acfb6')
+    .set('Authorization', `Bearer ${authToken}`)
+    .send(updatedAddress)
+    .expect(200)
+  return resposne
 })
 
 it('Tentando atualizar endereço sem o token', async () => {
-  try {
-    const updatedAddress = {
-      street: "Rua flaksdjfsakl",
-    }
-    const resposne = await request(app.getHttpServer())
-      .put('/address/025a2e84-6d8e-4c2a-911a-ffbe8d0acfb6')
-      .send(updatedAddress)
-      .expect(401)
-    return resposne
-  } catch (error) {
-    if (error.response && error.response.status === 401) {
-      console.error('Token Inválido')
-      throw error
-    } else {
-      console.error('Erro na requisição PUT /address:', error.message)
-      throw error
-    }
+  const updatedAddress = {
+    street: "Rua flaksdjfsakl",
   }
+  const resposne = await request(app.getHttpServer())
+    .patch('/address/025a2e84-6d8e-4c2a-911a-ffbe8d0acfb6')
+    .send(updatedAddress)
+    .expect(401)
+  return resposne
 })
 
 it('Deletando endereço', async () => {

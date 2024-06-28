@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards, Put, Req, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Put, Req, Param, Delete, Patch } from '@nestjs/common';
 import { AddressService } from './address.service';
 import { CreateAddressDto } from './dto/create-address.dto';
 
@@ -28,7 +28,7 @@ export class AddressController {
   }
 
   @UseGuards(AuthGuard)
-  @Put(':id')
+  @Patch(':id')
   async update(@Param('id') id: string, @Body() updateAddressDto: UpdateAddressDto) {
     return await this.addressService.update(id, updateAddressDto);
   }

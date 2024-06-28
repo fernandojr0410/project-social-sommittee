@@ -8,7 +8,7 @@ import { NotFoundError } from "../common/errors/types/notFoundError";
 import { JwtService } from "@nestjs/jwt";
 import { jwtConstants } from "./jwtConstants";
 import { CreateUserDto } from "../../src/user/dto/create-user.dto";
-import { PasswordService } from "./password/password.service";
+import { PasswordService } from '../password/password.service';
 import { User } from "@prisma/client";
 
 @Injectable()

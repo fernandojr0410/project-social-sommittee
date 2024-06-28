@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Put, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Patch, Post, Req, UseGuards } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { UpdatePasswordDto } from "./dto/updatePassword-auth-dto";
 import { AuthGuard } from "./auth.guard";
@@ -25,13 +25,13 @@ export class AuthController {
   }
 
   @UseGuards(AuthGuard)
-  @Put('password')
+  @Patch('password')
   async updatePassword(@Req() req, @Body() updatePasswordDto: UpdatePasswordDto) {
     return await this.authService.updatePassword(req.user.id, updatePasswordDto);
   }
 
   @UseGuards(AuthGuard)
-  @Put('profile')
+  @Patch('profile')
   async changeProfile(@Req() req, @Body() updateUserDto: UpdateUserDto) {
     const updateUser = await this.authService.changeProfile(req.user.id, updateUserDto)
     return updateUser

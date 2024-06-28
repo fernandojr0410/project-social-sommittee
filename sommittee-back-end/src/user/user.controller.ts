@@ -1,8 +1,6 @@
-import { Body, Controller, Delete, Get, Param, Put, Req, UnauthorizedException, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Req, UnauthorizedException, UseGuards } from "@nestjs/common";
 import { UserService } from "./user.service";
-import { UpdateUserDto } from "./dto/update-user.dto";
 import { AuthGuard } from "../auth/auth.guard";
-import * as bcrypt from 'bcryptjs';
 
 @Controller('users')
 export class UserController {
@@ -35,35 +33,27 @@ export class UserController {
   //   return userProfile
   // }
 
-  @UseGuards(AuthGuard)
-  @Put(':id')
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    if (updateUserDto.password) {
-      const newPassword = updateUserDto.password;
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
-      await this.userService.generatorPassword(id, hashedPassword);
+  // @UseGuards(AuthGuard)
+  // @Patch(':id')
+  // async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  //   if (updateUserDto.password) {
+  //     const newPassword = updateUserDto.password;
+  //     const hashedPassword = await bcrypt.hash(newPassword, 10);
+  //     await this.userService.generatorPassword(id, hashedPassword);
 
-      return { message: 'Senha atualizada com sucesso' };
-    } else {
-      const dataUser = await this.userService.update(id, updateUserDto);
-      await this.userService.updateLastAction(dataUser.id, 'update');
-      return dataUser;
-    }
-  }
+  //     return { message: 'Senha atualizada com sucesso' };
+  //   } else {
+  //     const dataUser = await this.userService.update(id, updateUserDto);
+  //     await this.userService.updateLastAction(dataUser.id, 'update');
+  //     return dataUser;
+  //   }
+  // }
 
   @UseGuards(AuthGuard)
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const dataUser = await this.userService.findOne(id)
     await this.userService.updateLastAction(dataUser.id, 'findOne')
-    return dataUser
-  }
-
-  @UseGuards(AuthGuard)
-  @Put(':id')
-  async generatorPassword(@Req() req, @Body() updateUserDto: UpdateUserDto) {
-    const dataUser = await this.userService.update(req.user.id, updateUserDto)
-    await this.userService.updateLastAction(dataUser.id, 'update')
     return dataUser
   }
 
