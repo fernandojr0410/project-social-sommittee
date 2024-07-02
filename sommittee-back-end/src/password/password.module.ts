@@ -3,9 +3,13 @@ import { PasswordService } from './password.service';
 import { PasswordController } from './password.controller';
 import { PasswordRepository } from './repositories/password.repository';
 import { PrismaService } from '../prisma/prisma.service';
+import { EmailService } from '../email/email.service';
+import { UserService } from '../user/user.service';
+import { UserRepository } from '../user/repositories/user.repository';
 
 @Module({
-  providers: [PasswordService, PasswordRepository, PrismaService],
+  imports: [],
+  providers: [PasswordService, PasswordRepository, PrismaService, EmailService, UserService, UserRepository],
   controllers: [PasswordController],
 })
 export class PasswordModule { }

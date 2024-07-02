@@ -1,6 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Patch, Req, UnauthorizedException, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Req, UseGuards } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { AuthGuard } from "../auth/auth.guard";
+import { UpdateUserDto } from "./dto/update-user.dto";
 
 @Controller('users')
 export class UserController {
@@ -48,6 +49,7 @@ export class UserController {
   //     return dataUser;
   //   }
   // }
+
 
   @UseGuards(AuthGuard)
   @Get(':id')

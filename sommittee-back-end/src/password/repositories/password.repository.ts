@@ -11,4 +11,10 @@ export class PasswordRepository {
       data: { password: hashedPassword },
     });
   }
+
+  async findUserById(userId: string) {
+    return this.prisma.user.findFirst({
+      where: { id: userId },
+    });
+  }
 }

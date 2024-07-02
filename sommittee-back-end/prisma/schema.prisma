@@ -18,7 +18,7 @@ model User {
   role        Role
   created_at  DateTime @default(now())
   last_action String?
-  Token       Token[]
+  tokens      Token[]
 
   @@map("users")
 }
@@ -43,14 +43,57 @@ model Token {
 }
 
 model Address {
-  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
   zip_code     String
   street       String
   number       String
   complement   String?
   neighborhood String
   city         String
-  state        String @db.Char(2)
+  state        String   @db.Char(2)
+  people       People[]
+  families     Family[]
 
   @@map("address")
+}
+
+model People {
+  id         String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  name       String
+  surname    String
+  birth_date String
+  gender     Gender
+  telephone  String
+  work       Boolean
+  education  String
+  address    Address         @relation(fields: [address_id], references: [id])
+  address_id String          @db.Uuid()
+  families   People_Family[]
+
+  @@map("people")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+model Family {
+  id         String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  address    Address         @relation(fields: [address_id], references: [id])
+  address_id String          @db.Uuid()
+  people     People_Family[]
+
+  @@map("families")
+}
+
+model People_Family {
+  id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  function  String
+  people    People @relation(fields: [people_id], references: [id])
+  people_id String @db.Uuid()
+  family    Family @relation(fields: [family_id], references: [id])
+  family_id String @db.Uuid()
+
+  @@map("people_family")
 }
