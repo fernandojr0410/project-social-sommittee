@@ -24,7 +24,7 @@ beforeAll(async () => {
   try {
     const authResponse = await request(app.getHttpServer())
       .post('/users/auth/login')
-      .send({ email: 'fernando.solomonbusiness@gmail.com', password: 'dcFwLB^4KW9f' })
+      .send({ email: 'fernando.solomonbusiness@gmail.com', password: 'mx2s^NGa1%a#' })
       .expect(201);
 
     authToken = authResponse.body.access_token;

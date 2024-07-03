@@ -2,12 +2,12 @@ import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { UpdatePasswordDto } from "./dto/updatePassword-auth-dto";
 import * as bcrypt from 'bcryptjs';
-import { UpdateUserDto } from "../../src/user/dto/update-user.dto";
+import { UpdateUserDto } from "../user/dto/update-user.dto";
 import { UserRepository } from "../user/repositories/user.repository";
 import { NotFoundError } from "../common/errors/types/notFoundError";
 import { JwtService } from "@nestjs/jwt";
 import { jwtConstants } from "./jwtConstants";
-import { CreateUserDto } from "../../src/user/dto/create-user.dto";
+import { CreateUserDto } from "../user/dto/create-user.dto";
 import { PasswordService } from '../password/password.service';
 import { User } from "@prisma/client";
 

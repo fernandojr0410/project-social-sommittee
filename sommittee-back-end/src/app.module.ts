@@ -8,9 +8,12 @@ import { AuthModule } from './auth/auth.module';
 import { AddressModule } from './address/address.module';
 import { PasswordModule } from './password/password.module';
 import { EmailModule } from './email/email.module';
+import { PeopleModule } from './people/people.module';
+import { FamilyModule } from './family/family.module';
+import { PeopleFamilyModule } from './peopleFamily/people-family.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), UserModule, AuthModule, AddressModule, PasswordModule, EmailModule],
+  imports: [ConfigModule.forRoot(), UserModule, AuthModule, AddressModule, PasswordModule, EmailModule, PeopleModule, FamilyModule, PeopleFamilyModule],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })
