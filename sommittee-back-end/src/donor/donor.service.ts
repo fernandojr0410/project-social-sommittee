@@ -1,0 +1,30 @@
+import { Injectable } from "@nestjs/common";
+import { DonorRepository } from "./repositories/donor.repository";
+import { CreateDonorDto } from "./dto/create-donor.dto";
+import { UpdateDonorDto } from "./dto/update-donor.dto";
+
+
+@Injectable()
+export class DonorService {
+  constructor(private readonly repository: DonorRepository) { }
+
+  async create(createDonorDto: CreateDonorDto) {
+    return await this.repository.create(createDonorDto)
+  }
+
+  async findAll() {
+    return await this.repository.findAll()
+  }
+
+  async findOne(id: string) {
+    return await this.repository.findOne(id)
+  }
+
+  async update(id: string, updateDonorDto: UpdateDonorDto) {
+    return await this.repository.update(id, updateDonorDto)
+  }
+
+  async remove(id: string) {
+    return await this.repository.remove(id)
+  }
+}

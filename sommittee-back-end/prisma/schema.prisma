@@ -9,16 +9,18 @@ datasource db {
 }
 
 model User {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
   name        String
   surname     String
-  email       String   @unique
-  telephone   String   @db.Char(15)
+  email       String     @unique
+  telephone   String     @db.Char(15)
   password    String
   role        Role
-  created_at  DateTime @default(now())
+  created_at  DateTime   @default(now())
   last_action String?
   tokens      Token[]
+  donations   Donation[]
+  donors      Donor[]
 
   @@map("users")
 }
@@ -61,6 +63,8 @@ model People {
   id         String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
   name       String
   surname    String
+  cpf        String          @unique @db.Char(14)
+  email      String          @unique
   birth_date String
   gender     Gender
   telephone  String
@@ -96,4 +100,72 @@ model People_Family {
   family_id String @db.Uuid()
 
   @@map("people_family")
+}
+
+model Donor {
+  id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  name       String
+  surname    String
+  cpf        String     @unique @db.Char(14)
+  email      String     @unique
+  contact    String     @db.Char(15)
+  type_donor Type_donor
+  user       User?      @relation(fields: [user_id], references: [id])
+  user_id    String?    @db.Uuid()
+  donations  Donation[]
+
+  @@map("donors")
+}
+
+enum Type_donor {
+  INTERNAL
+  EXTERNAL
+}
+
+model Donation {
+  id                   String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  description          String
+  state                State
+  date                 DateTime @default(now())
+  address_zip_code     String
+  address_street       String
+  address_complement   String?
+  address_neighborhood String
+  address_city         String
+  address_state        String   @db.Char(2)
+  user                 User?    @relation(fields: [user_id], references: [id])
+  user_id              String?  @db.Uuid()
+  donor                Donor?   @relation(fields: [donor_id], references: [id])
+  donor_id             String?  @db.Uuid()
+  stocks                Stock[]
+
+  @@map("donations")
+}
+
+enum State {
+  DELIVERED
+  PENDING
+  CANCELED
+  ON_ROUTE
+}
+
+model Product {
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  name        String
+  description String
+  type        String
+  stocks      Stock[]
+
+  @@map("products")
+}
+
+model Stock {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  amount      String
+  product     Product  @relation(fields: [product_id], references: [id])
+  product_id  String   @db.Uuid()
+  donation    Donation @relation(fields: [donation_id], references: [id])
+  donation_id String   @db.Uuid()
+
+  @@map("stocks")
 }

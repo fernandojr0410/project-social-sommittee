@@ -1,5 +1,5 @@
 import { $Enums } from "@prisma/client";
-import { IsBoolean, IsNotEmpty, IsString } from "class-validator";
+import { IsBoolean, IsEmail, IsNotEmpty, IsString } from "class-validator";
 
 export class CreatePeopleDto {
 
@@ -10,6 +10,14 @@ export class CreatePeopleDto {
   @IsString()
   @IsNotEmpty()
   surname: string
+
+  @IsString()
+  @IsNotEmpty()
+  cpf: string
+
+  @IsString()
+  @IsEmail()
+  email: string
 
   @IsString()
   @IsNotEmpty()

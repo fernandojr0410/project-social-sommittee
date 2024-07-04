@@ -4,8 +4,8 @@ import { app, authToken } from "../../global.e2e-spec"
 it('Cadastrando vinculação de pessoa à família', async () => {
   const newPeopleFamily = {
     function: 'Desenvolvedor FullStack',
-    people_id: '330136bf-b4ff-4fa8-a0f1-97d99ba121c0',
-    family_id: '5617e59e-a226-4168-8a7a-4085f0b699de'
+    people_id: '4f4a379d-7dc3-429e-bdf3-0f2513a770fb',
+    family_id: '0537eb21-f195-42b5-8c39-26a619f2dedc'
   }
 
   const response = await request(app.getHttpServer())
@@ -28,7 +28,7 @@ it('Tentando cadastrar vinculação de pessoa à família. Id pessoa incorreto',
     .post('/peopleFamily/register')
     .set('Authorization', `Bearer ${authToken}`)
     .send(newPeopleFamily)
-    .expect(401)
+    .expect(404)
   return response
 })
 
@@ -43,7 +43,7 @@ it('Tentando cadastrar vinculação de pessoa à família. Id família incorreto
     .post('/peopleFamily/register')
     .set('Authorization', `Bearer ${authToken}`)
     .send(newPeopleFamily)
-    .expect(401)
+    .expect(404)
 
   return response
 })
@@ -97,7 +97,7 @@ it('Tentando filtrar pessoa vinculada à família específica. Id incorreto', as
   const response = await request(app.getHttpServer())
     .get(`/peopleFamily/${idPeopleFamily}`)
     .set('Authorization', `Bearer ${authToken}`)
-    .expect(401)
+    .expect(404)
 
   return response
 })
@@ -139,7 +139,7 @@ it('Tentando atualizar pessoa vinculada à família específica. Id incorreto', 
     .patch(`/peopleFamily/${idPeopleFamily}`)
     .set('Authorization', `Bearer ${authToken}`)
     .send(updatedPeopleFamily)
-    .expect(401)
+    .expect(404)
 
   return response
 })
@@ -176,7 +176,7 @@ it('Tentando deletar pessoa vinculada à família específica. Id incorreto', as
   const response = await request(app.getHttpServer())
     .delete(`/peopleFamily/${idPeopleFamily}`)
     .set('Authorization', `Bearer ${authToken}`)
-    .expect(401)
+    .expect(404)
 
   return response
 })

@@ -3,14 +3,16 @@ import { app, authToken } from '../../global.e2e-spec'
 
 it('Cadastrando pessoas', async () => {
   const newPeople = {
-    name: 'Fernando',
-    surname: 'Junior',
-    birth_date: '04/10/2002',
+    name: 'João',
+    surname: 'Marcos',
+    cpf: '09806224922',
+    email: 'joao.marcos@email.com',
+    birth_date: '04102002',
     gender: 'MALE',
-    telephone: '(45) 99917-4178',
+    telephone: '45999174178',
     work: true,
     education: 'Ensino superior incompleto (cursando)',
-    address_id: '02fec399-ede8-46ef-9a3e-c98b37e8e4d3'
+    address_id: '98feb54c-8fbf-4290-8e82-35579e0dd951'
   }
 
   const response = await request(app.getHttpServer())
@@ -76,7 +78,7 @@ it('Tentando filtrar pessoa específica id incorreto', async () => {
   const response = await request(app.getHttpServer())
     .get(`/people/${idPeople}`)
     .set('Authorization', `Bearer ${authToken}`)
-    .expect(401)
+    .expect(404)
 
   return response
 })
@@ -121,7 +123,7 @@ it('Tentando atualizar pessoa id incorreto', async () => {
     .patch(`/people/${idPeople}`)
     .set('Authorization', `Bearer ${authToken}`)
     .send(updatedPeople)
-    .expect(401)
+    .expect(404)
 
   return resposne
 })
@@ -160,7 +162,7 @@ it('Tentando deletar pessoa específica id incorreto', async () => {
   const response = await request(app.getHttpServer())
     .get(`/people/${idPeople}`)
     .set('Authorization', `Bearer ${authToken}`)
-    .expect(401)
+    .expect(404)
 
   return response
 })

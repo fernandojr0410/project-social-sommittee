@@ -5,7 +5,7 @@ it('Registrando Usuário', async () => {
   const newUser = {
     name: 'Fernando da Silva',
     surname: 'Junior',
-    email: 'testef@solomon.com',
+    email: 'fernando.solomonbusiness@gmail.com',
     telephone: '45999174178',
     password: 'Teste@123',
     role: 'ADMIN',
@@ -15,6 +15,7 @@ it('Registrando Usuário', async () => {
     .set('Authorization', `Bearer ${authToken}`)
     .send(newUser)
     .expect(201)
+
   return response
 })
 
@@ -29,7 +30,7 @@ it('Tentando registrar usuário sem os campos', async () => {
     .post('/users/auth/register')
     .set('Authorization', `Bearer ${authToken}`)
     .send(newUser)
-    .expect(401)
+    .expect(400)
 
   return response
 })
@@ -86,7 +87,7 @@ it('Tentando atualizar perfil do usuário sem o token', async () => {
   const response = await request(app.getHttpServer())
     .patch('/users/auth/profile')
     .send(updatedUser)
-    .expect(201)
+    .expect(401)
   return response
 })
 

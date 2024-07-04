@@ -3,7 +3,7 @@ import { app, authToken } from "../../global.e2e-spec"
 
 it('Cadatrando família ao endereço', async () => {
   const newFamily = {
-    address_id: '02fec399-ede8-46ef-9a3e-c98b37e8e4d3'
+    address_id: '98feb54c-8fbf-4290-8e82-35579e0dd951'
   }
 
   const response = await request(app.getHttpServer())
@@ -24,7 +24,7 @@ it('Tentando cadastrar família ao endereço. Id endereço incorreto', async () 
     .post('/family/register')
     .set('Authorization', `Bearer ${authToken}`)
     .send(newFamily)
-    .expect(401)
+    .expect(404)
   return response
 })
 
@@ -77,7 +77,7 @@ it('Tentrando filtrar família vinculado ao endereço específico. Id incorreto'
     .get(`/family/${idFamily}`)
     .set('Authorization', `Bearer ${authToken}`)
     .send(idFamily)
-    .expect(401)
+    .expect(404)
 
   return response
 })
@@ -120,7 +120,7 @@ it('Tentando atualizar família vinculado ao endereço específico. Id família 
     .patch(`/family/${idFamily}`)
     .set('Authorization', `Bearer ${authToken}`)
     .send(updatedAddressId)
-    .expect(401)
+    .expect(404)
 
   return response
 })
@@ -173,7 +173,7 @@ it('Deletando família específico id incorreto', async () => {
   const response = await request(app.getHttpServer())
     .delete(`/family/${idFamily}`)
     .set('Authorization', `Bearer ${authToken}`)
-    .expect(401)
+    .expect(404)
 
   return response
 })

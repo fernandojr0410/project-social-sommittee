@@ -11,9 +11,13 @@ import { EmailModule } from './email/email.module';
 import { PeopleModule } from './people/people.module';
 import { FamilyModule } from './family/family.module';
 import { PeopleFamilyModule } from './peopleFamily/people-family.module';
+import { DonorModule } from './donor/donor.module';
+import { DonationModule } from './donation/donation.module';
+import { ProductModule } from './product/product.module';
+import { StockModule } from './stock/stock.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), UserModule, AuthModule, AddressModule, PasswordModule, EmailModule, PeopleModule, FamilyModule, PeopleFamilyModule],
+  imports: [ConfigModule.forRoot(), UserModule, AuthModule, AddressModule, PasswordModule, EmailModule, PeopleModule, FamilyModule, PeopleFamilyModule, DonorModule, DonationModule, ProductModule, StockModule],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })

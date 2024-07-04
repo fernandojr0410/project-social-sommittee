@@ -1,8 +1,6 @@
 import request from 'supertest';
 import { app, authToken } from '../../global.e2e-spec';
 
-// Gerar uma senha automatica (adminstrador faz isso) - (ficara mais pra frente)
-
 it('Filtrando todos os usuários', async () => {
   const response = await request(app.getHttpServer())
     .get('/users')
@@ -30,7 +28,7 @@ it('Filtrando usuário especifico incorreto', async () => {
   const response = await request(app.getHttpServer())
     .get('/users/01a60b31-b85f-4541-91dc-549f207ac85q')
     .set('Authorization', `Bearer ${authToken}`)
-    .expect(401)
+    .expect(404)
   return response
 })
 
@@ -53,7 +51,7 @@ it('Deletando usuário com ID incorreto', async () => {
   const response = await request(app.getHttpServer())
     .delete('/users/c4383e12-1508-4783-9be4-e2edeb4b425a')
     .set('Authorization', `Bearer ${authToken}`)
-    .expect(401)
+    .expect(404)
   return response
 })
 
