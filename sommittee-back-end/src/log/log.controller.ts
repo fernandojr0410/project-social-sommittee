@@ -1,18 +1,18 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
-import { StockService } from "./stock.service";
+import { LogService } from "./log.service";
 import { AuthGuard } from "../auth/auth.guard";
-import { CreateStockDto } from "./dto/create-stock.dto";
-import { UpdateStockDto } from "./dto/update-stock.dto";
+import { CreateLogDto } from "./dto/create-log.dto";
+import { UpdateLogDto } from "./dto/update-log.dto";
 
 
-@Controller('stock')
-export class StockController {
-  constructor(private readonly service: StockService) { }
+@Controller('log')
+export class LogController {
+  constructor(private readonly service: LogService) { }
 
   @UseGuards(AuthGuard)
   @Post('register')
-  async register(@Body() createStockDto: CreateStockDto) {
-    return await this.service.create(createStockDto)
+  async register(@Body() createLogDto: CreateLogDto) {
+    return await this.service.create(createLogDto)
   }
 
   @UseGuards(AuthGuard)
@@ -29,8 +29,8 @@ export class StockController {
 
   @UseGuards(AuthGuard)
   @Patch(':id')
-  async updatedData(@Param('id') id: string, @Body() updateStockDto: UpdateStockDto) {
-    return await this.service.update(id, updateStockDto)
+  async updatedData(@Param('id') id: string, updateLogDto: UpdateLogDto) {
+    return await this.service.update(id, updateLogDto)
   }
 
   @UseGuards(AuthGuard)

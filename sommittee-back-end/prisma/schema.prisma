@@ -21,6 +21,7 @@ model User {
   tokens      Token[]
   donations   Donation[]
   donors      Donor[]
+  loggers     Logger[]
 
   @@map("users")
 }
@@ -137,7 +138,7 @@ model Donation {
   user_id              String?  @db.Uuid()
   donor                Donor?   @relation(fields: [donor_id], references: [id])
   donor_id             String?  @db.Uuid()
-  stocks                Stock[]
+  stocks               Stock[]
 
   @@map("donations")
 }
@@ -168,4 +169,17 @@ model Stock {
   donation_id String   @db.Uuid()
 
   @@map("stocks")
+}
+
+model Logger {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  path       String?
+  data       Json?
+  status     Int      @default(0)
+  method     String?
+  user       User     @relation(fields: [user_id], references: [id])
+  user_id    String   @db.Uuid()
+  created_at DateTime @default(now())
+
+  @@map("loggers")
 }

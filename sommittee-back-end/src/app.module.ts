@@ -15,9 +15,10 @@ import { DonorModule } from './donor/donor.module';
 import { DonationModule } from './donation/donation.module';
 import { ProductModule } from './product/product.module';
 import { StockModule } from './stock/stock.module';
+import { LogModule } from './log/log.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), UserModule, AuthModule, AddressModule, PasswordModule, EmailModule, PeopleModule, FamilyModule, PeopleFamilyModule, DonorModule, DonationModule, ProductModule, StockModule],
+  imports: [ConfigModule.forRoot(), UserModule, AuthModule, AddressModule, PasswordModule, EmailModule, PeopleModule, FamilyModule, PeopleFamilyModule, DonorModule, DonationModule, ProductModule, StockModule, LogModule],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })

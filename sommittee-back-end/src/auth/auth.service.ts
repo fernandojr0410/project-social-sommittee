@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { UpdatePasswordDto } from "./dto/updatePassword-auth-dto";
 import * as bcrypt from 'bcryptjs';
@@ -18,7 +18,6 @@ export class AuthService {
     private readonly userRepository: UserRepository,
     private readonly passwordService: PasswordService,
     private readonly jwtService: JwtService,
-    private readonly logger: Logger
   ) { }
 
 
@@ -127,12 +126,6 @@ export class AuthService {
     }
 
     await this.userRepository.updateLastAction(user.id, 'login')
-    this.logger.log('info', {
-      message: 'Usuário fez o login',
-      userId: user.id,
-      name: user.name,
-      surname: user.surname,
-    });
     const payload = { id: user.id, name: user.name, email: user.email };
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: jwtConstants.secret,
@@ -173,11 +166,6 @@ export class AuthService {
       data: {
         is_revoked: true,
       }
-    });
-
-    this.logger.log('info', {
-      message: 'Usuário fez o logout',
-      userId: userId,
     });
   }
 

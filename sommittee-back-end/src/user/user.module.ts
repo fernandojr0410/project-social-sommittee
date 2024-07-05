@@ -3,7 +3,6 @@ import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { UserRepository } from './repositories/user.repository';
 import { PrismaService } from '../prisma/prisma.service';
-import { LoggerProvider } from '../log/logger';
 
 @Module({
   imports: [],
@@ -12,7 +11,7 @@ import { LoggerProvider } from '../log/logger';
     UserService,
     UserRepository,
     PrismaService,
-    LoggerProvider,
+
   ],
 })
 export class UserModule { }
