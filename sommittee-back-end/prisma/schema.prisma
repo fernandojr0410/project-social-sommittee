@@ -151,11 +151,12 @@ enum State {
 }
 
 model Product {
-  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
   name        String
   description String
   type        String
-  stocks      Stock[]
+  created_at  DateTime @default(now())
+  stocks Stock[]
 
   @@map("products")
 }

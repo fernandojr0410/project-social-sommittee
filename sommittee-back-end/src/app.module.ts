@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
@@ -16,10 +16,18 @@ import { DonationModule } from './donation/donation.module';
 import { ProductModule } from './product/product.module';
 import { StockModule } from './stock/stock.module';
 import { LogModule } from './log/log.module';
+import { LoggerMiddleware } from './log/middleware/logger.middleware';
 
 @Module({
   imports: [ConfigModule.forRoot(), UserModule, AuthModule, AddressModule, PasswordModule, EmailModule, PeopleModule, FamilyModule, PeopleFamilyModule, DonorModule, DonationModule, ProductModule, StockModule, LogModule],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })
-export class AppModule { }
+
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoggerMiddleware)
+      .forRoutes('*'); // Aplica o middleware globalmente para todas as rotas
+  }
+}

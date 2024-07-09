@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { LogService } from './log.service';
 import { LogController } from './log.controller';
-import { PrismaService } from 'src/prisma/prisma.service';
 import { LogRepository } from './repositories/log.repository';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Module({
   imports: [],
-  providers: [LogService, PrismaService, LogRepository],
   controllers: [LogController],
+  providers: [LogService, LogRepository, PrismaService],
+  exports: [LogService],
 })
 export class LogModule { }
