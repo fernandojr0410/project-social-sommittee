@@ -16,7 +16,7 @@ export class PeopleRepository {
     return await this.prisma.people.findMany()
   }
 
-  async findOne(id: string): Promise<PeopleEntity> {
+  async findById(id: string): Promise<PeopleEntity> {
     return await this.prisma.people.findFirst({
       where: { id }
     })

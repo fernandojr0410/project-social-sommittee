@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, NotFoundException, Param, Patch, Post, Req, UseGuards } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { UpdatePasswordDto } from "./dto/updatePassword-auth-dto";
 import { AuthGuard } from "./auth.guard";
@@ -21,7 +21,11 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @Get('profile')
   async getProfile(@Req() req) {
-    return this.authService.getProfile(req.user.id);
+    const profile = await this.authService.getProfile(req.user.id);
+    if (!profile) {
+      throw new NotFoundException('Profile not found')
+    }
+    return profile
   }
 
   @UseGuards(AuthGuard)
@@ -34,6 +38,9 @@ export class AuthController {
   @Patch('profile')
   async changeProfile(@Req() req, @Body() updateUserDto: UpdateUserDto) {
     const updateUser = await this.authService.changeProfile(req.user.id, updateUserDto)
+    if (!updateUser) {
+      throw new NotFoundException('Profile not found')
+    }
     return updateUser
   }
 
@@ -47,6 +54,6 @@ export class AuthController {
   @Post('logout')
   async logout(@Req() req) {
     const userId = req.user.id;
-    await this.authService.logout(userId);
+    return await this.authService.logout(userId);
   }
 } 

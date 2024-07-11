@@ -16,15 +16,15 @@ export class LogRepository {
     return await this.prisma.logger.findMany()
   }
 
-  async findOne(id: string): Promise<LogEntity> {
+  async findOne(id: number): Promise<LogEntity> {
     return await this.prisma.logger.findFirst({ where: { id } })
   }
 
-  async update(id: string, updateLogDto: UpdateLogDto): Promise<LogEntity> {
+  async update(id: number, updateLogDto: UpdateLogDto): Promise<LogEntity> {
     return await this.prisma.logger.update({ where: { id }, data: updateLogDto })
   }
 
-  async remove(id: string) {
+  async remove(id: number) {
     return await this.prisma.logger.delete({ where: { id } })
   }
 }

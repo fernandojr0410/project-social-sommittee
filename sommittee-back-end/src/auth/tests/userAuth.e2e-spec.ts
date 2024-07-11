@@ -3,9 +3,9 @@ import { app, authToken } from '../../global.e2e-spec';
 
 it('Registrando Usuário', async () => {
   const newUser = {
-    name: 'Fernando da Silva',
-    surname: 'Junior',
-    email: 'fernando.solomonbusiness@gmail.com',
+    name: 'João Ribeiro',
+    surname: 'Fernandes',
+    email: 'joao.ribeiro@gmail.com',
     telephone: '45999174178',
     password: 'Teste@123',
     role: 'ADMIN',
@@ -48,6 +48,7 @@ it('Tentando registrar usuário sem o token', async () => {
     .post('/users/auth/register')
     .send(newUser)
     .expect(401)
+
   return response
 })
 

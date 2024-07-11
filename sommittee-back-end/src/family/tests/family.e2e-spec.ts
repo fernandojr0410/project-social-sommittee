@@ -3,7 +3,7 @@ import { app, authToken } from "../../global.e2e-spec"
 
 it('Cadatrando família ao endereço', async () => {
   const newFamily = {
-    address_id: '98feb54c-8fbf-4290-8e82-35579e0dd951'
+    address_id: 'df7dc535-5d46-4282-8de4-7989cf3f6632'
   }
 
   const response = await request(app.getHttpServer())

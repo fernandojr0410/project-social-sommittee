@@ -7,6 +7,6 @@ export class UserEntity implements User {
   telephone: string;
   password: string;
   role: $Enums.Role;
-  last_action: string;
   created_at: Date;
+  last_action: string;
 }

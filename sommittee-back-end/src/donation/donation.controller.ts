@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, UseGuards } from "@nestjs/common";
 import { DonationService } from "./donation.service";
 import { CreateDonationDto } from "./dto/create-donation.dto";
 import { AuthGuard } from "../auth/auth.guard";
@@ -24,7 +24,11 @@ export class DonationController {
   @UseGuards(AuthGuard)
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    return await this.service.findOne(id)
+    const donation = await this.service.findOne(id)
+    if (!donation) {
+      throw new NotFoundException('Donation not found')
+    }
+    return donation
   }
 
   @UseGuards(AuthGuard)
@@ -36,6 +40,10 @@ export class DonationController {
   @UseGuards(AuthGuard)
   @Delete(':id')
   async deleteData(@Param('id') id: string) {
-    return await this.service.remove(id)
+    const donation = await this.service.remove(id)
+    if (!donation) {
+      throw new NotFoundException('Donation not found')
+    }
+    return donation
   }
 }

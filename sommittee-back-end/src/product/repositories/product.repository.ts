@@ -16,7 +16,7 @@ export class ProductRepository {
     return await this.prisma.product.findMany()
   }
 
-  async findOne(id: string): Promise<ProductEntity> {
+  async findById(id: string): Promise<ProductEntity> {
     return await this.prisma.product.findFirst({ where: { id } })
   }
 

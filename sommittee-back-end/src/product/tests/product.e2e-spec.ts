@@ -41,10 +41,21 @@ it('Tentando cadastrar produto sem o token', async () => {
   }
 
   const response = await request(app.getHttpServer())
-    .post('/product')
-    .set('Authorization', `Bearer ${authToken}`)
+    .post('/product/register')
     .send(newProduct)
     .expect(401)
+
+  return response
+})
+
+
+it('Tentando filtrar produto específico. Id incorreto', async () => {
+  const idProduct = '641956e4-5113-482e-8a62-de185f241a7b'
+
+  const response = await request(app.getHttpServer())
+    .get(`/product/${idProduct}`)
+    .set('Authorization', `Bearer ${authToken}`)
+    .expect(404)
 
   return response
 })
@@ -58,121 +69,112 @@ it('Filtrando todos produtos', async () => {
   return response
 })
 
-// it('Tentando filtrar todos produtos sem o token', async () => {
-//   const response = await request(app.getHttpServer())
-//     .get('/product')
-//     .expect(401)
+it('Tentando filtrar todos produtos sem o token', async () => {
+  const response = await request(app.getHttpServer())
+    .get('/product')
+    .expect(401)
 
-//   return response
-// })
+  return response
+})
 
-// it('Filtrando produto específico', async () => {
-//   const idProduct = '641956e4-5113-482e-8a62-de185f241a7a'
-
-//   const response = await request(app.getHttpServer())
-//     .get(`/product/${idProduct}`)
-//     .set('Authorization', `Bearer ${authToken}`)
-//     .expect(200)
-
-//   return response
-// })
-
-it('Tentando filtrar produto específico. Id incorreto', async () => {
-  const idProduct = '641956e4-5113-482e-8a62-de185f241a7b'
+it('Filtrando produto específico', async () => {
+  const idProduct = '16975f39-e6a3-4af0-8a41-ebbc88e5e1cb'
 
   const response = await request(app.getHttpServer())
     .get(`/product/${idProduct}`)
+    .set('Authorization', `Bearer ${authToken}`)
+    .expect(200)
+
+  return response
+})
+
+
+
+it('Tentando filtrar produto específico sem o token', async () => {
+  const idProduct = '641956e4-5113-482e-8a62-de185f241a7a'
+
+  const response = await request(app.getHttpServer())
+    .get(`/product/${idProduct}`)
+    .expect(401)
+
+  return response
+})
+
+it('Atualizando produto específico', async () => {
+  const idProduct = '16975f39-e6a3-4af0-8a41-ebbc88e5e1cb'
+
+  const updatedData = {
+    description: 'Camiseta masculina nike, preto, manga curta, tamanho G'
+  }
+
+  const response = await request(app.getHttpServer())
+    .patch(`/product/${idProduct}`)
+    .set('Authorization', `Bearer ${authToken}`)
+    .send(updatedData)
+    .expect(200)
+
+  return response
+})
+
+it('Tentando atualizar produto específico. Id incorreto', async () => {
+  const idProduct = '641956e4-5113-482e-8a62-de185f241a7b'
+
+  const updatedData = {
+    description: 'Camiseta masculina adidas, preto, manga curta, tamanho G'
+  }
+
+  const response = await request(app.getHttpServer())
+    .patch(`/product/${idProduct}`)
+    .set('Authorization', `Bearer ${authToken}`)
+    .send(updatedData)
+    .expect(404)
+
+  return response
+})
+
+it('Tentando atualizar produto específico sem o token', async () => {
+  const idProduct = '641956e4-5113-482e-8a62-de185f241a7a'
+
+  const updatedData = {
+    description: 'Camiseta masculina adidas, preto, manga curta, tamanho G'
+  }
+
+  const response = await request(app.getHttpServer())
+    .patch(`/product/${idProduct}`)
+    .send(updatedData)
+    .expect(401)
+
+  return response
+})
+
+it('Deletando produto específico', async () => {
+  const idProduct = '73916aba-9b77-4527-a809-a248e6f7bda4'
+
+  const response = await request(app.getHttpServer())
+    .delete(`/product/${idProduct}`)
+    .set('Authorization', `Bearer ${authToken}`)
+    .expect(200)
+
+  return response
+})
+
+it('Tentando deletar produto específico. Id incorreto', async () => {
+  const idProduct = '641956e4-5113-482e-8a62-de185f241a7b'
+
+  const response = await request(app.getHttpServer())
+    .delete(`/product/${idProduct}`)
     .set('Authorization', `Bearer ${authToken}`)
     .expect(404)
 
   return response
 })
 
-// it('Tentando filtrar produto específico sem o token', async () => {
-//   const idProduct = '641956e4-5113-482e-8a62-de185f241a7a'
+it('Tentando deletar produto específico sem o token', async () => {
+  const idProduct = '73916aba-9b77-4527-a809-a248e6f7bda4'
 
-//   const response = await request(app.getHttpServer())
-//     .get(`/product/${idProduct}`)
-//     .expect(401)
+  const response = await request(app.getHttpServer())
+    .delete(`/product/${idProduct}`)
+    .expect(401)
 
-//   return response
-// })
-
-// it('Atualizando produto específico', async () => {
-//   const idProduct = '641956e4-5113-482e-8a62-de185f241a7a'
-
-//   const updatedData = {
-//     description: 'Camiseta masculina adidas, preto, manga curta, tamanho G'
-//   }
-
-//   const response = await request(app.getHttpServer())
-//     .patch(`/product/${idProduct}`)
-//     .set('Authorization', `Bearer ${authToken}`)
-//     .send(updatedData)
-//     .expect(200)
-
-//   return response
-// })
-
-// it('Tentando atualizar produto específico. Id incorreto', async () => {
-//   const idProduct = '641956e4-5113-482e-8a62-de185f241a7b'
-
-//   const updatedData = {
-//     description: 'Camiseta masculina adidas, preto, manga curta, tamanho G'
-//   }
-
-//   const response = await request(app.getHttpServer())
-//     .patch(`/product/${idProduct}`)
-//     .set('Authorization', `Bearer ${authToken}`)
-//     .send(updatedData)
-//     .expect(404)
-
-//   return response
-// })
-
-// it('Tentando atualizar produto específico sem o token', async () => {
-//   const idProduct = '641956e4-5113-482e-8a62-de185f241a7a'
-
-//   const updatedData = {
-//     description: 'Camiseta masculina adidas, preto, manga curta, tamanho G'
-//   }
-
-//   const response = await request(app.getHttpServer())
-//     .patch(`/product/${idProduct}`)
-//     .send(updatedData)
-//     .expect(401)
-
-//   return response
-// })
-
-// it('Deletando produto específico', async () => {
-//   const idProduct = '641956e4-5113-482e-8a62-de185f241a7a'
-
-//   const response = await request(app.getHttpServer())
-//     .delete(`/product/${idProduct}`)
-//     .set('Authorization', `Bearer ${authToken}`)
-//     .expect(200)
-
-//   return response
-// })
-
-// it('Tentando deletar produto específico. Id incorreto', async () => {
-//   const idProduct = '641956e4-5113-482e-8a62-de185f241a7b'
-
-//   const response = await request(app.getHttpServer())
-//     .delete(`/product/${idProduct}`)
-//     .set('Authorization', `Bearer ${authToken}`)
-//     .expect(404)
-
-//   return response
-// })
-
-// it('Tentando deletar produto específico sem o token', async () => {
-//   const idProduct = '641956e4-5113-482e-8a62-de185f241a7a'
-
-//   const response = await request(app.getHttpServer())
-//     .delete(`/product/${idProduct}`)
-//     .expect(401)
-
-//   return response
-// })
+  return response
+})

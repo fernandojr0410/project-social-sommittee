@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Req, UseGuards } from "@nestjs/common";
 import { ProductService } from "./product.service";
 import { AuthGuard } from "../auth/auth.guard";
 import { CreateProductDto } from "./dto/create-product.dto";
@@ -24,7 +24,11 @@ export class ProductController {
   @UseGuards(AuthGuard)
   @Get(':id')
   async findById(@Param('id') id: string) {
-    return await this.service.findOne(id)
+    const product = await this.service.findById(id)
+    if (!product) {
+      throw new NotFoundException('Product not found')
+    }
+    return product
   }
 
   @UseGuards(AuthGuard)
@@ -36,6 +40,10 @@ export class ProductController {
   @UseGuards(AuthGuard)
   @Delete(':id')
   async deleteData(@Param('id') id: string) {
-    return await this.service.remove(id)
+    const product = await this.service.remove(id)
+    if (!product) {
+      throw new NotFoundException('Product not found')
+    }
+    return product
   }
 }

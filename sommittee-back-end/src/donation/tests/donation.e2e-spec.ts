@@ -10,7 +10,7 @@ it('Cadastrando doações', async () => {
     address_neighborhood: 'Neva',
     address_city: 'Cascavel',
     address_state: 'PR',
-    donor_id: '947ab750-47e3-4906-ad99-f85989269b1f'
+    donor_id: '9e009377-52c6-48bb-a8af-1d2caece0044'
   }
 
   const response = await request(app.getHttpServer())

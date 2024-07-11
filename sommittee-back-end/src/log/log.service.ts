@@ -18,17 +18,17 @@ export class LogService {
 
   }
 
-  async findOne(id: string) {
+  async findOne(id: number) {
     return await this.repository.findOne(id)
 
   }
 
-  async update(id: string, updateLogDto: UpdateLogDto) {
+  async update(id: number, updateLogDto: UpdateLogDto) {
     return await this.repository.update(id, updateLogDto)
 
   }
 
-  async remove(id: string) {
+  async remove(id: number) {
     return await this.repository.remove(id)
 
   }

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, UseGuards } from "@nestjs/common";
 import { PeopleFamilyService } from "./people-family.service";
 import { AuthGuard } from "../auth/auth.guard";
 import { CreatePeopleFamilyDto } from "./dto/create-people-family.dto";
@@ -24,7 +24,10 @@ export class PeopleFamilyController {
   @UseGuards(AuthGuard)
   @Get(':id')
   async findById(@Param('id') id: string) {
-    return await this.service.findOne(id)
+    const peopleFamily = await this.service.findOne(id)
+    if (!peopleFamily) {
+      throw new NotFoundException('PeopleFamily not found')
+    }
   }
 
   @UseGuards(AuthGuard)
@@ -36,6 +39,10 @@ export class PeopleFamilyController {
   @UseGuards(AuthGuard)
   @Delete(':id')
   async delete(@Param('id') id: string) {
-    return await this.service.remove(id)
+    const peopleFamily = await this.service.remove(id)
+    if (!peopleFamily) {
+      throw new NotFoundException('PeopleFamily not found')
+    }
+    return peopleFamily
   }
 }

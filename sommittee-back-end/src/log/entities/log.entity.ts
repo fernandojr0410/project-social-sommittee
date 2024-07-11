@@ -1,7 +1,7 @@
 import { Logger, Prisma } from "@prisma/client";
 
 export class LogEntity implements Logger {
-  id: string;
+  id: number;
   path: string;
   data: Prisma.JsonValue;
   status: number;

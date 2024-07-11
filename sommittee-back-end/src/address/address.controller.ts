@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards, Put, Req, Param, Delete, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Put, Req, Param, Delete, Patch, NotFoundException } from '@nestjs/common';
 import { AddressService } from './address.service';
 import { CreateAddressDto } from './dto/create-address.dto';
 
@@ -23,8 +23,12 @@ export class AddressController {
 
   @UseGuards(AuthGuard)
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return await this.addressService.findOne(id)
+  async findById(@Param('id') id: string) {
+    const address = await this.addressService.findById(id)
+    if (!address) {
+      throw new NotFoundException('Address not found')
+    }
+    return address
   }
 
   @UseGuards(AuthGuard)
@@ -36,6 +40,10 @@ export class AddressController {
   @UseGuards(AuthGuard)
   @Delete(':id')
   async remove(@Param('id') id: string) {
-    return await this.addressService.remove(id)
+    const address = await this.addressService.remove(id)
+    if (!address) {
+      throw new NotFoundException('Address not found')
+    }
+    return address
   }
 }

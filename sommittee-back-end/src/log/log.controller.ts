@@ -23,19 +23,19 @@ export class LogController {
 
   @UseGuards(AuthGuard)
   @Get(':id')
-  async findById(@Param('id') id: string) {
+  async findById(@Param('id') id: number) {
     return await this.service.findOne(id)
   }
 
   @UseGuards(AuthGuard)
   @Patch(':id')
-  async updatedData(@Param('id') id: string, updateLogDto: UpdateLogDto) {
+  async updatedData(@Param('id') id: number, updateLogDto: UpdateLogDto) {
     return await this.service.update(id, updateLogDto)
   }
 
   @UseGuards(AuthGuard)
   @Delete(':id')
-  async deleteData(@Param('id') id: string) {
+  async deleteData(@Param('id') id: number) {
     return await this.service.remove(id)
   }
 }

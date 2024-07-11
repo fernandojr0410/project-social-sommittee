@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, UseGuards } from "@nestjs/common";
 import { PeopleService } from "./people.service";
 import { AuthGuard } from "../auth/auth.guard";
 import { CreatePeopleDto } from "./dto/create-people.dto";
@@ -23,7 +23,11 @@ export class PeopleController {
   @UseGuards(AuthGuard)
   @Get(':id')
   async findById(@Param('id') id: string) {
-    return await this.peopleService.findOne(id)
+    const people = await this.peopleService.findById(id)
+    if (!people) {
+      throw new NotFoundException('People not found')
+    }
+    return people
   }
 
   @UseGuards(AuthGuard)
@@ -35,6 +39,10 @@ export class PeopleController {
   @UseGuards(AuthGuard)
   @Delete(':id')
   async delete(@Param('id') id: string) {
-    return await this.peopleService.remove(id)
+    const people = await this.peopleService.remove(id)
+    if (!people) {
+      throw new NotFoundException('People not found')
+    }
+    return people
   }
 }

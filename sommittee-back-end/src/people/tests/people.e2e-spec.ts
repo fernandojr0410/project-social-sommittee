@@ -12,7 +12,7 @@ it('Cadastrando pessoas', async () => {
     telephone: '45999174178',
     work: true,
     education: 'Ensino superior incompleto (cursando)',
-    address_id: '98feb54c-8fbf-4290-8e82-35579e0dd951'
+    address_id: 'df7dc535-5d46-4282-8de4-7989cf3f6632'
   }
 
   const response = await request(app.getHttpServer())

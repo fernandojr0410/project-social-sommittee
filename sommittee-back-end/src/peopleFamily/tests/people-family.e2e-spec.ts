@@ -4,8 +4,8 @@ import { app, authToken } from "../../global.e2e-spec"
 it('Cadastrando vinculação de pessoa à família', async () => {
   const newPeopleFamily = {
     function: 'Desenvolvedor FullStack',
-    people_id: '4f4a379d-7dc3-429e-bdf3-0f2513a770fb',
-    family_id: '0537eb21-f195-42b5-8c39-26a619f2dedc'
+    people_id: '52bb9fde-b067-4632-b97c-38437065a774',
+    family_id: 'b3299287-1a03-4428-95fe-ecd8d4f5de97'
   }
 
   const response = await request(app.getHttpServer())

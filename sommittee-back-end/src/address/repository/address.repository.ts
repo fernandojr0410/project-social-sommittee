@@ -20,7 +20,7 @@ export class AddressRepository {
     return await this.prisma.address.findMany()
   }
 
-  async findOne(id: string): Promise<AddressEntity> {
+  async findById(id: string): Promise<AddressEntity> {
     return await this.prisma.address.findUnique({
       where: { id }
     })

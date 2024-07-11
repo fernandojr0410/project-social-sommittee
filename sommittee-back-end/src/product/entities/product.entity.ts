@@ -4,6 +4,6 @@ export class ProductEntity implements Product {
   id: string;
   name: string;
   description: string;
-  created_at: Date;
   type: string;
+  created_at: Date;
 }

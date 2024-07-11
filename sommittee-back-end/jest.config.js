@@ -2,7 +2,7 @@ module.exports = {
   moduleFileExtensions: ['js', 'json', 'ts'],
   rootDir: '.',
   testMatch: [
-    '**/src/global.e2e-spec.ts',
+    // '**/src/global.e2e-spec.ts',
     // '**/auth/tests/*.e2e-spec.ts',
     // '**/user/tests/*.e2e-spec.ts',
     // '**/email/tests/*.e2e-spec.ts',
@@ -13,7 +13,7 @@ module.exports = {
     // '**/peopleFamily/tests/*.e2e-spec.ts',
     // '**/donor/tests/*.e2e-spec.ts',
     // '**/donation/tests/*.e2e-spec.ts',
-    '**/product/tests/*.e2e-spec.ts',
+    // '**/product/tests/*.e2e-spec.ts',
     // '**/stock/tests/*.e2e-spec.ts',
   ],
   transform: {

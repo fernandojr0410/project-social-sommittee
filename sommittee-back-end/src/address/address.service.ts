@@ -15,8 +15,8 @@ export class AddressService {
     return await this.repository.findAll()
   }
 
-  async findOne(id: string) {
-    const address = await this.repository.findOne(id)
+  async findById(id: string) {
+    const address = await this.repository.findById(id)
     if (!address) {
       throw new NotFoundError(`Endereço não encontrado!`)
     }
@@ -24,7 +24,7 @@ export class AddressService {
   }
 
   async update(id: string, updateAddressDto: UpdateAddressDto) {
-    const existingAddress = await this.repository.findOne(id);
+    const existingAddress = await this.repository.findById(id);
     if (!existingAddress) {
       throw new Error(`Endereço com ID ${id} não encontrado.`);
     }
