@@ -6,4 +6,5 @@ export class ProductEntity implements Product {
   description: string;
   type: string;
   created_at: Date;
+  updated_at: Date;
 }

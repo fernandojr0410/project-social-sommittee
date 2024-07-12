@@ -8,5 +8,6 @@ export class UserEntity implements User {
   password: string;
   role: $Enums.Role;
   created_at: Date;
+  updated_at: Date;
   last_action: string;
 }

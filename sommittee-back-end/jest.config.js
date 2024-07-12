@@ -15,6 +15,7 @@ module.exports = {
     // '**/donation/tests/*.e2e-spec.ts',
     // '**/product/tests/*.e2e-spec.ts',
     // '**/stock/tests/*.e2e-spec.ts',
+    '**/attachment/tests/*e2e-spec.ts',
   ],
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest',

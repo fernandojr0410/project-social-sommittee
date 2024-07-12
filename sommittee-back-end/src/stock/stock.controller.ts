@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, UseGuards } from "@nestjs/common";
 import { StockService } from "./stock.service";
 import { AuthGuard } from "../auth/auth.guard";
 import { CreateStockDto } from "./dto/create-stock.dto";
@@ -24,7 +24,11 @@ export class StockController {
   @UseGuards(AuthGuard)
   @Get(':id')
   async findById(@Param('id') id: string) {
-    return await this.service.findOne(id)
+    const stock = await this.service.findOne(id)
+    if (!stock) {
+      throw new NotFoundException('Stock not found')
+    }
+    return stock
   }
 
   @UseGuards(AuthGuard)
@@ -36,6 +40,10 @@ export class StockController {
   @UseGuards(AuthGuard)
   @Delete(':id')
   async deleteData(@Param('id') id: string) {
-    return await this.service.remove(id)
+    const stock = await this.service.remove(id)
+    if (!stock) {
+      throw new NotFoundException('Stock not found')
+    }
+    return stock
   }
 }
