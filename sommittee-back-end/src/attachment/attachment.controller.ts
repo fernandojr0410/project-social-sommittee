@@ -1,5 +1,6 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, UseGuards, UseInterceptors, UploadedFile, Req } from "@nestjs/common";
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, UseGuards, UploadedFile, UseInterceptors, Req, BadRequestException } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
+import { Express } from 'express';
 import { AuthGuard } from "../auth/auth.guard";
 import { AttachmentService } from "./attachment.service";
 import { CreateAttachmentDto } from "./dto/create-attachment.dto";
@@ -7,17 +8,13 @@ import { UpdateAttachmentDto } from "./dto/update-attachment.dto";
 
 @Controller('attachment')
 export class AttachmentController {
-  constructor(private readonly attachmentService: AttachmentService) { }
-  // @UseGuards(AuthGuard)
-  // @Post('register')
-  // async register(@Body() createAttachmenDto: CreateAttachmentDto) {
-  //   return await this.service.create(createAttachmenDto)
-  // }
+  constructor(private readonly attachmentService: AttachmentService,
+  ) { }
 
   @UseGuards(AuthGuard)
-  @Get()
-  async findAll() {
-    return await this.attachmentService.findAll();
+  @Post('register')
+  async register(@Body() createAttachmenDto: CreateAttachmentDto) {
+    return await this.attachmentService.create(createAttachmenDto)
   }
 
   @UseGuards(AuthGuard)

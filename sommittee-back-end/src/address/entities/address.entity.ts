@@ -9,4 +9,6 @@ export class AddressEntity implements Address {
   neighborhood: string;
   city: string;
   state: string;
+  created_at: Date;
+  updated_at: Date;
 }

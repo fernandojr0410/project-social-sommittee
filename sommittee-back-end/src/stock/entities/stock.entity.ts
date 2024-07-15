@@ -5,4 +5,6 @@ export class StockEntity implements Stock {
   amount: string;
   product_id: string;
   donation_id: string;
+  created_at: Date;
+  updated_at: Date;
 }

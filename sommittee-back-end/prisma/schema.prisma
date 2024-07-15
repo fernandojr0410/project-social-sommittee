@@ -24,6 +24,7 @@ model User {
   donors      Donor[]
   loggers     Logger[]
   attachments Attachment[]
+  receipts    Receipt[]
 
   @@map("users")
 }
@@ -210,7 +211,7 @@ model Logger {
 
 model Attachment {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  name        String
+  file_path   String
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
   user        User     @relation(fields: [user_id], references: [id])
@@ -223,16 +224,18 @@ model Attachment {
 
 model Receipt {
   id                 String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  issue_date         DateTime   @default(now())
+  issue_date         String
   description        String
   type_transaction   String
-  value_amount       Float
+  value_amount       String
   quantity           String
   payment_method     String
   receiver_signature String?
   additional_notes   String?
   created_at         DateTime   @default(now())
   updated_at         DateTime   @updatedAt
+  user               User       @relation(fields: [user_id], references: [id])
+  user_id            String     @db.Uuid()
   product            Product    @relation(fields: [product_id], references: [id])
   product_id         String     @db.Uuid()
   donor              Donor      @relation(fields: [donor_id], references: [id])
@@ -246,9 +249,9 @@ model Receipt {
 
 model Purchase {
   id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  purchase_date DateTime @default(now())
+  purchase_date String
   supplier      String
-  value_amount  Float
+  value_amount  Int
   status        String
   notes         String?
   created_at    DateTime @default(now())

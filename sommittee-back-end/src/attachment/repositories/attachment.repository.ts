@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { PrismaService } from "src/prisma/prisma.service";
+import { PrismaService } from "../../prisma/prisma.service";
 import { CreateAttachmentDto } from "../dto/create-attachment.dto";
 import { AttachmentEntity } from "../entities/attachment.entity";
 import { UpdateAttachmentDto } from "../dto/update-attachment.dto";

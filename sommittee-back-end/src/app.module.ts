@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
@@ -18,10 +18,12 @@ import { StockModule } from './stock/stock.module';
 import { LogModule } from './log/log.module';
 import { LoggerMiddleware } from './log/middleware/logger.middleware';
 import { AttachmentModule } from './attachment/attachment.module';
+import { ReceiptModule } from './receipt/receipt.module';
+import { PurchaseModule } from './purchase/purchase.module';
 
 
 @Module({
-  imports: [ConfigModule.forRoot(), UserModule, AuthModule, AddressModule, PasswordModule, EmailModule, PeopleModule, FamilyModule, PeopleFamilyModule, DonorModule, DonationModule, ProductModule, StockModule, LogModule, AttachmentModule],
+  imports: [ConfigModule.forRoot(), UserModule, AuthModule, AddressModule, PasswordModule, EmailModule, PeopleModule, FamilyModule, PeopleFamilyModule, DonorModule, DonationModule, ProductModule, StockModule, LogModule, AttachmentModule, ReceiptModule, PurchaseModule],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })

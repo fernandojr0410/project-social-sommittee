@@ -11,6 +11,7 @@ export class PeopleEntity implements People {
   telephone: string;
   work: boolean;
   education: string;
+  created_at: Date;
+  updated_at: Date;
   address_id: string;
-
 }

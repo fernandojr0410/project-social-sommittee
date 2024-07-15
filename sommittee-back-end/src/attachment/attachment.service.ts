@@ -2,6 +2,9 @@ import { Injectable } from "@nestjs/common";
 import { AttachmentRepository } from "./repositories/attachment.repository";
 import { CreateAttachmentDto } from "./dto/create-attachment.dto";
 import { UpdateAttachmentDto } from "./dto/update-attachment.dto";
+import * as fs from 'fs';
+import * as path from 'path';
+import { Multer } from 'multer';
 
 
 @Injectable()
