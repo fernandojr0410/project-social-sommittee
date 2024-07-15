@@ -5,7 +5,6 @@ import { UnauthorizedInterception } from './common/errors/interceptors/unauthori
 import { ConflictInterception } from './common/errors/interceptors/conflict.interceptors';
 import { DatabaseInterception } from './common/errors/interceptors/database.interceptors';
 import { NotFoundInterception } from './common/errors/interceptors/notFound.interceptors';
-import { LoggerMiddleware } from './log/middleware/logger.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
@@ -14,8 +13,6 @@ async function bootstrap() {
     forbidNonWhitelisted: true,
     transform: true
   }));
-
-  app.use(LoggerMiddleware);
 
   app.useGlobalInterceptors(new ConflictInterception());
   app.useGlobalInterceptors(new DatabaseInterception());

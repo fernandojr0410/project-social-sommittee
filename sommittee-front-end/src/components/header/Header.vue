@@ -64,13 +64,12 @@
       v-model="drawer"
       app
       clipped
-      mini-variant.sync="mini"
+      mini-variant
       expand-on-hover
-      ref="drawer"
       dark
     >
       <v-list>
-        <v-list-item>
+        <v-list-item :to="{ path: '/home' }">
           <v-list-item-icon>
             <v-icon>mdi-home</v-icon>
           </v-list-item-icon>
@@ -78,28 +77,79 @@
           <v-list-item-title>Home</v-list-item-title>
         </v-list-item>
 
-        <v-list-group :value="true" prepend-icon="mdi-cart" color="#FFF">
+        <v-list-item :to="{ path: '/receipt' }">
+          <v-list-item-icon>
+            <v-icon>mdi-receipt-text-send-outline</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title>Recebidos</v-list-item-title>
+        </v-list-item>
+
+        <v-list-item>
+          <v-list-item-icon>
+            <v-icon>mdi-truck-delivery-outline</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title>Entregas</v-list-item-title>
+        </v-list-item>
+
+        <v-list-group no-action prepend-icon="mdi-cog-outline" color="#FFF">
           <template v-slot:activator>
-            <v-list-item-title>Doações</v-list-item-title>
+            <v-list-item-content>
+              <v-list-item-title>Configurações</v-list-item-title>
+            </v-list-item-content>
           </template>
-
-          <v-list-group :value="true" no-action sub-group color="#FFF">
-            <template v-slot:activator>
-              <v-list-item-content>
-                <v-list-item-title>Estoque</v-list-item-title>
-              </v-list-item-content>
-            </template>
-
-            <v-list-item
-              v-for="(item, index) in menuItems.doacoes"
-              :key="index"
-              link
-              color="#FFF"
-            >
-              <v-list-item-title>{{ item.text }}</v-list-item-title>
-            </v-list-item>
-          </v-list-group>
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>Usuários</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>Logs</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
         </v-list-group>
+
+        <v-list-item>
+          <v-list-item-icon>
+            <v-icon>mdi-human-male-male-child</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title>Famílias</v-list-item-title>
+        </v-list-item>
+
+        <v-list-item>
+          <v-list-item-icon>
+            <v-icon>mdi-account-group</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title>Pessoas</v-list-item-title>
+        </v-list-item>
+
+        <v-list-item>
+          <v-list-item-icon>
+            <v-icon>mdi-finance</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title>Financeiro</v-list-item-title>
+        </v-list-item>
+
+        <v-list-item>
+          <v-list-item-icon>
+            <v-icon>mdi-hand-coin</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title>Doações</v-list-item-title>
+        </v-list-item>
+
+        <v-list-item>
+          <v-list-item-icon>
+            <v-icon>mdi-shopping</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title>Compras</v-list-item-title>
+        </v-list-item>
+
+        <v-list-item>
+          <v-list-item-icon>
+            <v-icon>mdi-package</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title>Produtos</v-list-item-title>
+        </v-list-item>
       </v-list>
     </v-navigation-drawer>
   </div>
@@ -123,13 +173,6 @@ export default {
       drawer: true,
       mini: true,
       expand: false,
-      menuItems: {
-        doacoes: [
-          { text: 'Cadastrar Roupas', icon: 'mdi-tshirt-crew-outline' },
-          { text: 'Cadastrar Alimentos', icon: 'mdi-food-outline' },
-          { text: 'Registrar Entrega', icon: 'mdi-truck-delivery-outline' },
-        ],
-      },
     }
   },
   computed: {
@@ -149,6 +192,10 @@ export default {
           case '/my-data':
             document.title = `Sommittee | Meu perfil`
             this.pageName = 'Meu perfil'
+            break
+          case '/receipt':
+            document.title = `Sommittee | Recibos`
+            this.pageName = 'Recibos'
             break
         }
       },

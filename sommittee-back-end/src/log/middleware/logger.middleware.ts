@@ -9,7 +9,6 @@ export class LoggerMiddleware implements NestMiddleware {
 
   async use(req: Request, res: Response, next: NextFunction) {
     const authToken = req.headers.authorization?.split(' ')[1];
-
     const { body } = req;
 
     res.on('finish', async () => {
@@ -19,7 +18,6 @@ export class LoggerMiddleware implements NestMiddleware {
         status: res.statusCode,
         method: req.method,
         user_id: null,
-
       };
 
       if (authToken) {
@@ -41,6 +39,7 @@ export class LoggerMiddleware implements NestMiddleware {
 
     next();
   }
+
   private filterPassword(body: any): any {
     if (body && body.password) {
       delete body.password;
