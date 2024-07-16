@@ -24,7 +24,7 @@ export class CreatePurchaseDto {
 
   @IsString()
   @IsNotEmpty()
-  receipt_id: string
+  received_id: string
 
   @IsString()
   @IsNotEmpty()

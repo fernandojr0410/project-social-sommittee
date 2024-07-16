@@ -4,8 +4,8 @@ import { app, authToken } from "../../global.e2e-spec"
 it('Anexando arquivo', async () => {
   const newAttachment = {
     file_path: '/Users/fernandojunior/Downloads/equipamento.png',
-    user_id: '97e4cff7-37a3-4c6a-bf28-1ff10aae5da0',
-    donation_id: 'bc031f37-69ac-4b38-bb30-e937c8eaf119'
+    user_id: 'dc43fbfb-c784-43bb-8f68-b2a81d40987f',
+    donation_id: '1d161225-f88d-4c00-81ee-b500e93431d9'
   };
   const response = await request(app.getHttpServer())
     .post('/attachment/register')

@@ -77,7 +77,7 @@
           <v-list-item-title>Home</v-list-item-title>
         </v-list-item>
 
-        <v-list-item :to="{ path: '/receipt' }">
+        <v-list-item :to="{ path: '/received' }">
           <v-list-item-icon>
             <v-icon>mdi-receipt-text-send-outline</v-icon>
           </v-list-item-icon>
@@ -193,9 +193,9 @@ export default {
             document.title = `Sommittee | Meu perfil`
             this.pageName = 'Meu perfil'
             break
-          case '/receipt':
-            document.title = `Sommittee | Recibos`
-            this.pageName = 'Recibos'
+          case '/received':
+            document.title = `Sommittee | Recebidos`
+            this.pageName = 'Recebidos'
             break
         }
       },

@@ -1,7 +1,8 @@
 import API from '@/services/module/API'
 
 const state = {
-  user: null,
+  // user: null,
+  user: [],
 }
 
 const mutations = {
@@ -21,6 +22,16 @@ const actions = {
     await API.auth.login(requestBody)
     const user = await API.auth.profile()
     commit('SET_USER', user)
+  },
+
+  async fetchUsers({ commit }) {
+    try {
+      const response = await API.user.getAll()
+      commit('SET_USERS', response.data)
+    } catch (error) {
+      console.error('Erro ao buscar usuários:', error)
+      throw error
+    }
   },
 
   async fetchUser({ commit }) {

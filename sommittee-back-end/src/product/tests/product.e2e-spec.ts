@@ -88,8 +88,6 @@ it('Filtrando produto específico', async () => {
   return response
 })
 
-
-
 it('Tentando filtrar produto específico sem o token', async () => {
   const idProduct = '641956e4-5113-482e-8a62-de185f241a7a'
 

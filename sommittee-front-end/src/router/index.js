@@ -3,7 +3,7 @@ import VueRouter from 'vue-router'
 import Home from '@/views/Home.vue'
 import index from '@/forms/myData/index.vue'
 import LoginCollaborator from '@/views/LoginCollaborator.vue'
-import Receipt from '@/components/receipt/Receipt.vue'
+import Received from '@/components/received/Received.vue'
 
 Vue.use(VueRouter)
 
@@ -25,9 +25,9 @@ const routes = [
   },
   { path: '*', redirect: '/' },
   {
-    path: '/receipt',
-    component: Receipt,
-    meta: { title: 'Recibos', auth: true },
+    path: '/received',
+    component: Received,
+    meta: { title: 'Recebidos', auth: true },
   },
 ]
 

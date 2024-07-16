@@ -18,12 +18,12 @@ import { StockModule } from './stock/stock.module';
 import { LogModule } from './log/log.module';
 import { LoggerMiddleware } from './log/middleware/logger.middleware';
 import { AttachmentModule } from './attachment/attachment.module';
-import { ReceiptModule } from './receipt/receipt.module';
 import { PurchaseModule } from './purchase/purchase.module';
+import { ReceivedModule } from './received/received.module';
 
 
 @Module({
-  imports: [ConfigModule.forRoot(), UserModule, AuthModule, AddressModule, PasswordModule, EmailModule, PeopleModule, FamilyModule, PeopleFamilyModule, DonorModule, DonationModule, ProductModule, StockModule, LogModule, AttachmentModule, ReceiptModule, PurchaseModule],
+  imports: [ConfigModule.forRoot(), UserModule, AuthModule, AddressModule, PasswordModule, EmailModule, PeopleModule, FamilyModule, PeopleFamilyModule, DonorModule, DonationModule, ProductModule, StockModule, LogModule, AttachmentModule, PurchaseModule, ReceivedModule],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })

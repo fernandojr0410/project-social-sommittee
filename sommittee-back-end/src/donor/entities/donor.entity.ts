@@ -11,4 +11,5 @@ export class DonorEntity implements Donor {
   created_at: Date;
   updated_at: Date;
   user_id: string;
+
 }

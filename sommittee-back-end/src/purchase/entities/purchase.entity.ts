@@ -9,6 +9,6 @@ export class PurchaseEntity implements Purchase {
   notes: string;
   created_at: Date;
   updated_at: Date;
-  receipt_id: string;
+  received_id: string;
   stock_id: string;
 }

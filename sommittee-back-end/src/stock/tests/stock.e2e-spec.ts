@@ -4,8 +4,8 @@ import { app, authToken } from "../../global.e2e-spec"
 it('Vinculando produto no stock', async () => {
   const newStock = {
     amount: '5',
-    product_id: '16975f39-e6a3-4af0-8a41-ebbc88e5e1cb',
-    donation_id: 'bc031f37-69ac-4b38-bb30-e937c8eaf119'
+    product_id: '0c387cb0-e809-43e0-811a-edb7ce605eba',
+    donation_id: '1d161225-f88d-4c00-81ee-b500e93431d9'
   }
 
   const response = await request(app.getHttpServer())
