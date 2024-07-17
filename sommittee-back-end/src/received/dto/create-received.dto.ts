@@ -8,7 +8,7 @@ export class CreateReceivedDto {
 
   @IsString()
   @IsNotEmpty()
-  amount: string
+  value: string
 
   @IsString()
   @IsOptional()

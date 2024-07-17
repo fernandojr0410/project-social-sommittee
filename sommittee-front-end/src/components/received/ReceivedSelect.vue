@@ -2,55 +2,59 @@
   <v-dialog v-model="dialog" max-width="600px">
     <v-card>
       <v-card-title class="flex justify-space-between items-center">
-        <span class="headline">Filtrar Recibos</span>
+        <span class="headline">Recebimento</span>
         <v-btn icon @click="closeDialog">
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-card-title>
       <v-card-text>
         <v-row>
-          <v-col cols="" md="6">
+          <v-col cols="12" md="6">
             <v-text-field
-              v-model="filters.issue_date"
-              label="Data de Emissão"
+              v-model="filters.id"
+              label="Código do recebimento"
+            ></v-text-field>
+            <v-text-field
+              v-model="filters.date"
+              label="Data do recebimento"
+            ></v-text-field>
+            <v-text-field
+              v-model="filters.amount"
+              label="Valor do recebimento"
             ></v-text-field>
             <v-text-field
               v-model="filters.description"
               label="Descrição"
             ></v-text-field>
             <v-text-field
-              v-model="filters.type_transaction"
-              label="Tipo de Transação"
-            ></v-text-field>
-            <v-text-field
-              v-model="filters.value_amount"
-              label="Valor Total"
-            ></v-text-field>
-            <v-text-field
-              v-model="filters.quantity"
-              label="Quantidade Paga"
+              v-model="filters.created_at"
+              label="Data de Criação"
             ></v-text-field>
           </v-col>
           <v-col cols="12" md="6">
             <v-text-field
-              v-model="filters.payment_method"
-              label="Tipo de Pagamento"
-            ></v-text-field>
-            <v-text-field
-              v-model="filters.receiver_signature"
-              label="Recebido por"
-            ></v-text-field>
-            <v-text-field
-              v-model="filters.additional_notes"
-              label="Observações"
-            ></v-text-field>
-            <v-text-field
-              v-model="filters.created_at"
-              label="Data de Criação"
-            ></v-text-field>
-            <v-text-field
               v-model="filters.updated_at"
               label="Data de Atualização"
+            ></v-text-field>
+            <v-text-field
+              v-model="filters.user_id"
+              label="Código do usuário"
+            ></v-text-field>
+            <v-text-field
+              v-model="filters.address_id"
+              label="Código do endereço"
+            ></v-text-field>
+            <v-text-field
+              v-model="filters.product_id"
+              label="Código do produto"
+            ></v-text-field>
+            <v-text-field
+              v-model="filters.donor_id"
+              label="Código do doador"
+            ></v-text-field>
+            <v-text-field
+              v-model="filters.stock_id"
+              label="Código do estoque"
             ></v-text-field>
           </v-col>
         </v-row>
@@ -67,7 +71,7 @@
 
 <script>
 export default {
-  name: 'ReceiptSelect',
+  name: 'ReceivedSelect',
   props: {
     dialog: {
       type: Boolean,

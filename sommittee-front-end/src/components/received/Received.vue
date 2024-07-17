@@ -1,10 +1,9 @@
 <template>
   <v-container fluid>
     <v-card>
-      <v-card-title>Recebidos</v-card-title>
+      <v-card-title>Lista de Recebimentos</v-card-title>
       <v-card-text>
         <v-data-table
-          :loading="loading"
           :headers="headers"
           :items="receiveds"
           :items-per-page="10"
@@ -29,18 +28,18 @@
           </template>
         </v-data-table>
 
-        <Received
+        <ReceivedSelect
           :dialog="filterDialog"
           :filters="filters"
           @close="filterDialog = false"
-          @apply="showDetails"
+          @apply="applyFilters"
         />
 
         <ReceivedEdit
           :dialog="editDialog"
-          :edited-receipt="editedReceipt"
+          :id="updatedReceivedId"
           @close="editDialog = false"
-          @save="saveEditedReceipt"
+          @save="saveUpdatedReceived"
         />
       </v-card-text>
     </v-card>
@@ -55,9 +54,9 @@
         </v-card-title>
         <v-card-text>
           <v-container>
-            <v-row v-if="selectedReceipt">
+            <v-row v-if="selectedReceived">
               <v-col
-                v-for="(value, key) in selectedReceipt"
+                v-for="(value, key) in selectedReceived"
                 :key="key"
                 cols="12"
               >
@@ -79,90 +78,105 @@
 </template>
 
 <script>
-import ReceivedEdit from '@/components/received/ReceivedEdit.vue'
 import ReceivedSelect from '@/components/received/ReceivedSelect.vue'
+import ReceivedEdit from '@/components/received/ReceivedEdit.vue'
+import { mapActions } from 'vuex'
 
 export default {
   name: 'Received',
-  components: { ReceivedEdit, ReceivedSelect },
+  components: { ReceivedSelect, ReceivedEdit },
   data() {
     return {
-      id: '',
-      issue_date: '',
-      description: '',
-      type_transaction: '',
-      value_amount: '',
-      quantity: '',
-      payment_method: '',
-      receiver_signature: '',
-      additional_notes: '',
-      created_at: '',
-      updated_at: '',
       dialog: false,
-      loading: false,
-      selectedReceipt: null,
       filterDialog: false,
+      selectedReceived: null,
       filters: {},
       editDialog: false,
-      editedReceipt: {},
+      updatedReceivedId: null,
       headers: [
         { text: 'ID', value: 'id' },
-        { text: 'Data de Emissão', value: 'issue_date' },
+        { text: 'Data do recebimento', value: 'date' },
+        { text: 'Valor do recebimento', value: 'value' },
         { text: 'Descrição', value: 'description' },
-        { text: 'Tipo de Transação', value: 'type_transaction' },
         { text: 'Ações', value: 'actions', align: 'center' },
       ],
     }
   },
   computed: {
     receiveds() {
-      return this.$store.state.receipt.receiveds
+      return this.$store.state.received.received
     },
   },
   created() {
+    // this.loading = true
     this.findAll()
+    // this.loading = false
   },
   methods: {
     async findAll() {
-      this.loading = true
       await this.$store.dispatch('received/findAll')
-      this.loading = false
     },
     showDetails(item) {
-      this.selectedReceipt = item
+      this.selectedReceived = item
       this.dialog = true
     },
     closeDialog() {
       this.dialog = false
-      this.selectedReceipt = null
+      this.selectedReceived = null
+    },
+    applyFilters() {
+      console.log('Aplicando filtros:', this.filters)
+      this.filterDialog = false
+      this.findAll()
     },
     editItem(item) {
-      this.editedReceipt = { ...item }
+      this.updatedReceivedId = item.id
       this.editDialog = true
     },
-    saveEditedReceipt() {
-      console.log('Salvando alterações:', this.editedReceipt)
-      this.editDialog = false
-    },
+    // ...mapActions('received', ['findById', 'update']),
 
+    // async saveUpdatedReceived(updatedReceived) {
+    //   console.log('Salvando alterações:', updatedReceived)
+    //   // await this.updateReceived(updatedReceived)
+    //   await this.$store.dispatch('received/update', updatedReceived)
+    //   // this.editDialog = false
+    // },
+    async saveUpdatedReceived(updatedReceived) {
+      try {
+        console.log('Salvando alterações:', updatedReceived)
+        await this.$store.dispatch('received/update', updatedReceived)
+        this.editDialog = false
+      } catch (error) {
+        console.error('Erro ao atualizar recebido:', error)
+        // Exemplo de tratamento de erro mais detalhado
+        if (error.response && error.response.data) {
+          console.log('Detalhes do erro:', error.response.data)
+        }
+        // Tratamento de erro específico para status 400
+        if (error.response && error.response.status === 400) {
+          // Exemplo: exibir mensagem de erro específica para o usuário
+          this.errorMessage =
+            'Erro: dados inválidos. Verifique os campos e tente novamente.'
+        } else {
+          // Outros tipos de tratamento de erro
+          this.errorMessage =
+            'Ocorreu um erro ao atualizar o recebido. Tente novamente mais tarde.'
+        }
+      }
+    },
     translateKey(key) {
       const translations = {
-        id: 'ID',
-        issue_date: 'Data de Emissão',
+        id: 'Código do recebimento',
+        date: 'Data do recebimento',
+        value: 'Valor do recebimento',
         description: 'Descrição',
-        type_transaction: 'Tipo de Transação',
-        value_amount: 'Valor Total',
-        quantity: 'Quantidade Paga',
-        payment_method: 'Tipo de Pagamento',
-        receiver_signature: 'Recebido por',
-        additional_notes: 'Observações',
         created_at: 'Data de Criação',
         updated_at: 'Data de Atualização',
       }
       return translations[key] || key
     },
     isSelected(item) {
-      return this.selectedReceipt === item
+      return this.selectedReceived === item
     },
   },
 }

@@ -3,7 +3,7 @@ import Http from './Http'
 
 class Auth extends Http {
   constructor() {
-    super('users/auth/')
+    super('users/auth')
   }
 
   async login(data) {

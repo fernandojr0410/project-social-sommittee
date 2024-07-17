@@ -2,7 +2,7 @@
   <v-dialog v-model="dialog" max-width="900px">
     <v-card>
       <v-card-title class="flex justify-space-between items-center">
-        <span class="headline">Editar Recibo</span>
+        <span class="headline">Editar Recebimento</span>
         <v-btn icon @click="closeDialog">
           <v-icon>mdi-close</v-icon>
         </v-btn>
@@ -10,49 +10,126 @@
       <v-card-text>
         <v-row>
           <v-col cols="12" md="6">
+            <span color="primary" style="font-weight: bold; font-size: 16px">
+              Colaborador:
+            </span>
             <v-text-field
-              v-model="editedReceipt.issue_date"
-              label="Data de Emissão"
+              v-if="updatedReceived && updatedReceived.user"
+              v-model="updatedReceived.user.name"
+              label="Nome"
+              disabled
             ></v-text-field>
             <v-text-field
-              v-model="editedReceipt.description"
-              label="Descrição"
+              v-if="updatedReceived && updatedReceived.user"
+              v-model="updatedReceived.user.surname"
+              label="Sobrenome"
+              disabled
             ></v-text-field>
             <v-text-field
-              v-model="editedReceipt.type_transaction"
-              label="Tipo de Transação"
-            ></v-text-field>
-            <v-text-field
-              v-model="editedReceipt.value_amount"
-              label="Valor Total"
-            ></v-text-field>
-            <v-text-field
-              v-model="editedReceipt.quantity"
-              label="Quantidade Paga"
+              v-if="updatedReceived && updatedReceived.user"
+              v-model="updatedReceived.user.email"
+              label="E-mail"
+              disabled
             ></v-text-field>
           </v-col>
           <v-col cols="12" md="6">
+            <span color="primary" style="font-weight: bold; font-size: 16px">
+              Recebimento:
+            </span>
             <v-text-field
-              v-model="editedReceipt.payment_method"
-              label="Tipo de Pagamento"
-            ></v-text-field>
-            <v-text-field
-              v-model="editedReceipt.receiver_signature"
-              label="Recebido por"
-            ></v-text-field>
-            <v-text-field
-              v-model="editedReceipt.additional_notes"
-              label="Observações"
-            ></v-text-field>
-            <v-text-field
-              v-model="editedReceipt.created_at"
-              label="Data de Criação"
+              v-model="updatedReceived.id"
+              label="Código"
               disabled
             ></v-text-field>
             <v-text-field
-              v-model="editedReceipt.updated_at"
-              label="Data de Atualização"
+              v-model="updatedReceived.value"
+              label="Valor"
+            ></v-text-field>
+            <v-text-field
+              v-model="updatedReceived.description"
+              label="Descrição"
+            ></v-text-field>
+            <v-text-field
+              v-model="updatedReceived.date"
+              :value="formatDateTime(updatedReceived.updated_at)"
+              label="Data de criação"
               disabled
+            ></v-text-field>
+            <v-text-field
+              v-model="updatedReceived.date"
+              label="Data de atualização"
+              disabled
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12">
+            <span color="primary" style="font-weight: bold; font-size: 16px">
+              Endereço:
+            </span>
+            <v-text-field
+              v-if="updatedReceived && updatedReceived.address"
+              v-model="updatedReceived.address.zip_code"
+              label="Cep"
+            ></v-text-field>
+
+            <v-text-field
+              v-if="updatedReceived && updatedReceived.address"
+              v-model="updatedReceived.address.street"
+              label="Rua"
+            ></v-text-field>
+            <v-text-field
+              v-if="updatedReceived && updatedReceived.address"
+              v-model="updatedReceived.address.number"
+              label="Número"
+            ></v-text-field>
+            <v-text-field
+              v-if="updatedReceived && updatedReceived.address"
+              v-model="updatedReceived.address.complement"
+              label="Complemento"
+            ></v-text-field>
+            <v-text-field
+              v-if="updatedReceived && updatedReceived.address"
+              v-model="updatedReceived.address.neighborhood"
+              label="Bairro"
+            ></v-text-field>
+            <v-text-field
+              v-if="updatedReceived && updatedReceived.address"
+              v-model="updatedReceived.address.city"
+              label="Cidade"
+            ></v-text-field>
+            <v-text-field
+              v-if="updatedReceived && updatedReceived.address"
+              v-model="updatedReceived.address.state"
+              label="Estado"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12">
+            <span color="primary" style="font-weight: bold; font-size: 16px">
+              Produto:
+            </span>
+            <v-text-field
+              v-if="updatedReceived && updatedReceived.product"
+              v-model="updatedReceived.product.name"
+              label="Produto"
+            ></v-text-field>
+            <v-text-field
+              v-if="updatedReceived && updatedReceived.product"
+              v-model="updatedReceived.product.description"
+              label="Descrição"
+            ></v-text-field>
+            <v-text-field
+              v-if="updatedReceived && updatedReceived.product"
+              v-model="updatedReceived.product.type"
+              label="Categoria"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" md="3">
+            <span color="primary" style="font-weight: bold; font-size: 16px">
+              Estoque:
+            </span>
+            <v-text-field
+              v-if="updatedReceived && updatedReceived.stock"
+              v-model="updatedReceived.stock.amount"
+              label="Quantidade no estoque"
             ></v-text-field>
           </v-col>
         </v-row>
@@ -68,8 +145,10 @@
 </template>
 
 <script>
+import { format } from 'date-fns'
+
 export default {
-  name: 'ReceiptEdit',
+  name: 'ReceivedEdit',
   props: {
     dialog: {
       type: Boolean,
@@ -77,7 +156,16 @@ export default {
     },
     id: {
       type: String,
-      required: true
+    },
+  },
+  data() {
+    return {
+      updatedReceived: {
+        user: {},
+        product: {},
+        stock: {},
+        address: {},
+      },
     }
   },
   watch: {
@@ -85,17 +173,40 @@ export default {
       immediate: true,
       handler: async function (id) {
         if (id) {
-          this.editedReceipt = await this.$store.dispatch('receipt/id', id)
+          this.updatedReceived = await this.$store.dispatch(
+            'received/findById',
+            id
+          )
+          console.log('ReceivedEdit ID', this.updatedReceived)
         }
-      }
-    }
+      },
+    },
   },
   methods: {
     closeDialog() {
       this.$emit('close')
     },
+
     saveChanges() {
-      this.$emit('save')
+      this.$emit('save', this.updatedReceived)
+    },
+    formatDate(date) {
+      if (!date) return ''
+      try {
+        return format(new Date(date), 'dd/MM/yyyy')
+      } catch (error) {
+        console.error('Invalid date value:', date)
+        return ''
+      }
+    },
+    formatDateTime(dateTime) {
+      if (!dateTime) return ''
+      try {
+        return format(new Date(dateTime), 'dd/MM/yyyy HH:mm:ss')
+      } catch (error) {
+        console.error('Invalid datetime value:', dateTime)
+        return ''
+      }
     },
   },
 }

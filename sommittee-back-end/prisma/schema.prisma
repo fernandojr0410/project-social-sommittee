@@ -226,7 +226,7 @@ model Attachment {
 model Received {
   id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
   date        String
-  amount      String
+  value       String
   description String?
   created_at  DateTime   @default(now())
   updated_at  DateTime   @updatedAt

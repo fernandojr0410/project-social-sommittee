@@ -30,9 +30,13 @@ class Http {
 
   async post(path, body) {
     try {
-      const { data } = await axios.post(this.path + (path || ''), body, {
-        headers: this.HTTP_CONFIG,
-      })
+      const { data } = await axios.post(
+        this.path + (path ? (path[0] === '/' ? path : `/${path}`) : ''),
+        body,
+        {
+          headers: this.HTTP_CONFIG,
+        }
+      )
       return data
     } catch (error) {
       this.checkExpires(error)
@@ -42,10 +46,13 @@ class Http {
 
   async get(path, params = {}) {
     try {
-      const { data } = await axios.get(this.path + (path || ''), {
-        headers: this.HTTP_CONFIG,
-        params,
-      })
+      const { data } = await axios.get(
+        this.path + (path ? (path[0] === '/' ? path : `/${path}`) : ''),
+        {
+          headers: this.HTTP_CONFIG,
+          params,
+        }
+      )
       return data
     } catch (error) {
       this.checkExpires(error)
@@ -53,13 +60,34 @@ class Http {
     }
   }
 
-  async put(path, body, params = {}) {
-    try {
-      const { data } = await axios.put(this.path + (path || ''), body, {
-        headers: this.HTTP_CONFIG,
-        params,
-      })
+  // async put(path, body, params = {}) {
+  //   try {
+  //     const { data } = await axios.put(
+  //       this.path + (path ? (path[0] === '/' ? path : `/${path}`) : ''),
+  //       body,
+  //       {
+  //         headers: this.HTTP_CONFIG,
+  //         params,
+  //       }
+  //     )
 
+  //     return data
+  //   } catch (error) {
+  //     this.checkExpires(error)
+  //     throw error
+  //   }
+  // }
+
+  async patch(path, body, params = {}) {
+    try {
+      const { data } = await axios.patch(
+        this.path + (path ? (path[0] === '/' ? path : `/${path}`) : ''),
+        body,
+        {
+          headers: this.HTTP_CONFIG,
+          params,
+        }
+      )
       return data
     } catch (error) {
       this.checkExpires(error)

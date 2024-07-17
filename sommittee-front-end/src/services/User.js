@@ -3,7 +3,7 @@ import Http from './Http'
 
 class User extends Http {
   constructor() {
-    super('users/')
+    super('users')
   }
 
   async update(id, data) {

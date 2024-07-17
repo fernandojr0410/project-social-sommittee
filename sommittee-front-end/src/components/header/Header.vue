@@ -79,7 +79,7 @@
 
         <v-list-item :to="{ path: '/received' }">
           <v-list-item-icon>
-            <v-icon>mdi-receipt-text-send-outline</v-icon>
+            <v-icon>mdi-hand-coin</v-icon>
           </v-list-item-icon>
           <v-list-item-title>Recebidos</v-list-item-title>
         </v-list-item>
@@ -128,13 +128,6 @@
             <v-icon>mdi-finance</v-icon>
           </v-list-item-icon>
           <v-list-item-title>Financeiro</v-list-item-title>
-        </v-list-item>
-
-        <v-list-item>
-          <v-list-item-icon>
-            <v-icon>mdi-hand-coin</v-icon>
-          </v-list-item-icon>
-          <v-list-item-title>Doações</v-list-item-title>
         </v-list-item>
 
         <v-list-item>
