@@ -17,8 +17,7 @@ class Received extends Http {
   }
 
   async update(id, data) {
-    const response = await this.patch(id, data)
-    console.log('Dados atualizados', response)
+    const response = await super.patch(id, data)
     return response
   }
 }

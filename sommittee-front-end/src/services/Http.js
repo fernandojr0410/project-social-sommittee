@@ -60,24 +60,6 @@ class Http {
     }
   }
 
-  // async put(path, body, params = {}) {
-  //   try {
-  //     const { data } = await axios.put(
-  //       this.path + (path ? (path[0] === '/' ? path : `/${path}`) : ''),
-  //       body,
-  //       {
-  //         headers: this.HTTP_CONFIG,
-  //         params,
-  //       }
-  //     )
-
-  //     return data
-  //   } catch (error) {
-  //     this.checkExpires(error)
-  //     throw error
-  //   }
-  // }
-
   async patch(path, body, params = {}) {
     try {
       const { data } = await axios.patch(

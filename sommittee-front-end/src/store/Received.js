@@ -8,16 +8,14 @@ const mutations = {
   SET_RECEIVED(state, received) {
     state.received = received
   },
-  UPDATE_RECEIVED(state, item) {
-    state.received = state.received.map((_item) => {
-      return _item.id === item.id ? item : _item
+
+  UPDATE_RECEIVED(state, updatedReceived) {
+    state.received = state.received.map((item) => {
+      return item.id === updatedReceived.id
+        ? { ...item, ...updatedReceived }
+        : item
     })
   },
-  // UPDATE_RECEIVED(state, updatedReceived) {
-  //   state.received = state.received.map((item) => {
-  //     return item.id === updatedReceived.id ? updatedReceived : item
-  //   })
-  // },
 }
 
 const getters = {
@@ -38,16 +36,10 @@ const actions = {
     return response
   },
 
-  async update({ commit }, data) {
-    try {
-      const response = await API.received.update(data.id, data)
-      commit('UPDATE_RECEIVED', response)
-      console.log('Dados atualizados:', response)
-      return response // se precisar de retorno para confirmar sucesso
-    } catch (error) {
-      console.error('Erro ao atualizar recebido:', error)
-      throw error
-    }
+  async update({ commit }, { id, payload }) {
+    const response = await API.received.update(id, payload)
+    commit('UPDATE_RECEIVED', response)
+    return response
   },
 }
 

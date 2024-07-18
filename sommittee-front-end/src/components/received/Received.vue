@@ -4,6 +4,7 @@
       <v-card-title>Lista de Recebimentos</v-card-title>
       <v-card-text>
         <v-data-table
+          :loading="loading"
           :headers="headers"
           :items="receiveds"
           :items-per-page="10"
@@ -13,7 +14,7 @@
             'show-current-page': true,
           }"
         >
-          <template v-slot:item.actions="{ item }">
+          <template v-slot:[`item.actions`]="{ item }">
             <v-icon
               class="mr-2"
               :color="isSelected(item) ? 'primary' : ''"
@@ -25,6 +26,10 @@
               mdi-pencil
             </v-icon>
             <v-icon color="red" @click="confirmDelete(item)">mdi-delete</v-icon>
+          </template>
+
+          <template v-slot:[`item.value`]="{ item }">
+            {{ item.value | currency }}
           </template>
         </v-data-table>
 
@@ -87,6 +92,7 @@ export default {
   components: { ReceivedSelect, ReceivedEdit },
   data() {
     return {
+      loading: false,
       dialog: false,
       filterDialog: false,
       selectedReceived: null,
@@ -94,10 +100,10 @@ export default {
       editDialog: false,
       updatedReceivedId: null,
       headers: [
-        { text: 'ID', value: 'id' },
         { text: 'Data do recebimento', value: 'date' },
-        { text: 'Valor do recebimento', value: 'value' },
+        { text: 'Código do recebimento', value: 'id', class: 'custom-header' },
         { text: 'Descrição', value: 'description' },
+        { text: 'Valor do recebimento', value: 'value' },
         { text: 'Ações', value: 'actions', align: 'center' },
       ],
     }
@@ -113,6 +119,16 @@ export default {
     // this.loading = false
   },
   methods: {
+    async loadData() {
+      this.loading = true
+      try {
+        await this.findAll()
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error)
+      } finally {
+        this.loading = false
+      }
+    },
     async findAll() {
       await this.$store.dispatch('received/findAll')
     },
@@ -133,36 +149,19 @@ export default {
       this.updatedReceivedId = item.id
       this.editDialog = true
     },
-    // ...mapActions('received', ['findById', 'update']),
+    ...mapActions('received', ['update']),
 
-    // async saveUpdatedReceived(updatedReceived) {
-    //   console.log('Salvando alterações:', updatedReceived)
-    //   // await this.updateReceived(updatedReceived)
-    //   await this.$store.dispatch('received/update', updatedReceived)
-    //   // this.editDialog = false
-    // },
     async saveUpdatedReceived(updatedReceived) {
-      try {
-        console.log('Salvando alterações:', updatedReceived)
-        await this.$store.dispatch('received/update', updatedReceived)
-        this.editDialog = false
-      } catch (error) {
-        console.error('Erro ao atualizar recebido:', error)
-        // Exemplo de tratamento de erro mais detalhado
-        if (error.response && error.response.data) {
-          console.log('Detalhes do erro:', error.response.data)
-        }
-        // Tratamento de erro específico para status 400
-        if (error.response && error.response.status === 400) {
-          // Exemplo: exibir mensagem de erro específica para o usuário
-          this.errorMessage =
-            'Erro: dados inválidos. Verifique os campos e tente novamente.'
-        } else {
-          // Outros tipos de tratamento de erro
-          this.errorMessage =
-            'Ocorreu um erro ao atualizar o recebido. Tente novamente mais tarde.'
-        }
+      await this.update(updatedReceived)
+    },
+
+    async saveChanges() {
+      const dataToUpdate = {
+        id: this.updatedReceived.id,
+        value: this.updatedReceived.value,
+        description: this.updatedReceived.description,
       }
+      await this.saveUpdatedReceived(dataToUpdate)
     },
     translateKey(key) {
       const translations = {

@@ -3,9 +3,6 @@ import { PrismaService } from "../../prisma/prisma.service";
 import { CreateReceivedDto } from "../dto/create-received.dto";
 import { ReceivedEntity } from "../entities/received.entity";
 import { UpdateReceivedDto } from "../dto/update-received.dto";
-import { TimeoutError } from "rxjs";
-
-
 @Injectable()
 export class ReceivedRepository {
   constructor(private readonly prisma: PrismaService) { }
@@ -66,7 +63,43 @@ export class ReceivedRepository {
   }
 
   async update(id: string, updateReceivedDto: UpdateReceivedDto): Promise<ReceivedEntity> {
-    return await this.prisma.received.update({ where: { id }, data: updateReceivedDto })
+    const { address, product, stock, ...rest } = updateReceivedDto;
+
+    const updateData: any = { ...rest };
+
+    if (address) {
+      updateData.address = {
+        update: {
+          ...address,
+        },
+      }
+      if (product) {
+        updateData.product = {
+          update: {
+            ...product
+          }
+        }
+      }
+      if (stock) {
+        updateData.stock = {
+          update: {
+            ...stock
+          }
+        }
+      }
+    }
+
+    return await this.prisma.received.update({
+      where: { id },
+      data: updateData,
+      include: {
+        address: true,
+        user: true,
+        product: true,
+        donor: true,
+        stock: true,
+      },
+    });
   }
 
   async remove(id: string): Promise<ReceivedEntity> {

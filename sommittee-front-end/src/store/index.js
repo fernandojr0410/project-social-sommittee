@@ -10,4 +10,24 @@ export default new Vuex.Store({
     auth,
     received,
   },
+  state: {
+    snackbar: {
+      visible: false,
+      status: '',
+      text: '',
+    },
+  },
+  mutations: {
+    SET_SNACKBAR(state, snackbar) {
+      state.snackbar = snackbar
+    },
+  },
+  actions: {
+    snackbar({ commit }, { status, text }) {
+      commit('SET_SNACKBAR', { status, text })
+    },
+  },
+  getters: {
+    snackbar: (state) => state.snackbar,
+  },
 })
