@@ -76,6 +76,22 @@ class Http {
       throw error
     }
   }
+
+  async filter(path, query) {
+    try {
+      const { data } = await axios.filter(
+        this.path + (path ? (path[0] === '/' ? path : `/${path}`) : ''),
+        {
+          headers: this.HTTP_CONFIG,
+          params: query,
+        }
+      )
+      return data
+    } catch (error) {
+      this.checkExpires(error)
+      throw error
+    }
+  }
 }
 
 export default Http

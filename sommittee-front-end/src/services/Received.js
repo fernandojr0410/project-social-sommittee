@@ -7,6 +7,7 @@ class Received extends Http {
 
   async findAll(data) {
     const response = await this.get(data)
+    console.log('FindAll received', response)
     return response
   }
 

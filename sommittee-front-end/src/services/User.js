@@ -1,4 +1,3 @@
-import axios from 'axios'
 import Http from './Http'
 
 class User extends Http {

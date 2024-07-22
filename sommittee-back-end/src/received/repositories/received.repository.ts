@@ -12,7 +12,49 @@ export class ReceivedRepository {
   }
 
   async findAll(): Promise<ReceivedEntity[]> {
-    return await this.prisma.received.findMany()
+    return await this.prisma.received.findMany({
+      include: {
+        address: {
+          select: {
+            zip_code: true,
+            street: true,
+            number: true,
+            complement: true,
+            neighborhood: true,
+            city: true,
+            state: true,
+          },
+        },
+        user: {
+          select: {
+            name: true,
+            surname: true,
+            email: true,
+          },
+        },
+        product: {
+          select: {
+            name: true,
+            description: true,
+            type: true,
+          },
+        },
+        donor: {
+          select: {
+            name: true,
+            surname: true,
+            email: true,
+            contact: true,
+            type_donor: true,
+          },
+        },
+        stock: {
+          select: {
+            amount: true,
+          },
+        },
+      },
+    });
   }
 
   async findById(id: string): Promise<ReceivedEntity> {

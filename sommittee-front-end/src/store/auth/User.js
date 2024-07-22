@@ -1,8 +1,8 @@
 import API from '@/services/module/API'
 
 const state = {
-  // user: null,
-  user: [],
+  user: null,
+  // user: [],
 }
 
 const mutations = {

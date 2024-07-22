@@ -1,25 +1,17 @@
 import Vue from 'vue'
+import { format } from 'date-fns'
 
-const datetime = (value, type) => {
-  // let dateFormat = type === 'short' ? 'DD/MM [às] HH:mm' : 'DD/MM/YYYY [às] HH:mm'
-  // if (moment.utc(value).format('DD/MM/YYYY') === moment().format('DD/MM/YYYY')) {
-  //   dateFormat = '[Hoje,] HH:mm'
-  // } else if (
-  //   moment.utc(value).format('DD/MM/YYYY') ===
-  //   moment()
-  //     .subtract(1, 'days')
-  //     .format('DD/MM/YYYY')
-  // ) {
-  //   dateFormat = '[Ontem,] HH:mm'
-  // } else if (
-  //   value >
-  //   moment()
-  //     .subtract(7, 'days')
-  //     .valueOf()
-  // ) {
-  //   dateFormat = 'dddd, HH:mm'
-  // }
-  // return moment.utc(value).format(dateFormat)
+export function formatDate(value) {
+  if (!value) return ''
+
+  const date = new Date(value)
+
+  if (isNaN(date.getTime())) {
+    console.error('Invalid date value:', value)
+    return ''
+  }
+
+  return format(date, 'dd/MM/yyyy')
 }
 
 Vue.filter('firstname', (name) =>

@@ -84,7 +84,7 @@
           <v-list-item-title>Recebidos</v-list-item-title>
         </v-list-item>
 
-        <v-list-item>
+        <v-list-item :to="{ path: '/address' }">
           <v-list-item-icon>
             <v-icon>mdi-truck-delivery-outline</v-icon>
           </v-list-item-icon>
@@ -189,6 +189,10 @@ export default {
           case '/received':
             document.title = `Sommittee | Recebidos`
             this.pageName = 'Recebidos'
+            break
+          case '/address':
+            document.title = `Sommittee | Entregas`
+            this.pageName = 'Entregas'
             break
         }
       },

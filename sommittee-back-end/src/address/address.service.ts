@@ -15,6 +15,19 @@ export class AddressService {
     return await this.repository.findAll()
   }
 
+  async filter(category: string, search: string) {
+    const filters = {
+      [category]: {
+        contains: search,
+        mode: 'insensitive'
+      }
+    };
+
+    console.log('Service filters:', filters);
+
+    return this.repository.filter(filters);
+  }
+
   async findById(id: string) {
     const address = await this.repository.findById(id)
     if (!address) {

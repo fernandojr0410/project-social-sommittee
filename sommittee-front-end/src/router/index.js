@@ -3,7 +3,8 @@ import VueRouter from 'vue-router'
 import Home from '@/views/Home.vue'
 import index from '@/forms/myData/index.vue'
 import LoginCollaborator from '@/views/LoginCollaborator.vue'
-import Received from '@/components/received/Received.vue'
+import Received from '@/views/Received.vue'
+import Address from '@/views/Address.vue'
 
 Vue.use(VueRouter)
 
@@ -28,6 +29,11 @@ const routes = [
     path: '/received',
     component: Received,
     meta: { title: 'Recebidos', auth: true },
+  },
+  {
+    path: '/address',
+    component: Address,
+    meta: { title: 'Endereços', auth: true },
   },
 ]
 

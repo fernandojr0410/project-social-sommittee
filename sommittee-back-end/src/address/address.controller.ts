@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards, Put, Req, Param, Delete, Patch, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Put, Req, Param, Delete, Patch, NotFoundException, Query } from '@nestjs/common';
 import { AddressService } from './address.service';
 import { CreateAddressDto } from './dto/create-address.dto';
 
@@ -10,9 +10,16 @@ export class AddressController {
   constructor(private readonly addressService: AddressService) { }
 
   @UseGuards(AuthGuard)
-  @Post()
-  async create(@Body() createAddressDto: CreateAddressDto) {
-    return await this.addressService.create(createAddressDto)
+  @Get('filter')
+  async filter(
+    @Query('category') category?: string,
+    @Query('search') search?: string
+  ) {
+    if (!category || !search) {
+      throw new Error('Missing category or search parameter');
+    }
+    const addresses = await this.addressService.filter(category, search);
+    return addresses;
   }
 
   @UseGuards(AuthGuard)
@@ -20,6 +27,7 @@ export class AddressController {
   async findAll() {
     return await this.addressService.findAll()
   }
+
 
   @UseGuards(AuthGuard)
   @Get(':id')

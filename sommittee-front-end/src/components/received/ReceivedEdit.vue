@@ -2,7 +2,7 @@
   <v-dialog v-model="dialog" max-width="900px">
     <v-card>
       <v-card-title class="flex justify-space-between items-center">
-        <span class="headline">Editar Recebimento</span>
+        <span class="headline">Editar recebimento</span>
         <v-btn icon @click="closeDialog">
           <v-icon>mdi-close</v-icon>
         </v-btn>
@@ -50,12 +50,12 @@
               label="Descrição"
             ></v-text-field>
             <v-text-field
-              :value="formatDateTime(updatedReceived.created_at)"
+              :value="formatDate(updatedReceived.created_at)"
               label="Data de criação"
               disabled
             ></v-text-field>
             <v-text-field
-              :value="formatDateTime(updatedReceived.updated_at)"
+              :value="formatDate(updatedReceived.updated_at)"
               label="Data de atualização"
               disabled
             ></v-text-field>
@@ -126,7 +126,7 @@
             </span>
             <v-text-field
               v-if="updatedReceived && updatedReceived.stock"
-              v-model="updatedReceived.stock.amount"
+              v-model="updatedReceived.stock.value"
               label="Quantidade no estoque"
             ></v-text-field>
           </v-col>
@@ -134,8 +134,12 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" text @click="saveChanges">
-          Salvar Alterações
+        <v-btn
+          text
+          @click="saveChanges"
+          style="background-color: #007fff; color: white; font-weight: bold"
+        >
+          SALVAR ALTERAÇÕES
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -143,7 +147,7 @@
 </template>
 
 <script>
-import { format } from 'date-fns'
+import { formatDate } from '@/filters'
 
 export default {
   name: 'ReceivedEdit',
@@ -225,30 +229,22 @@ export default {
             type: this.updatedReceived.product.type,
           },
           stock: {
-            value: this.updatedReceived.stock.value
-          }
+            value: this.updatedReceived.stock.value,
+          },
         },
       }
       this.$loading('Carregando...')
-      console.log('Data to Update:', dataToUpdate)
       try {
         await this.$store.dispatch('received/update', dataToUpdate)
         this.$success('Alterações salvas!')
+        this.$emit('close')
         return dataToUpdate
       } catch (error) {
         this.$error('Erro ao atualizar!')
         throw error
       }
     },
-    formatDateTime(date) {
-      if (!date) return ''
-      try {
-        return format(new Date(date), 'dd/MM/yyyy HH:mm')
-      } catch (error) {
-        console.error('Invalid date value:', date)
-        return ''
-      }
-    },
+    formatDate,
   },
 }
 </script>

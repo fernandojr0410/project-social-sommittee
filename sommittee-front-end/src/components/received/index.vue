@@ -1,14 +1,13 @@
 <template>
   <v-container fluid>
     <v-card>
-      <v-card-title>Lista de Recebimentos</v-card-title>
       <v-card-text>
         <v-data-table
           :loading="loading"
           :headers="headers"
           :items="receiveds"
           :items-per-page="10"
-          no-data-text="Nenhum recebido encontrado"
+          no-data-text="Nenhum recebimento encontrado"
           :footer-props="{
             'items-per-page-options': [10, 20, 30],
             'show-current-page': true,
@@ -52,7 +51,7 @@
     <v-dialog v-model="dialog" max-width="900px">
       <v-card>
         <v-card-title class="flex justify-space-between items-center">
-          <span class="headline">Detalhes do Recibo</span>
+          <span class="headline">Detalhes do recebimento</span>
           <v-btn icon @click="closeDialog">
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -79,17 +78,19 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+    <FloatingAction />
   </v-container>
 </template>
 
 <script>
+import { mapActions } from 'vuex'
 import ReceivedSelect from '@/components/received/ReceivedSelect.vue'
 import ReceivedEdit from '@/components/received/ReceivedEdit.vue'
-import { mapActions } from 'vuex'
+import FloatingAction from '@/components/button/FloatingAction.vue'
 
 export default {
-  name: 'Received',
-  components: { ReceivedSelect, ReceivedEdit },
+  name: 'index',
+  components: { ReceivedSelect, ReceivedEdit, FloatingAction },
   data() {
     return {
       loading: false,
@@ -100,11 +101,11 @@ export default {
       editDialog: false,
       updatedReceivedId: null,
       headers: [
-        { text: 'Data do recebimento', value: 'date' },
-        { text: 'Código do recebimento', value: 'id', class: 'custom-header' },
+        { text: 'Data do Recebimento', value: 'date' },
+        { text: 'Código do Recebimento', value: 'id' },
         { text: 'Descrição', value: 'description' },
-        { text: 'Valor do recebimento', value: 'value' },
-        { text: 'Ações', value: 'actions', align: 'center' },
+        { text: 'Valor do Recebimento', value: 'value' },
+        { text: 'Ações', value: 'actions' },
       ],
     }
   },
@@ -114,9 +115,7 @@ export default {
     },
   },
   created() {
-    // this.loading = true
-    this.findAll()
-    // this.loading = false
+    this.loadData()
   },
   methods: {
     async loadData() {
@@ -141,7 +140,6 @@ export default {
       this.selectedReceived = null
     },
     applyFilters() {
-      console.log('Aplicando filtros:', this.filters)
       this.filterDialog = false
       this.findAll()
     },
@@ -150,27 +148,17 @@ export default {
       this.editDialog = true
     },
     ...mapActions('received', ['update']),
-
     async saveUpdatedReceived(updatedReceived) {
       await this.update(updatedReceived)
     },
-
-    async saveChanges() {
-      const dataToUpdate = {
-        id: this.updatedReceived.id,
-        value: this.updatedReceived.value,
-        description: this.updatedReceived.description,
-      }
-      await this.saveUpdatedReceived(dataToUpdate)
-    },
     translateKey(key) {
       const translations = {
-        id: 'Código do recebimento',
-        date: 'Data do recebimento',
-        value: 'Valor do recebimento',
+        id: 'Código',
+        date: 'Data',
+        value: 'Valor',
         description: 'Descrição',
-        created_at: 'Data de Criação',
-        updated_at: 'Data de Atualização',
+        created_at: 'Data de criação',
+        updated_at: 'Data de atualização',
       }
       return translations[key] || key
     },
