@@ -15,6 +15,9 @@ const getters = {
   getById: (state) => {
     return (id) => state.users.find((user) => user.id === id)
   },
+  avatarUrl: (state) => {
+    return state.user?.avatar || ''
+  },
 }
 
 const actions = {
@@ -54,6 +57,12 @@ const actions = {
   async updatePassword({ commit }, payload) {
     const response = await API.auth.updatePassword(payload)
     commit('SET_USER', response)
+  },
+
+  async uploadAvatar({ commit }, formData) {
+    const response = await API.auth.uploadAvatar(formData)
+    commit('SET_USER', response)
+    return response
   },
 }
 

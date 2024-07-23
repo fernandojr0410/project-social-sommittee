@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app :style="{ backgroundColor: $vuetify.theme.themes.light.grayPrimary }">
     <v-card-title>Listas de endereços</v-card-title>
     <Index />
   </v-app>

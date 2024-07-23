@@ -37,6 +37,11 @@ class Auth extends Http {
     localStorage.removeItem('@sommittee.access_token')
     delete axios.defaults.headers.Authorization
   }
+
+  async uploadAvatar(formData) {
+    const { data } = await this.post('profile/avatar', formData, true)
+    return data
+  }
 }
 
 export default Auth

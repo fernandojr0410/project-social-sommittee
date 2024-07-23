@@ -1,9 +1,13 @@
-import { Body, Controller, Get, NotFoundException, Param, Patch, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, NotFoundException, Param, Patch, Post, Req, UseGuards, UseInterceptors, UploadedFile, Res, BadRequestException } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { UpdatePasswordDto } from "./dto/updatePassword-auth-dto";
 import { AuthGuard } from "./auth.guard";
 import { UpdateUserDto } from "../user/dto/update-user.dto";
 import { CreateUserDto } from "../user/dto/create-user.dto";
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Request, Response } from 'express';
+import { diskStorage } from "multer";
+import { extname } from "path";
 
 
 @Controller('users/auth')
@@ -56,4 +60,27 @@ export class AuthController {
     const userId = req.user.id;
     return await this.authService.logout(userId);
   }
+
+  @UseGuards(AuthGuard)
+  @Post('profile/avatar')
+  @UseInterceptors(FileInterceptor('file', {
+    storage: diskStorage({
+      destination: './uploads/avatars',
+      filename: (req, file, callback) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        callback(null, uniqueSuffix + extname(file.originalname));
+      }
+    })
+  }))
+  async uploadAvatar(@Req() req, @UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('File not uploaded');
+    }
+
+    const avatarPath = `/uploads/avatars/${file.filename}`;
+    await this.authService.updateAvatar(req.user.id, avatarPath);
+    return { avatarUrl: avatarPath };
+  }
+
+
 } 

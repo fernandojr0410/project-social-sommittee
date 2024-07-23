@@ -1,12 +1,12 @@
 <template>
-  <v-container fluid>
+  <v-container fluid color="">
     <v-card>
       <v-card-text>
-        <AddressSearch />
+        <AddressSearch @search="handleSearch" />
         <v-data-table
           :loading="loading"
           :headers="headers"
-          :items="address"
+          :items="filteredAddress"
           :items-per-page="10"
           no-data-text="Nenhum endereço encontrado"
           :footer-props="{
@@ -97,6 +97,7 @@ export default {
       createDialog: false,
       editDialog: false,
       updatedAddressId: null,
+      search: '',
       headers: [
         { text: 'CEP', value: 'zip_code' },
         { text: 'Rua', value: 'street' },
@@ -110,9 +111,10 @@ export default {
   },
   computed: {
     address() {
-      const address = this.$store.state.address.address
-      console.log('address:', address)
-      return address
+      return this.$store.state.address.address
+    },
+    filteredAddress() {
+      return this.$store.getters['address/filteredAddress'] || []
     },
     filteredSelectedAddress() {
       if (!this.selectedAddress) return {}
@@ -145,10 +147,20 @@ export default {
       await this.$store.dispatch('address/findAll')
     },
     async fetchAddresses() {
-      await this.$store.dispatch('address/filter', {
-        category: this.$store.state.address.searchCategory,
-        search: this.$store.state.address.searchTerm,
-      })
+      this.loading = true
+      try {
+        await this.$store.dispatch('address/filter', {
+          category: this.$store.state.address.searchCategory,
+          search: this.$store.state.address.searchTerm,
+        })
+      } catch (error) {
+        console.error('Erro ao buscar endereços:', error)
+      } finally {
+        this.loading = false
+      }
+    },
+    async handleSearch(search) {
+      this.search = search
     },
     showDetails(item) {
       this.selectedAddress = item

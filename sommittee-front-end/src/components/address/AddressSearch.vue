@@ -1,24 +1,19 @@
 <template>
   <v-container class="flex" style="display: flex; gap: 20px">
     <v-select
-      filled
-      dense
-      hide-details
+      outlined
       v-model="selectedCategory"
       :items="categories"
       label="Pesquisar por"
-      style="max-width: 400px; margin-bottom: 16px"
+      style="max-width: 200px"
     ></v-select>
     <v-text-field
-      filled
+      outlined
       rounded
-      dense
-      hide-details
       placeholder="Digite e tecle Enter"
-      autofocus
       v-model="search"
       prepend-inner-icon="mdi-magnify"
-      style="max-width: 400px"
+      style="max-width: 500px"
       @keyup.enter="applyFilter"
     ></v-text-field>
     <v-list>
@@ -50,15 +45,16 @@ export default {
         { value: 'complement', text: 'Complemento' },
         { value: 'city', text: 'Cidade' },
         { value: 'state', text: 'Estado' },
-        { value: 'created_at', text: 'Data de criação' },
-        { value: 'updated_at', text: 'Data de atualização' },
       ],
     }
   },
   computed: {
     filteredItems() {
-      return this.$store.state.address.filteredAddress
+      return this.$store.state.filteredAddress
     },
+  },
+  async mounted() {
+    await this.$store.dispatch('address/fetchAllAddresses')
   },
   methods: {
     async applyFilter() {
@@ -67,7 +63,9 @@ export default {
           category: this.selectedCategory,
           search: this.search,
         }
+        console.log('Antes de aplicar o filtro:', filterParams)
         await this.$store.dispatch('address/filter', filterParams)
+        console.log('Após aplicar o filtro:', this.filteredAddress)
       } catch (error) {
         console.error('Erro ao aplicar filtro:', error)
       }

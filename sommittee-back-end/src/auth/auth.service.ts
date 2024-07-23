@@ -10,6 +10,8 @@ import { jwtConstants } from "./jwtConstants";
 import { CreateUserDto } from "../user/dto/create-user.dto";
 import { PasswordService } from '../password/password.service';
 import { User } from "@prisma/client";
+import { join } from 'path';
+import { promises as fs } from 'fs';
 
 @Injectable()
 export class AuthService {
@@ -171,5 +173,19 @@ export class AuthService {
       return user;
     }
     return null;
+  }
+
+  async updateAvatar(userId: string, avatarPath: string) {
+    const user = await this.prisma.user.findFirst({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { avatar: avatarPath },
+    });
   }
 }

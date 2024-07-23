@@ -16,6 +16,7 @@ model User {
   telephone   String       @db.Char(15)
   password    String
   role        Role
+  avatar      String?
   created_at  DateTime     @default(now())
   updated_at  DateTime     @default(now()) @updatedAt
   last_action String?
@@ -58,7 +59,7 @@ model Address {
   neighborhood String
   city         String
   state        String
-  user         User?     @relation(fields: [user_id], references: [id])
+  user         User?      @relation(fields: [user_id], references: [id])
   user_id      String?    @db.Uuid()
   created_at   DateTime   @default(now())
   updated_at   DateTime   @default(now()) @updatedAt

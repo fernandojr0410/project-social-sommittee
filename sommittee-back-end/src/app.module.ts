@@ -20,10 +20,16 @@ import { LoggerMiddleware } from './log/middleware/logger.middleware';
 import { AttachmentModule } from './attachment/attachment.module';
 import { PurchaseModule } from './purchase/purchase.module';
 import { ReceivedModule } from './received/received.module';
-
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
-  imports: [ConfigModule.forRoot(), UserModule, AuthModule, AddressModule, PasswordModule, EmailModule, PeopleModule, FamilyModule, PeopleFamilyModule, DonorModule, DonationModule, ProductModule, StockModule, LogModule, AttachmentModule, PurchaseModule, ReceivedModule],
+  imports: [ConfigModule.forRoot(), UserModule, AuthModule, AddressModule, PasswordModule, EmailModule, PeopleModule, FamilyModule, PeopleFamilyModule, DonorModule, DonationModule, ProductModule, StockModule, LogModule, AttachmentModule, PurchaseModule, ReceivedModule,
+  ServeStaticModule.forRoot({
+    rootPath: join(__dirname, '..', 'uploads'), // Diretório onde os arquivos estão armazenados
+    serveRoot: '/uploads', // URL prefix para acessar arquivos
+  }),
+  ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })

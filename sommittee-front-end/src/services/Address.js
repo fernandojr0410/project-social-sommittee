@@ -20,12 +20,14 @@ class Address extends Http {
     return response
   }
 
-  async filter(data) {
+  async filter(params) {
     try {
-      const response = await this.axiosInstance.filter('filter', {
-        params: data,
-      })
-      return response.data
+      if (typeof params !== 'object') {
+        throw new Error('Query parameter must be an object')
+      }
+      const response = await super.filter('filter', params)
+      console.log('response service:', response)
+      return response
     } catch (error) {
       console.error('Erro ao filtrar endereços:', error)
       throw error

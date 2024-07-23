@@ -15,6 +15,7 @@ export default new Vuetify({
         info: '#006699', // Azul claro para representar confiabilidade e estabilidade
         success: '#009933', // Verde para representar prosperidade e crescimento
         warning: '#FFCC33', // Amarelo para representar precaução e atenção
+        grayPrimary: '#F5F5F5', // Cinza claro
       },
       dark: {
         primary: '#0d47a1', // Azul escuro para representar confiabilidade e seriedade
@@ -25,9 +26,6 @@ export default new Vuetify({
         success: '#4caf50', // Verde para representar prosperidade e crescimento
         warning: '#ffd54f', // Amarelo para representar precaução e atenção
       },
-    },
-    gray: {
-      primary: '#D9D9D9',
     },
   },
 })

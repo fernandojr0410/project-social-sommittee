@@ -3,6 +3,8 @@ import API from '@/services/module/API'
 const state = {
   address: [],
   filteredAddress: [],
+  searchCategory: '',
+  searchTerm: '',
 }
 
 const mutations = {
@@ -21,8 +23,22 @@ const mutations = {
         : item
     })
   },
-  FILTER_ADDRESS(state, filteredAddress) {
+
+  SET_ALL_ADDRESS(state, addresses) {
+    state.allAddresses = addresses
+    state.filteredAddress = addresses
+  },
+
+  SET_FILTER_ADDRESS(state, filteredAddress) {
     state.filteredAddress = filteredAddress
+  },
+
+  SET_SEARCH_CATEGORY(state, category) {
+    state.searchCategory = category
+  },
+
+  SET_SEARCH_TERM(state, term) {
+    state.searchTerm = term
   },
 }
 
@@ -51,14 +67,24 @@ const actions = {
     return response
   },
 
-  async filter({ commit }, payload) {
+  async fetchAllAddresses({ commit }) {
     try {
-      const response = await API.address.filter(payload)
-      commit('FILTER_ADDRESS', response)
-      console.log('Response:', response)
+      const response = await API.address.findAll()
+      commit('SET_ALL_ADDRESS', response)
+      commit('SET_FILTER_ADDRESS', response)
+    } catch (error) {
+      console.error('Erro ao buscar todos os endereços:', error)
+    }
+  },
+
+  async filter({ commit }, { category, search }) {
+    try {
+      const response = await API.address.filter({ category, search })
+      commit('SET_FILTER_ADDRESS', response)
+      commit('SET_SEARCH_CATEGORY', category)
+      commit('SET_SEARCH_TERM', search)
     } catch (error) {
       console.error('Erro ao filtrar endereços:', error)
-      throw error
     }
   },
 
