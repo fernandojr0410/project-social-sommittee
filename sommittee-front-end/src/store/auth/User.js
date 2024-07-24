@@ -6,17 +6,26 @@ const state = {
 }
 
 const mutations = {
-  SET_USER(state, user) {
-    state.user = user
+  // SET_USER(state, user) {
+  //   state.user = user
+  // },
+  // store/modules/auth.js
+  SET_USER(state, payload) {
+    state.user = { ...state.user, ...payload }
   },
+
+  // SET_AVATAR_URL(state, avatarUrl) {
+  //   state.avatarUrl = avatarUrl
+  // },
 }
 
 const getters = {
   getById: (state) => {
     return (id) => state.users.find((user) => user.id === id)
   },
+
   avatarUrl: (state) => {
-    return state.user?.avatar || ''
+    return state.user?.avatarUrl || ''
   },
 }
 
@@ -59,11 +68,24 @@ const actions = {
     commit('SET_USER', response)
   },
 
-  async uploadAvatar({ commit }, formData) {
-    const response = await API.auth.uploadAvatar(formData)
-    commit('SET_USER', response)
-    return response
-  },
+  // async uploadAvatar({ commit, state }, formData) {
+  //   try {
+  //     const response = await API.auth.uploadAvatar(formData)
+  //     console.log('Resposta da API:', response)
+
+  //     if (response && response.avatar) {
+  //       const avatarUrl = response.avatar
+  //       const updatedUser = { ...state.user, avatar: avatarUrl }
+  //       commit('SET_USER', updatedUser)
+  //       return response
+  //     } else {
+  //       throw new Error('avatar não encontrado na resposta')
+  //     }
+  //   } catch (error) {
+  //     console.error('Erro ao enviar o avatar:', error)
+  //     throw error
+  //   }
+  // },
 }
 
 export default {

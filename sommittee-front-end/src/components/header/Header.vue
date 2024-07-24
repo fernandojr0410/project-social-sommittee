@@ -116,7 +116,7 @@
           <v-list-item-title>Famílias</v-list-item-title>
         </v-list-item>
 
-        <v-list-item>
+        <v-list-item :to="{ path: '/people' }">
           <v-list-item-icon>
             <v-icon>mdi-account-group</v-icon>
           </v-list-item-icon>
@@ -193,6 +193,10 @@ export default {
           case '/address':
             document.title = `Sommittee | Entregas`
             this.pageName = 'Entregas'
+            break
+          case '/people':
+            document.title = `Sommittee | Pessoas`
+            this.pageName = 'Pessoas'
             break
         }
       },

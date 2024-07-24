@@ -9,6 +9,13 @@ import { UpdateAddressDto } from './dto/update-address.dto';
 export class AddressController {
   constructor(private readonly addressService: AddressService) { }
 
+
+  @UseGuards(AuthGuard)
+  @Post('register')
+  async register(@Body() createAddressDto: CreateAddressDto) {
+    return await this.addressService.create(createAddressDto)
+  }
+
   @UseGuards(AuthGuard)
   @Get('filter')
   async filter(

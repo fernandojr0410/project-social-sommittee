@@ -1,5 +1,7 @@
 <template>
-  <v-container class="flex" style="display: flex; gap: 20px">
+  <!-- class="flex"  gap: 20px" -->
+
+  <v-container style="display: flex; gap: 20px">
     <v-select
       outlined
       v-model="selectedCategory"

@@ -175,17 +175,15 @@ export class AuthService {
     return null;
   }
 
-  async updateAvatar(userId: string, avatarPath: string) {
-    const user = await this.prisma.user.findFirst({
-      where: { id: userId },
-    });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+  // async updateAvatar(userId: string, avatarPath: string) {
+  //   const user = await this.prisma.user.findFirst({ where: { id: userId } });
+  //   if (!user) {
+  //     throw new NotFoundException('User not found');
+  //   }
 
-    return this.prisma.user.update({
-      where: { id: userId },
-      data: { avatar: avatarPath },
-    });
-  }
+  //   return this.prisma.user.update({
+  //     where: { id: userId },
+  //     data: { avatar: avatarPath },
+  //   });
+  // }
 }

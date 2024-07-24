@@ -24,7 +24,7 @@
           <v-row>
             <v-col cols="12">
               <v-text-field
-                v-mask="'#####-###'"
+                v-mask="'##-###-###'"
                 v-model="createdAddress.zip_code"
                 label="Cep"
                 :rules="[(value) => /^\d{5}-\d{3}$/.test(value) || '']"

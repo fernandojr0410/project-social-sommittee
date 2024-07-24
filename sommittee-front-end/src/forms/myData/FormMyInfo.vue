@@ -4,7 +4,11 @@
       <v-row class="d-flex justify-center">
         <v-col cols="12" class="d-flex justify-center">
           <v-avatar size="120" class="avatar-display" @click="triggerFileInput">
-            <img :src="avatarUrl" v-if="avatarUrl" />
+            <img
+              :src="avatarPreview || defaultAvatar"
+              v-if="avatarPreview || defaultAvatar"
+            />
+
             <input
               ref="fileInput"
               type="file"
@@ -87,6 +91,9 @@ export default {
   computed: {
     ...mapState('auth', ['user']),
     ...mapGetters('auth', ['avatarUrl']),
+    avatarUrl() {
+      return this.user?.avatarUrl || ''
+    },
   },
   watch: {
     user: {
@@ -136,18 +143,35 @@ export default {
       this.showModal = true
     },
     ...mapActions('auth', ['uploadAvatar']),
-    handleFileChange(event) {
+    async handleFileChange(event) {
       const file = event.target.files[0]
       if (file) {
-        this.uploadAvatar(file)
+        const formData = new FormData()
+        formData.append('file', file)
+
+        try {
+          const response = await this.uploadAvatar(formData)
+          if (response && response.avatar) {
+            this.avatarPreview = response.avatar
+          }
+        } catch (error) {
+          console.error('Erro ao enviar o avatar:', error)
+        }
       }
     },
 
-    async uploadAvatar(file) {
-      const formData = new FormData()
-      formData.append('file', file)
-
-      await this.$store.dispatch('auth/uploadAvatar', formData)
+    async uploadAvatar(formData) {
+      try {
+        const response = await this.$store.dispatch(
+          'auth/uploadAvatar',
+          formData
+        )
+        console.log('Avatar enviado com sucesso!', response)
+        return response
+      } catch (error) {
+        console.error('Erro ao enviar o avatar:', error)
+        throw error
+      }
     },
 
     triggerFileInput() {

@@ -5,6 +5,7 @@ import index from '@/forms/myData/index.vue'
 import LoginCollaborator from '@/views/LoginCollaborator.vue'
 import Received from '@/views/Received.vue'
 import Address from '@/views/Address.vue'
+import People from '@/views/People.vue'
 
 Vue.use(VueRouter)
 
@@ -34,6 +35,11 @@ const routes = [
     path: '/address',
     component: Address,
     meta: { title: 'Endereços', auth: true },
+  },
+  {
+    path: '/people',
+    component: People,
+    meta: { title: 'Pessoas', auth: true },
   },
 ]
 

@@ -48,6 +48,14 @@ Vue.filter('cpf', (cpf) => {
     .replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
 })
 
+Vue.filter('cep', (cep) => {
+  if (!cep) {
+    return ''
+  }
+
+  return cep.replace(/[^\d]/g, '').replace(/(\d{5})(\d{3})/, '$1-$2')
+})
+
 // Vue.filter('weekday', value => moment.utc(value).format('dddd'))
 // Vue.filter('fromNow', value => moment.utc(value).fromNow())
 // Vue.filter('log', value => console.log(moment().format('DD/MM/YYYY [às] HH:mm:ss [=>]'), value))

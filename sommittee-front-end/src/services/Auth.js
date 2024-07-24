@@ -38,10 +38,16 @@ class Auth extends Http {
     delete axios.defaults.headers.Authorization
   }
 
-  async uploadAvatar(formData) {
-    const { data } = await this.post('profile/avatar', formData, true)
-    return data
-  }
+  // async uploadAvatar(formData) {
+  //   try {
+  //     const { data } = await this.avatar('profile/avatar', formData, true)
+  //     console.log('Resposta da API:', data)
+  //     return data
+  //   } catch (error) {
+  //     console.error('Erro ao enviar o avatar:', error)
+  //     throw error
+  //   }
+  // }
 }
 
 export default Auth

@@ -98,25 +98,25 @@ class Http {
     }
   }
 
-  async post(path, body, isFormData = false) {
-    try {
-      const headers = isFormData
-        ? { ...this.HTTP_CONFIG, 'Content-Type': 'multipart/form-data' }
-        : this.HTTP_CONFIG
+  // async avatar(path, body, isFormData = false) {
+  //   try {
+  //     const headers = isFormData
+  //       ? { ...this.HTTP_CONFIG, 'Content-Type': 'multipart/form-data' }
+  //       : this.HTTP_CONFIG
 
-      const url =
-        this.path + (path ? (path[0] === '/' ? path : `/${path}`) : '')
+  //     const url =
+  //       this.path + (path ? (path[0] === '/' ? path : `/${path}`) : '')
 
-      const response = await axios.post(url, body, { headers })
-      console.log('Resposta da solicitação:', response.data)
+  //     const response = await axios.post(url, body, { headers })
+  //     console.log('Resposta da solicitação:', response)
 
-      return response.data
-    } catch (error) {
-      this.checkExpires(error)
-      console.error('Erro no avatar:', error)
-      throw error
-    }
-  }
+  //     return response
+  //   } catch (error) {
+  //     this.checkExpires(error)
+  //     console.error('Erro no avatar:', error)
+  //     throw error
+  //   }
+  // }
 }
 
 export default Http

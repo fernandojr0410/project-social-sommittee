@@ -13,7 +13,22 @@ export class PeopleRepository {
   }
 
   async findAll(): Promise<PeopleEntity[]> {
-    return await this.prisma.people.findMany()
+    return await this.prisma.people.findMany({
+      include: {
+        address: {
+          select: {
+            zip_code: true,
+            street: true,
+            number: true,
+            neighborhood: true,
+            complement: true,
+            city: true,
+            state: true,
+
+          }
+        }
+      }
+    })
   }
 
   async findById(id: string): Promise<PeopleEntity> {

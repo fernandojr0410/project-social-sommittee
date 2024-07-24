@@ -36,7 +36,8 @@ export class AddressRepository {
             surname: true,
             email: true
           }
-        }
+        },
+        people: true,
       }
     })
   }
@@ -51,7 +52,8 @@ export class AddressRepository {
             surname: true,
             email: true
           },
-        }
+        },
+        people: true,
       }
     })
   }

@@ -1,12 +1,13 @@
 <template>
-  <v-container fluid color="">
+  <v-container>
     <v-card>
       <v-card-text>
+        <!-- :items="filteredAddress" -->
         <AddressSearch @search="handleSearch" />
         <v-data-table
           :loading="loading"
           :headers="headers"
-          :items="filteredAddress"
+          :items="combinedLocation"
           :items-per-page="10"
           no-data-text="Nenhum endereço encontrado"
           :footer-props="{
@@ -14,6 +15,18 @@
             'show-current-page': true,
           }"
         >
+          <template v-slot:[`item.created_at`]="{ item }">
+            <span>{{ formatDate(item.created_at) }}</span>
+          </template>
+
+          <template v-slot:[`item.person_name`]="{ item }">
+            <span>{{ item.person_name }}</span>
+          </template>
+
+          <template v-slot:[`item.person_surname`]="{ item }">
+            <span>{{ item.person_surname }}</span>
+          </template>
+
           <template v-slot:[`item.actions`]="{ item }">
             <v-icon
               class="mr-2"
@@ -99,12 +112,14 @@ export default {
       updatedAddressId: null,
       search: '',
       headers: [
+        { text: 'Data criação', value: 'created_at' },
+        { text: 'Nome da Pessoa', value: 'person_name' },
+        { text: 'Sobrenome', value: 'person_surname' },
         { text: 'CEP', value: 'zip_code' },
         { text: 'Rua', value: 'street' },
         { text: 'Número', value: 'number' },
         { text: 'Bairro', value: 'neighborhood' },
-        { text: 'Cidade', value: 'city' },
-        { text: 'Estado', value: 'state' },
+        { text: 'Cidade e Estado', value: 'combined_location' },
         { text: 'Ações', value: 'actions' },
       ],
     }
@@ -125,6 +140,20 @@ export default {
         user_surname: user ? user.surname : 'Não disponível',
         user_email: user ? user.email : 'Não disponível',
       }
+    },
+    combinedLocation() {
+      return this.filteredAddress.map((address) => {
+        const person =
+          address.people && address.people.length > 0 ? address.people[0] : {}
+
+        return {
+          ...address,
+          person_name: person.name || 'N/A',
+          person_surname: person.surname || 'N/A',
+          person_telephone: person.telephone || 'N/A',
+          combined_location: `${address.city || 'N/A'} - ${address.state || 'N/A'}`,
+        }
+      })
     },
   },
 

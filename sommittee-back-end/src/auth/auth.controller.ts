@@ -1,4 +1,4 @@
-import { Body, Controller, Get, NotFoundException, Param, Patch, Post, Req, UseGuards, UseInterceptors, UploadedFile, Res, BadRequestException } from "@nestjs/common";
+import { Body, Controller, Get, NotFoundException, Param, Patch, Post, Req, UseGuards, UseInterceptors, UploadedFile, Res, BadRequestException, InternalServerErrorException } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { UpdatePasswordDto } from "./dto/updatePassword-auth-dto";
 import { AuthGuard } from "./auth.guard";
@@ -60,27 +60,41 @@ export class AuthController {
     const userId = req.user.id;
     return await this.authService.logout(userId);
   }
+  // @UseGuards(AuthGuard)
+  // @Post('profile/avatar')
+  // @UseInterceptors(FileInterceptor('file', {
+  //   storage: diskStorage({
+  //     destination: './uploads/avatars',
+  //     filename: (req, file, callback) => {
+  //       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+  //       callback(null, uniqueSuffix + extname(file.originalname));
+  //     }
+  //   })
+  // }))
+  // async uploadAvatar(@Req() req, @UploadedFile() file: Express.Multer.File) {
+  //   console.log('Arquivo recebido:', file);
 
-  @UseGuards(AuthGuard)
-  @Post('profile/avatar')
-  @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage({
-      destination: './uploads/avatars',
-      filename: (req, file, callback) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        callback(null, uniqueSuffix + extname(file.originalname));
-      }
-    })
-  }))
-  async uploadAvatar(@Req() req, @UploadedFile() file: Express.Multer.File) {
-    if (!file) {
-      throw new BadRequestException('File not uploaded');
-    }
+  //   if (!file) {
+  //     throw new BadRequestException('File not uploaded');
+  //   }
 
-    const avatarPath = `/uploads/avatars/${file.filename}`;
-    await this.authService.updateAvatar(req.user.id, avatarPath);
-    return { avatarUrl: avatarPath };
-  }
+  //   console.log('Tipo do arquivo:', file.mimetype);
+  //   console.log('Tamanho do arquivo:', file.size);
+  //   console.log('Caminho do arquivo:', file.path);
+
+  //   const avatarPath = `/uploads/avatars/${file.filename}`;
+  //   console.log('Caminho do avatar:', avatarPath);
+
+  //   try {
+  //     await this.authService.updateAvatar(req.user.id, avatarPath);
+  //   } catch (error) {
+  //     console.error('Erro ao atualizar o avatar:', error);
+  //     throw new InternalServerErrorException('Error updating avatar');
+  //   }
+
+  //   return { avatar: avatarPath };
+  // }
+
 
 
 } 
