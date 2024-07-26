@@ -17,12 +17,20 @@
             <span>{{ formatDate(item.created_at) }}</span>
           </template>
 
-          <template v-slot:[`item.work`]="{ item }">
-            <span>{{ formatWork(item.work) }}</span>
+          <template v-slot:[`item.gender`]="{ item }">
+            <span>{{ item.gender | gender }}</span>
           </template>
 
-          <template v-slot:[`item.gender`]="{ item }">
-            <span>{{ formatWork(item.gender) }}</span>
+          <template v-slot:[`item.work`]="{ item }">
+            <span>{{ item.work | work }}</span>
+          </template>
+
+          <template v-slot:[`item.address`]="{ item }">
+            <span>{{ formatAddress(item.address) }}</span>
+          </template>
+
+          <template v-slot:[`item.states`]="{ item }">
+            <span>{{ item.states | state }}</span>
           </template>
 
           <template v-slot:[`item.actions`]="{ item }">
@@ -50,6 +58,7 @@
         />
       </v-card-text>
     </v-card>
+
     <v-dialog v-model="dialog" max-width="900px">
       <v-card>
         <v-card-title class="flex justify-space-between items-center">
@@ -59,69 +68,233 @@
           </v-btn>
         </v-card-title>
         <v-card-text>
-          <v-list>
-            <v-list-item-group v-if="selectedPeople">
-              <v-list-item
-                v-for="(value, key) in filteredSelectedPeople"
-                :key="key"
-              >
-                <v-list-item-content>
-                  <v-list-item-title style="font-weight: bold">
-                    {{ translateKey(key) }}
-                  </v-list-item-title>
-                  <v-list-item-subtitle style="font-size: 16px" color="primary">
-                    {{
-                      key === 'created_at' || key === 'updated_at'
-                        ? formatDate(value)
-                        : key === 'work'
-                          ? formatWork(value)
-                          : key === 'gender'
-                            ? formatGender(value)
-                            : value
-                    }}
-                  </v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list-item-group>
+          <v-row>
+            <v-col cols="16" md="10">
+              <span color="primary" style="font-weight: bold; font-size: 16px">
+                Informações da pessoa:
+              </span>
+            </v-col>
+          </v-row>
 
-            <v-list-item v-if="selectedPeople && selectedPeople.address">
-              <v-list-item-content>
-                <v-list-item-title style="font-weight: bold">
-                  Endereço
-                </v-list-item-title>
-                <v-list-item-subtitle style="font-size: 16px" color="primary">
-                  {{ formatAddress(selectedPeople.address) }}
-                </v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list>
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="selectedPeople.name"
+                label="Nome"
+                class="mr-3"
+              />
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="selectedPeople.surname"
+                label="Sobrenome"
+              />
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="selectedPeople.cpf"
+                label="CPF"
+                class="mr-3"
+                disabled
+              />
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="selectedPeople.birth_date"
+                type="date"
+                label="Data de nascimento"
+              />
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="selectedPeople.email"
+                label="E-mail"
+                class="mr-3"
+                disabled
+              />
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="selectedPeople.telephone"
+                label="Telefone"
+              />
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-select
+                v-model="selectedPeople.gender"
+                :items="genderItems"
+                item-value="value"
+                item-text="text"
+                label="Sexo"
+              />
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-select
+                v-model="selectedPeople.work"
+                :items="workItems"
+                item-value="value"
+                item-text="text"
+                label="Trabalha?"
+              />
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col cols="12">
+              <v-text-field
+                v-model="selectedPeople.education"
+                label="Educação"
+                class="mr-3"
+              />
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col cols="16" md="10">
+              <span color="primary" style="font-weight: bold; font-size: 16px">
+                Informações do endereço:
+              </span>
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-if="selectedPeople && selectedPeople.address"
+                v-model="selectedPeople.address.zip_code"
+                label="CEP"
+                class="mr-3"
+              />
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-if="selectedPeople && selectedPeople.address"
+                v-model="selectedPeople.address.street"
+                label="Rua"
+              />
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-if="selectedPeople && selectedPeople.address"
+                v-model="selectedPeople.address.number"
+                label="Número"
+                class="mr-3"
+              />
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-if="selectedPeople && selectedPeople.address"
+                v-model="selectedPeople.address.neighborhood"
+                label="Bairro"
+              />
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col cols="12" md="4">
+              <v-text-field
+                v-if="selectedPeople && selectedPeople.address"
+                v-model="selectedPeople.address.complement"
+                label="Complemento"
+                class="mr-3"
+              />
+            </v-col>
+
+            <v-col cols="12" md="4">
+              <v-text-field
+                v-if="selectedPeople && selectedPeople.address"
+                v-model="selectedPeople.address.city"
+                label="Cidade"
+              />
+            </v-col>
+
+            <v-col cols="12" md="4">
+              <v-text-field
+                v-if="selectedPeople && selectedPeople.address"
+                v-model="selectedPeople.address.state"
+                label="Estado"
+              />
+            </v-col>
+          </v-row>
         </v-card-text>
       </v-card>
     </v-dialog>
+
+    <PeopleCreate
+      :dialog="createDialog"
+      @close="createDialog = false"
+      @save="createdPeople"
+    />
   </v-container>
 </template>
 
 <script>
 import { formatDate } from '@/filters'
+import { states } from '@/assets/state'
 import PeopleEdit from './PeopleEdit.vue'
+import PeopleCreate from './PeopleCreate.vue'
 import { mapActions } from 'vuex'
 
 export default {
   name: 'index',
-  components: { PeopleEdit },
+  components: { PeopleEdit, PeopleCreate },
   data() {
     return {
       loading: false,
       dialog: false,
-      selectedPeople: null,
       editDialog: false,
       updatedPeopleId: null,
+      selectedPeople: null,
+      createDialog: false,
       headers: [
         { text: 'Data criação', value: 'created_at' },
         { text: 'Nome', value: 'name' },
         { text: 'Sobrenome', value: 'surname' },
+        { text: 'Gênero', value: 'gender' },
         { text: 'CPF', value: 'cpf' },
         { text: 'Ações', value: 'actions' },
+      ],
+      selectedPeople: {
+        name: '',
+        surname: '',
+        cpf: '',
+        email: '',
+        birth_date: '',
+        gender: '',
+        telephone: '',
+        work: '',
+        education: '',
+        address: {
+          zip_code: '',
+          street: '',
+          number: '',
+          complement: '',
+          neighborhood: '',
+          city: '',
+          state: '',
+        },
+      },
+      states,
+      formatDate,
+      genderItems: [
+        { value: 'MALE', text: 'Masculino' },
+        { value: 'FEMALE', text: 'Feminino' },
+      ],
+      workItems: [
+        { value: true, text: 'Sim' },
+        { value: false, text: 'Não' },
       ],
     }
   },
@@ -129,27 +302,14 @@ export default {
     people() {
       return this.$store.state.people.people
     },
-    filteredSelectedPeople() {
-      const { id, address, address_id, ...rest } = this.selectedPeople || {}
-      return rest
+    genderOtions() {
+      return this.genderItems
     },
   },
-
   created() {
     this.loadData()
   },
   methods: {
-    formatDate,
-    formatWork(work) {
-      return work ? 'Sim' : 'Não'
-    },
-    formatGender(gender) {
-      return gender ? 'Masculino' : 'Feminino'
-    },
-    formatAddress(address) {
-      if (!address) return ''
-      return `${address.street}, ${address.number}, ${address.neighborhood}, ${address.city} - ${address.state}, ${address.zip_code}`
-    },
     async loadData() {
       this.loading = true
       try {
@@ -175,25 +335,14 @@ export default {
       this.updatedPeopleId = item.id
       this.editDialog = true
     },
-    ...mapActions('people', ['update']),
+    ...mapActions('people', ['update', 'create']),
     async saveUpdatedPeople(updatedPeople) {
       await this.update(updatedPeople)
     },
-    translateKey(key) {
-      const translations = {
-        name: 'Nome',
-        surname: 'Sobrenome',
-        cpf: 'CPF',
-        email: 'E-mail',
-        birth_date: 'Data de nascimento',
-        gender: 'Sexo',
-        telephone: 'Telefone',
-        work: 'Trabalha?',
-        education: 'Educação',
-        created_at: 'Data de criação',
-        updated_at: 'Data de atualização',
-      }
-      return translations[key] || key
+    async createdPeople(createdPeople) {
+      await this.$store.dispatch('people/create', createdPeople)
+      await this.loadData()
+      this.createDialog = false
     },
     isSelected(item) {
       return this.selectedPeople === item

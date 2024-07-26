@@ -1,6 +1,4 @@
-<template>
-  <!-- class="flex"  gap: 20px" -->
-
+<!-- <template>
   <v-container style="display: flex; gap: 20px">
     <v-select
       outlined
@@ -74,4 +72,4 @@ export default {
     },
   },
 }
-</script>
+</script> -->

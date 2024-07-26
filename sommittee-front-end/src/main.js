@@ -5,6 +5,7 @@ import store from './store'
 import './filters'
 import vuetify from './plugins/vuetify'
 import { VueMaskDirective } from 'v-mask'
+
 Vue.directive('mask', VueMaskDirective)
 
 Vue.filter('capitalize', function (value) {

@@ -9,64 +9,161 @@
       </v-card-title>
       <v-card-text>
         <v-row>
-          <v-col cols="12">
+          <v-col cols="16" md="10">
             <span color="primary" style="font-weight: bold; font-size: 16px">
               Informações da pessoa:
             </span>
-            <v-row>
-              <v-text-field
-                v-model="updatedPeople.name"
-                label="Nome"
-                class="mb-4"
-              />
-              <v-text-field v-model="updatedPeople.surname" label="Sobrenome" />
-            </v-row>
           </v-col>
-
-          <v-row>
-            <v-col cols="12">
-              <v-text-field v-model="updatedPeople.cpf" label="CPF" disabled />
-              <v-text-field v-model="updatedPeople.email" label="E-mail" />
-            </v-col>
-          </v-row>
-
-          <v-text-field
-            v-model="updatedPeople.birth_date"
-            label="Data de nascimento"
-          />
-          <v-text-field v-model="updatedPeople.gender" label="Genêro" />
-
-          <v-text-field v-model="updatedPeople.telephone" label="Telefone" />
-          <v-text-field v-model="updatedPeople.work" label="Trabalha?" />
-
-          <v-text-field v-model="updatedPeople.education" label="Educação" />
         </v-row>
 
         <v-row>
           <v-col cols="12" md="6">
+            <v-text-field
+              v-model="updatedPeople.name"
+              label="Nome"
+              class="mr-3"
+            />
+          </v-col>
+          <v-col cols="12" md="6">
+            <v-text-field v-model="updatedPeople.surname" label="Sobrenome" />
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col cols="12" md="6">
+            <v-text-field
+              v-model="updatedPeople.cpf"
+              label="CPF"
+              class="mr-3"
+              disabled
+            />
+          </v-col>
+          <v-col cols="12" md="6">
+            <v-text-field
+              v-model="updatedPeople.birth_date"
+              type="date"
+              label="Data de nascimento"
+            />
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col cols="12" md="6">
+            <v-text-field
+              v-model="updatedPeople.email"
+              label="E-mail"
+              class="mr-3"
+              disabled
+            />
+          </v-col>
+          <v-col cols="12" md="6">
+            <v-text-field v-model="updatedPeople.telephone" label="Telefone" />
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col cols="12" md="6">
+            <v-select
+              v-model="updatedPeople.gender"
+              :items="genderItems"
+              item-value="value"
+              item-text="text"
+              label="Sexo"
+            />
+          </v-col>
+          <v-col cols="12" md="6">
+            <v-select
+              v-model="updatedPeople.work"
+              :items="workItems"
+              item-value="value"
+              item-text="text"
+              label="Trabalha?"
+            />
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col cols="12">
+            <v-text-field
+              v-model="updatedPeople.education"
+              label="Educação"
+              class="mr-3"
+            />
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col cols="16" md="10">
             <span color="primary" style="font-weight: bold; font-size: 16px">
               Informações do endereço:
             </span>
           </v-col>
-          <v-row>
-            <v-text-field v-model="updatedPeople.zip_code" label="Cep" />
-            <v-text-field v-model="updatedPeople.street" label="Rua" />
-            <v-text-field v-model="updatedPeople.number" label="Número" />
-            <v-text-field
-              v-model="updatedPeople.complement"
-              label="Complemento"
-            />
-            <v-text-field v-model="updatedPeople.neighborhood" label="Bairro" />
-            <v-text-field v-model="updatedPeople.city" label="Cidade" />
+        </v-row>
 
+        <v-row>
+          <v-col cols="12" md="6">
+            <v-text-field
+              v-if="updatedPeople && updatedPeople.address"
+              v-model="updatedPeople.address.zip_code"
+              label="CEP"
+              class="mr-3"
+            />
+          </v-col>
+          <v-col cols="12" md="6">
+            <v-text-field
+              v-if="updatedPeople && updatedPeople.address"
+              v-model="updatedPeople.address.street"
+              label="Rua"
+            />
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col cols="12" md="6">
+            <v-text-field
+              v-if="updatedPeople && updatedPeople.address"
+              v-model="updatedPeople.address.number"
+              label="Número"
+              class="mr-3"
+            />
+          </v-col>
+          <v-col cols="12" md="6">
+            <v-text-field
+              v-if="updatedPeople && updatedPeople.address"
+              v-model="updatedPeople.address.neighborhood"
+              label="Bairro"
+            />
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col cols="12" md="4">
+            <v-text-field
+              v-if="updatedPeople && updatedPeople.address"
+              v-model="updatedPeople.address.complement"
+              label="Complemento"
+              class="mr-3"
+            />
+          </v-col>
+
+          <v-col cols="12" md="4">
+            <v-text-field
+              v-if="updatedPeople && updatedPeople.address"
+              v-model="updatedPeople.address.city"
+              label="Cidade"
+            />
+          </v-col>
+
+          <v-col cols="12" md="4">
             <v-select
-              v-model="updatedPeople.state"
+              v-if="updatedPeople && updatedPeople.address"
+              v-model="updatedPeople.address.state"
               :items="states"
               item-value="acronym"
               item-text="name"
               label="Selecione o estado"
             />
-          </v-row>
+          </v-col>
         </v-row>
       </v-card-text>
       <v-card-actions>
@@ -93,10 +190,11 @@ export default {
       type: Boolean,
       required: true,
     },
+    id: {
+      type: String,
+    },
   },
-  id: {
-    type: String,
-  },
+
   data() {
     return {
       updatedPeople: {
@@ -110,16 +208,38 @@ export default {
         telephone: '',
         work: '',
         education: '',
-        address: {},
+        address: {
+          zip_code: '',
+          street: '',
+          number: '',
+          complement: '',
+          neighborhood: '',
+          city: '',
+          state: '',
+        },
       },
-      states: states || [],
+      states,
+      genderItems: [
+        { value: 'MALE', text: 'Masculino' },
+        { value: 'FEMALE', text: 'Feminino' },
+      ],
+      workItems: [
+        { value: true, text: 'Sim' },
+        { value: false, text: 'Não' },
+      ],
     }
+  },
+  computed: {
+    genderOptions() {
+      return this.genderItems
+    },
   },
   watch: {
     id: {
       immediate: true,
       handler: async function (id) {
         if (id) {
+          console.log('Buscando dados para id:', id)
           this.updatedPeople = await this.$store.dispatch('people/findById', id)
         }
       },
@@ -130,13 +250,13 @@ export default {
       this.$emit('close')
     },
     async saveChanges() {
-      updateData = {
+      const updateData = {
         id: this.updatedPeople.id,
         payload: {
           name: this.updatedPeople.name,
           surname: this.updatedPeople.surname,
-          cpf: this.updatedPeople.cpf,
-          email: this.updatedPeople.email,
+          //  cpf: this.updatedPeople.cpf,
+          // email: this.updatedPeople.email,
           birth_date: this.updatedPeople.birth_date,
           gender: this.updatedPeople.gender,
           telephone: this.updatedPeople.telephone,
@@ -153,10 +273,17 @@ export default {
           },
         },
       }
+
+      console.log('UpdateData', updateData)
+      console.log('Gender antes de salvar:', this.updatedPeople.gender)
       this.$loading('Carregando...')
       try {
-        this.$sucess('Alterações salvas!')
+        console.log('antes', updateData)
+        await this.$store.dispatch('people/update', updateData)
+        console.log('depois', updateData)
+        this.$success('Alterações salvas!')
         this.$emit('close')
+        return updateData
       } catch (error) {
         this.$error('Erro ao atualizar!')
         throw error

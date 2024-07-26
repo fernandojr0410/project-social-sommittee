@@ -20,18 +20,14 @@ import { LoggerMiddleware } from './log/middleware/logger.middleware';
 import { AttachmentModule } from './attachment/attachment.module';
 import { PurchaseModule } from './purchase/purchase.module';
 import { ReceivedModule } from './received/received.module';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
-
+import { CepService } from './cep/cep.service';
+import { CepModule } from './cep/cep.module';
+import { HttpModule } from '@nestjs/axios';
 @Module({
-  imports: [ConfigModule.forRoot(), UserModule, AuthModule, AddressModule, PasswordModule, EmailModule, PeopleModule, FamilyModule, PeopleFamilyModule, DonorModule, DonationModule, ProductModule, StockModule, LogModule, AttachmentModule, PurchaseModule, ReceivedModule,
-  ServeStaticModule.forRoot({
-    rootPath: join(__dirname, '..', 'uploads'), // Diretório onde os arquivos estão armazenados
-    serveRoot: '/uploads', // URL prefix para acessar arquivos
-  }),
+  imports: [ConfigModule.forRoot(), UserModule, AuthModule, AddressModule, PasswordModule, EmailModule, PeopleModule, FamilyModule, PeopleFamilyModule, DonorModule, DonationModule, ProductModule, StockModule, LogModule, AttachmentModule, PurchaseModule, ReceivedModule, HttpModule, CepModule
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaService],
+  providers: [AppService, PrismaService, CepService],
 })
 
 export class AppModule implements NestModule {

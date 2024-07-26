@@ -14,6 +14,29 @@ export function formatDate(value) {
   return format(date, 'dd/MM/yyyy')
 }
 
+export const workItem = [
+  { value: true, text: 'Sim' },
+  { value: false, text: 'Não' },
+]
+
+export const genderItems = [
+  { value: 'MALE', text: 'Masculino' },
+  { value: 'FEMALE', text: 'Feminino' },
+]
+
+Vue.filter('gender', (value) => {
+  const genderMap = {
+    MALE: 'Masculino',
+    FEMALE: 'Feminino',
+  }
+
+  return genderMap[value]
+})
+
+Vue.filter('boolean', (value) => {
+  return value ? 'Sim' : 'Não'
+})
+
 Vue.filter('firstname', (name) =>
   (name || '').indexOf(' ') > -1 ? name.substr(0, name.indexOf(' ')) : name
 )
@@ -26,8 +49,8 @@ Vue.filter('shortname', (name) =>
 Vue.filter('json', (data) => JSON.stringify(data, null, 2))
 
 Vue.filter('birthday', (value) => {
-  // const date = moment.utc(value).format('DD/MM')
-  // return `${date} (${moment().diff(moment(value), 'years')} anos)`
+  const date = moment.utc(value).format('DD/MM')
+  return `${date} (${moment().diff(moment(value), 'years')} anos)`
 })
 
 Vue.filter('cnpj', (cnpj) => {

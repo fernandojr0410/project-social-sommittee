@@ -3,6 +3,7 @@ import { PeopleService } from "./people.service";
 import { AuthGuard } from "../auth/auth.guard";
 import { CreatePeopleDto } from "./dto/create-people.dto";
 import { UpdateUserDto } from "../user/dto/update-user.dto";
+import { UpdatePeopleDto } from "./dto/update-people.dto";
 
 @Controller('people')
 export class PeopleController {
@@ -32,8 +33,8 @@ export class PeopleController {
 
   @UseGuards(AuthGuard)
   @Patch(':id')
-  async updatedData(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return await this.peopleService.update(id, updateUserDto)
+  async updatedData(@Param('id') id: string, @Body() updatePeopleDto: UpdatePeopleDto) {
+    return await this.peopleService.update(id, updatePeopleDto)
   }
 
   @UseGuards(AuthGuard)

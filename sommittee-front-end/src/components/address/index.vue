@@ -1,8 +1,8 @@
-<template>
+<!-- <template>
   <v-container>
     <v-card>
       <v-card-text>
-        <!-- :items="filteredAddress" -->
+        
         <AddressSearch @search="handleSearch" />
         <v-data-table
           :loading="loading"
@@ -225,10 +225,6 @@ export default {
         state: 'Estado',
         created_at: 'Data de criação',
         updated_at: 'Data de atualização',
-        user_id: 'usuario',
-        user_name: 'Nome colaborador(a)',
-        user_surname: 'Sobrenome colaborador(a)',
-        user_email: 'E-mail colaborador(a)',
       }
       return translations[key] || key
     },
@@ -237,4 +233,4 @@ export default {
     },
   },
 }
-</script>
+</script> -->

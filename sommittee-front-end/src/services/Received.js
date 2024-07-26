@@ -13,7 +13,6 @@ class Received extends Http {
 
   async findById(id, data) {
     const response = await this.get(id, data)
-    console.log('FindById received', response)
     return response
   }
 

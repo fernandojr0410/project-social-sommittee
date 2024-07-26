@@ -9,39 +9,82 @@ export class PeopleRepository {
   constructor(private readonly prisma: PrismaService) { }
 
   async create(createPeopleDto: CreatePeopleDto): Promise<PeopleEntity> {
-    return await this.prisma.people.create({ data: createPeopleDto })
+    const { address, ...peopleData } = createPeopleDto;
+
+    const createdAddress = await this.prisma.address.create({
+      data: address,
+    });
+
+    return await this.prisma.people.create({
+      data: {
+        ...peopleData,
+        address: {
+          connect: { id: createdAddress.id },
+        },
+      },
+      include: { address: true },
+    });
   }
+
 
   async findAll(): Promise<PeopleEntity[]> {
     return await this.prisma.people.findMany({
       include: {
-        address: {
-          select: {
-            zip_code: true,
-            street: true,
-            number: true,
-            neighborhood: true,
-            complement: true,
-            city: true,
-            state: true,
-
-          }
-        }
+        address: true,
       }
     })
   }
 
   async findById(id: string): Promise<PeopleEntity> {
     return await this.prisma.people.findFirst({
-      where: { id }
+      where: { id },
+      include: {
+        address: {
+          select: {
+            zip_code: true,
+            street: true,
+            number: true,
+            complement: true,
+            neighborhood: true,
+            city: true,
+            state: true,
+          }
+        }
+      }
     })
   }
 
   async update(id: string, updatePeopleDto: UpdatePeopleDto): Promise<PeopleEntity> {
-    return this.prisma.people.update({
+    const { address, ...rest } = updatePeopleDto
+
+    const updateData: any = { ...rest }
+
+    if (address) {
+      updateData.address = {
+        update: {
+          ...address,
+        }
+      }
+    }
+    console.log('Update Data:', updateData);
+    return await this.prisma.people.update({
       where: { id },
-      data: updatePeopleDto
+      data: updateData,
+      include: {
+        address: {
+          select: {
+            zip_code: true,
+            street: true,
+            number: true,
+            complement: true,
+            neighborhood: true,
+            city: true,
+            state: true,
+          }
+        }
+      }
     })
+
   }
 
   async remove(id: string): Promise<PeopleEntity> {

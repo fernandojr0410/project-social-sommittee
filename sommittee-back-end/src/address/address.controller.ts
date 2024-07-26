@@ -16,18 +16,18 @@ export class AddressController {
     return await this.addressService.create(createAddressDto)
   }
 
-  @UseGuards(AuthGuard)
-  @Get('filter')
-  async filter(
-    @Query('category') category?: string,
-    @Query('search') search?: string
-  ) {
-    if (!category || !search) {
-      throw new Error('Missing category or search parameter');
-    }
-    const addresses = await this.addressService.filter(category, search);
-    return addresses;
-  }
+  // @UseGuards(AuthGuard)
+  // @Get('filter')
+  // async filter(
+  //   @Query('category') category?: string,
+  //   @Query('search') search?: string
+  // ) {
+  //   if (!category || !search) {
+  //     throw new Error('Missing category or search parameter');
+  //   }
+  //   const addresses = await this.addressService.filter(category, search);
+  //   return addresses;
+  // }
 
   @UseGuards(AuthGuard)
   @Get()

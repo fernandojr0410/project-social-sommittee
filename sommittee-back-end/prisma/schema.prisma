@@ -26,7 +26,6 @@ model User {
   loggers     Logger[]
   attachments Attachment[]
   receiveds   Received[]
-  address     Address[]
 
   @@map("users")
 }
@@ -59,8 +58,6 @@ model Address {
   neighborhood String
   city         String
   state        String
-  user         User?      @relation(fields: [user_id], references: [id])
-  user_id      String?    @db.Uuid()
   created_at   DateTime   @default(now())
   updated_at   DateTime   @default(now()) @updatedAt
   people       People[]

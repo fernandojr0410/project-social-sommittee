@@ -10,71 +10,42 @@ export class AddressRepository {
   constructor(private readonly prisma: PrismaService) { }
 
   async create(createAddressDto: CreateAddressDto): Promise<AddressEntity> {
-    const { user_id, ...addressData } = createAddressDto;
+    return await this.prisma.address.create({ data: createAddressDto })
+    // const { user_id, ...addressData } = createAddressDto;
 
-    if (!user_id) {
-      throw new Error('User ID must be provided');
-    }
+    // if (!user_id) {
+    //   throw new Error('User ID must be provided');
+    // }
 
-    return this.prisma.address.create({
-      data: {
-        ...addressData,
-        user: {
-          connect: { id: user_id },
-        },
-      },
-      include: { user: true },
-    });
+    // return this.prisma.address.create({
+    //   data: {
+    //     ...addressData,
+    //     user: {
+    //       connect: { id: user_id },
+    //     },
+    //   },
+    //   include: { user: true },
+    // });
   }
 
   async findAll(): Promise<AddressEntity[]> {
-    return await this.prisma.address.findMany({
-      include: {
-        user: {
-          select: {
-            name: true,
-            surname: true,
-            email: true
-          }
-        },
-        people: true,
-      }
-    })
+    return await this.prisma.address.findMany()
   }
 
   async findById(id: string): Promise<AddressEntity> {
     return await this.prisma.address.findFirst({
       where: { id },
-      include: {
-        user: {
-          select: {
-            name: true,
-            surname: true,
-            email: true
-          },
-        },
-        people: true,
-      }
     })
   }
 
-  async filter(filters: any): Promise<AddressEntity[]> {
+  // async filter(filters: any): Promise<AddressEntity[]> {
 
-    return await this.prisma.address.findMany({
-      where: {
-        ...filters,
-      },
-      include: {
-        user: {
-          select: {
-            name: true,
-            surname: true,
-            email: true
-          }
-        }
-      }
-    });
-  }
+  //   return await this.prisma.address.findMany({
+  //     where: {
+  //       ...filters,
+  //     },
+  //   });
+  // }
 
   async update(id: string, updateAddressDto: UpdateAddressDto): Promise<AddressEntity> {
     return await this.prisma.address.update({

@@ -5,6 +5,10 @@ const state = {
 }
 
 const mutations = {
+  CREATE_PEOPLE(state, newPeople) {
+    state.people.push(newPeople)
+  },
+
   SET_PEOPLE(state, people) {
     state.people = people
   },
@@ -23,6 +27,12 @@ const getters = {
 }
 
 const actions = {
+  async create({ commit }, payload) {
+    const response = await API.people.create(payload)
+    console.log('Resposta ao criar pessoa', response)
+    commit('CREATE_PEOPLE', response)
+  },
+
   async findAll({ commit }) {
     const response = await API.people.findAll()
     commit('SET_PEOPLE', response)
@@ -30,13 +40,16 @@ const actions = {
 
   async findById({ commit }, id) {
     const response = await API.people.findById(id)
+    console.log('Dados retornados por findById:', response)
     commit('UPDATE_PEOPLE', response)
+    return response
   },
 
   async update({ commit }, { id, payload }) {
     const response = await API.people.update(id, payload)
     console.log('dados store', response)
     commit('UPDATE_PEOPLE', response)
+    return response
   },
 }
 
