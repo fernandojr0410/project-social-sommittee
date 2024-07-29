@@ -7,6 +7,7 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
+    "@vee-validate/yup": "^4.13.2",
     "autoprefixer": "^10",
     "core-js": "^3.8.3",
     "date-fns": "^3.6.0",

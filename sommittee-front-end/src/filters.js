@@ -14,7 +14,7 @@ export function formatDate(value) {
   return format(date, 'dd/MM/yyyy')
 }
 
-export const workItem = [
+export const workItems = [
   { value: true, text: 'Sim' },
   { value: false, text: 'Não' },
 ]
@@ -33,9 +33,17 @@ Vue.filter('gender', (value) => {
   return genderMap[value]
 })
 
-Vue.filter('boolean', (value) => {
-  return value ? 'Sim' : 'Não'
+Vue.filter('work', (value) => {
+  const workMap = {
+    true: 'Sim',
+    false: 'Não',
+  }
+  return workMap[value]
 })
+
+// Vue.filter('boolean', (value) => {
+//   return value ? 'Sim' : 'Não'
+// })
 
 Vue.filter('firstname', (name) =>
   (name || '').indexOf(' ') > -1 ? name.substr(0, name.indexOf(' ')) : name
@@ -61,7 +69,7 @@ Vue.filter('cnpj', (cnpj) => {
   return cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5')
 })
 
-Vue.filter('cpf', (cpf) => {
+export function formatCpf(cpf) {
   if (!cpf) {
     return ''
   }
@@ -69,31 +77,16 @@ Vue.filter('cpf', (cpf) => {
   return cpf
     .replace(/[^\d]/g, '')
     .replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
-})
+}
 
-Vue.filter('cep', (cep) => {
-  if (!cep) {
-    return ''
-  }
+export function cleanCpf(cpf) {
+  return cpf.replace(/[^\d]/g, '')
+}
 
-  return cep.replace(/[^\d]/g, '').replace(/(\d{5})(\d{3})/, '$1-$2')
-})
+Vue.filter('cpf', formatCpf)
 
-// Vue.filter('weekday', value => moment.utc(value).format('dddd'))
-// Vue.filter('fromNow', value => moment.utc(value).fromNow())
-// Vue.filter('log', value => console.log(moment().format('DD/MM/YYYY [às] HH:mm:ss [=>]'), value))
-// Vue.filter('time', value => moment.utc(value).format('HH:mm'))
-// Vue.filter('datetime', datetime)
-// Vue.filter('date', value => moment.utc(value).format('DD/MM/YYYY'))
-// Vue.filter('datetext', value => {
-//   if (moment().format('YY') === moment.utc(value).format('YY')) {
-//     return moment.utc(value).format('DD MMM')
-//   }
-
-//   return moment.utc(value).format('DD MMM [de] YY')
-// })
-Vue.filter('phone', (str, { ddi } = {}) => {
-  const cleaned = ('' + str).replace(/\D/g, '')
+export function formatPhone(phone, { ddi } = {}) {
+  const cleaned = ('' + phone).replace(/\D/g, '')
   let match = null
 
   if (ddi) {
@@ -104,7 +97,7 @@ Vue.filter('phone', (str, { ddi } = {}) => {
     }
 
     if (!match) {
-      return str
+      return phone
     }
 
     return `+${match[1]} (${match[2]}) ${match[3]}-${match[4]}`
@@ -121,11 +114,34 @@ Vue.filter('phone', (str, { ddi } = {}) => {
   }
 
   if (match) {
-    return '(' + match[1] + ') ' + match[2] + '-' + match[3]
+    return `(${match[1]}) ${match[2]}-${match[3]}`
   }
 
-  return str
-})
+  return phone
+}
+
+export function cleanPhone(phone) {
+  return phone.replace(/\D/g, '')
+}
+
+Vue.filter('phone', formatPhone)
+
+export function formatCep(cep) {
+  const cleaned = ('' + cep).replace(/\D/g, '')
+  let match = cleaned.match(/^(\d{5})(\d{3})$/)
+
+  if (match) {
+    return `${match[1]}-${match[2]}`
+  }
+
+  return cep
+}
+
+export function cleanCep(cep) {
+  return cep.replace(/\D/g, '')
+}
+
+Vue.filter('cep', formatCep)
 
 Vue.filter('uppercase', (value) => (value || '').toString().toUpperCase())
 Vue.filter('lowercase', (value) => (value || '').toString().toLowerCase())

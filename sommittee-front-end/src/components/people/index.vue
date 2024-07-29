@@ -17,6 +17,10 @@
             <span>{{ formatDate(item.created_at) }}</span>
           </template>
 
+          <template v-slot:[`item.cpf`]="{ item }">
+            <span>{{ item.cpf | cpf }}</span>
+          </template>
+
           <template v-slot:[`item.gender`]="{ item }">
             <span>{{ item.gender | gender }}</span>
           </template>
@@ -70,7 +74,10 @@
         <v-card-text>
           <v-row>
             <v-col cols="16" md="10">
-              <span color="primary" style="font-weight: bold; font-size: 16px">
+              <span
+                class="primary--text"
+                style="font-weight: bold; font-size: 16px"
+              >
                 Informações da pessoa:
               </span>
             </v-col>
@@ -79,33 +86,19 @@
           <v-row>
             <v-col cols="12" md="6">
               <v-text-field
+                v-if="selectedPeople"
                 v-model="selectedPeople.name"
                 label="Nome"
-                class="mr-3"
-              />
-            </v-col>
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model="selectedPeople.surname"
-                label="Sobrenome"
-              />
-            </v-col>
-          </v-row>
-
-          <v-row>
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model="selectedPeople.cpf"
-                label="CPF"
                 class="mr-3"
                 disabled
               />
             </v-col>
             <v-col cols="12" md="6">
               <v-text-field
-                v-model="selectedPeople.birth_date"
-                type="date"
-                label="Data de nascimento"
+                v-if="selectedPeople"
+                v-model="selectedPeople.surname"
+                label="Sobrenome"
+                disabled
               />
             </v-col>
           </v-row>
@@ -113,6 +106,29 @@
           <v-row>
             <v-col cols="12" md="6">
               <v-text-field
+                v-if="selectedPeople"
+                v-model="selectedPeople.cpf"
+                label="CPF"
+                class="mr-3"
+                disabled
+                v-mask="'###.###.###-##'"
+              />
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-if="selectedPeople"
+                v-model="selectedPeople.birth_date"
+                type="date"
+                label="Data de nascimento"
+                disabled
+              />
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-if="selectedPeople"
                 v-model="selectedPeople.email"
                 label="E-mail"
                 class="mr-3"
@@ -121,8 +137,11 @@
             </v-col>
             <v-col cols="12" md="6">
               <v-text-field
+                v-if="selectedPeople"
                 v-model="selectedPeople.telephone"
                 label="Telefone"
+                disabled
+                v-mask="'(##) #####-####' || '(##) ####-####'"
               />
             </v-col>
           </v-row>
@@ -130,20 +149,30 @@
           <v-row>
             <v-col cols="12" md="6">
               <v-select
+                v-if="selectedPeople"
                 v-model="selectedPeople.gender"
-                :items="genderItems"
+                :items="[
+                  { text: 'Masculino', value: 'MALE' },
+                  { text: 'Feminino', value: 'FEMALE' },
+                ]"
                 item-value="value"
                 item-text="text"
                 label="Sexo"
+                disabled
               />
             </v-col>
             <v-col cols="12" md="6">
               <v-select
+                v-if="selectedPeople"
                 v-model="selectedPeople.work"
-                :items="workItems"
+                :items="[
+                  { text: 'Sim', value: true },
+                  { text: 'Não', value: false },
+                ]"
                 item-value="value"
                 item-text="text"
                 label="Trabalha?"
+                disabled
               />
             </v-col>
           </v-row>
@@ -151,16 +180,21 @@
           <v-row>
             <v-col cols="12">
               <v-text-field
+                v-if="selectedPeople"
                 v-model="selectedPeople.education"
                 label="Educação"
                 class="mr-3"
+                disabled
               />
             </v-col>
           </v-row>
 
           <v-row>
             <v-col cols="16" md="10">
-              <span color="primary" style="font-weight: bold; font-size: 16px">
+              <span
+                class="primary--text"
+                style="font-weight: bold; font-size: 16px"
+              >
                 Informações do endereço:
               </span>
             </v-col>
@@ -169,17 +203,20 @@
           <v-row>
             <v-col cols="12" md="6">
               <v-text-field
-                v-if="selectedPeople && selectedPeople.address"
+                v-if="selectedPeople?.address"
                 v-model="selectedPeople.address.zip_code"
                 label="CEP"
                 class="mr-3"
+                disabled
+                v-mask="'#####-###'"
               />
             </v-col>
             <v-col cols="12" md="6">
               <v-text-field
-                v-if="selectedPeople && selectedPeople.address"
+                v-if="selectedPeople?.address"
                 v-model="selectedPeople.address.street"
                 label="Rua"
+                disabled
               />
             </v-col>
           </v-row>
@@ -187,17 +224,19 @@
           <v-row>
             <v-col cols="12" md="6">
               <v-text-field
-                v-if="selectedPeople && selectedPeople.address"
+                v-if="selectedPeople?.address"
                 v-model="selectedPeople.address.number"
                 label="Número"
                 class="mr-3"
+                disabled
               />
             </v-col>
             <v-col cols="12" md="6">
               <v-text-field
-                v-if="selectedPeople && selectedPeople.address"
+                v-if="selectedPeople?.address"
                 v-model="selectedPeople.address.neighborhood"
                 label="Bairro"
+                disabled
               />
             </v-col>
           </v-row>
@@ -205,26 +244,29 @@
           <v-row>
             <v-col cols="12" md="4">
               <v-text-field
-                v-if="selectedPeople && selectedPeople.address"
+                v-if="selectedPeople?.address"
                 v-model="selectedPeople.address.complement"
                 label="Complemento"
                 class="mr-3"
+                disabled
               />
             </v-col>
 
             <v-col cols="12" md="4">
               <v-text-field
-                v-if="selectedPeople && selectedPeople.address"
+                v-if="selectedPeople?.address"
                 v-model="selectedPeople.address.city"
                 label="Cidade"
+                disabled
               />
             </v-col>
 
             <v-col cols="12" md="4">
               <v-text-field
-                v-if="selectedPeople && selectedPeople.address"
+                v-if="selectedPeople?.address"
                 v-model="selectedPeople.address.state"
                 label="Estado"
+                disabled
               />
             </v-col>
           </v-row>
@@ -245,7 +287,6 @@ import { formatDate } from '@/filters'
 import { states } from '@/assets/state'
 import PeopleEdit from './PeopleEdit.vue'
 import PeopleCreate from './PeopleCreate.vue'
-import { mapActions } from 'vuex'
 
 export default {
   name: 'index',
@@ -266,44 +307,13 @@ export default {
         { text: 'CPF', value: 'cpf' },
         { text: 'Ações', value: 'actions' },
       ],
-      selectedPeople: {
-        name: '',
-        surname: '',
-        cpf: '',
-        email: '',
-        birth_date: '',
-        gender: '',
-        telephone: '',
-        work: '',
-        education: '',
-        address: {
-          zip_code: '',
-          street: '',
-          number: '',
-          complement: '',
-          neighborhood: '',
-          city: '',
-          state: '',
-        },
-      },
       states,
       formatDate,
-      genderItems: [
-        { value: 'MALE', text: 'Masculino' },
-        { value: 'FEMALE', text: 'Feminino' },
-      ],
-      workItems: [
-        { value: true, text: 'Sim' },
-        { value: false, text: 'Não' },
-      ],
     }
   },
   computed: {
     people() {
       return this.$store.state.people.people
-    },
-    genderOtions() {
-      return this.genderItems
     },
   },
   created() {
@@ -327,25 +337,36 @@ export default {
       this.selectedPeople = item
       this.dialog = true
     },
-    closeDialog() {
-      this.dialog = false
-      this.selectedPeople = null
-    },
     editItem(item) {
       this.updatedPeopleId = item.id
       this.editDialog = true
     },
-    ...mapActions('people', ['update', 'create']),
     async saveUpdatedPeople(updatedPeople) {
-      await this.update(updatedPeople)
+      try {
+        await this.$store.dispatch('people/update', updatedPeople)
+        this.loadData()
+        this.editDialog = false
+      } catch (error) {
+        console.error('Erro ao salvar pessoa:', error)
+      }
     },
-    async createdPeople(createdPeople) {
-      await this.$store.dispatch('people/create', createdPeople)
-      await this.loadData()
-      this.createDialog = false
+    async createdPeople(newPerson) {
+      try {
+        await this.$store.dispatch('people/create', newPerson)
+        this.loadData()
+        this.createDialog = false
+      } catch (error) {
+        console.error('Erro ao criar pessoa:', error)
+      }
+    },
+    formatAddress(address) {
+      return `${address.street}, ${address.number}, ${address.neighborhood}, ${address.city} - ${address.state}`
     },
     isSelected(item) {
-      return this.selectedPeople === item
+      return this.updatedPeopleId === item.id
+    },
+    closeDialog() {
+      this.dialog = false
     },
   },
 }

@@ -36,6 +36,7 @@
               label="CPF"
               class="mr-3"
               disabled
+              v-mask="'###.###.###-##'"
             />
           </v-col>
           <v-col cols="12" md="6">
@@ -43,6 +44,7 @@
               v-model="updatedPeople.birth_date"
               type="date"
               label="Data de nascimento"
+              :max="today"
             />
           </v-col>
         </v-row>
@@ -57,7 +59,11 @@
             />
           </v-col>
           <v-col cols="12" md="6">
-            <v-text-field v-model="updatedPeople.telephone" label="Telefone" />
+            <v-text-field
+              v-model="updatedPeople.telephone"
+              label="Telefone"
+              v-mask="'(##) #####-####'"
+            />
           </v-col>
         </v-row>
 
@@ -65,7 +71,10 @@
           <v-col cols="12" md="6">
             <v-select
               v-model="updatedPeople.gender"
-              :items="genderItems"
+              :items="[
+                { text: 'Masculino', value: 'MALE' },
+                { text: 'Feminino', value: 'FEMALE' },
+              ]"
               item-value="value"
               item-text="text"
               label="Sexo"
@@ -74,7 +83,10 @@
           <v-col cols="12" md="6">
             <v-select
               v-model="updatedPeople.work"
-              :items="workItems"
+              :items="[
+                { text: 'Sim', value: true },
+                { text: 'Não', value: false },
+              ]"
               item-value="value"
               item-text="text"
               label="Trabalha?"
@@ -107,6 +119,8 @@
               v-model="updatedPeople.address.zip_code"
               label="CEP"
               class="mr-3"
+              @blur="fetchAddress"
+              v-mask="'#####-###'"
             />
           </v-col>
           <v-col cols="12" md="6">
@@ -181,6 +195,7 @@
 </template>
 
 <script>
+import API from '@/services/module/API'
 import { states } from '@/assets/state'
 
 export default {
@@ -219,20 +234,8 @@ export default {
         },
       },
       states,
-      genderItems: [
-        { value: 'MALE', text: 'Masculino' },
-        { value: 'FEMALE', text: 'Feminino' },
-      ],
-      workItems: [
-        { value: true, text: 'Sim' },
-        { value: false, text: 'Não' },
-      ],
+      today: new Date().toISOString().substr(0, 10), 
     }
-  },
-  computed: {
-    genderOptions() {
-      return this.genderItems
-    },
   },
   watch: {
     id: {
@@ -249,21 +252,38 @@ export default {
     closeDialog() {
       this.$emit('close')
     },
+    async fetchAddress() {
+      try {
+        const address = await API.cep.getAddressByZipcode(
+          this.updatedPeople.address.zip_code
+        )
+
+        console.log('Endereço recebido:', address)
+        if (address) {
+          this.updatedPeople.address = {
+            ...this.updatedPeople.address,
+            ...address,
+          }
+        } else {
+          console.error('Endereço não encontrado')
+        }
+      } catch (error) {
+        console.error('Erro ao buscar endereço pelo CEP:', error)
+      }
+    },
     async saveChanges() {
       const updateData = {
         id: this.updatedPeople.id,
         payload: {
           name: this.updatedPeople.name,
           surname: this.updatedPeople.surname,
-          //  cpf: this.updatedPeople.cpf,
-          // email: this.updatedPeople.email,
           birth_date: this.updatedPeople.birth_date,
           gender: this.updatedPeople.gender,
-          telephone: this.updatedPeople.telephone,
+          telephone: this.updatedPeople.telephone.replace(/[^0-9]/g, ''),
           work: this.updatedPeople.work,
           education: this.updatedPeople.education,
           address: {
-            zip_code: this.updatedPeople.address.zip_code,
+            zip_code: this.updatedPeople.address.zip_code.replace(/[ˆ0-9]/g),
             street: this.updatedPeople.address.street,
             number: this.updatedPeople.address.number,
             complement: this.updatedPeople.address.complement,
