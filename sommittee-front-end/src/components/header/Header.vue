@@ -91,25 +91,7 @@
           <v-list-item-title>Entregas</v-list-item-title>
         </v-list-item>
 
-        <v-list-group no-action prepend-icon="mdi-cog-outline" color="#FFF">
-          <template v-slot:activator>
-            <v-list-item-content>
-              <v-list-item-title>Configurações</v-list-item-title>
-            </v-list-item-content>
-          </template>
-          <v-list-item>
-            <v-list-item-content>
-              <v-list-item-title>Usuários</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item>
-            <v-list-item-content>
-              <v-list-item-title>Logs</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list-group>
-
-        <v-list-item>
+        <v-list-item :to="{ path: '/family' }">
           <v-list-item-icon>
             <v-icon>mdi-human-male-male-child</v-icon>
           </v-list-item-icon>
@@ -143,6 +125,24 @@
           </v-list-item-icon>
           <v-list-item-title>Produtos</v-list-item-title>
         </v-list-item>
+
+        <v-list-group no-action prepend-icon="mdi-cog-outline" color="#FFF">
+          <template v-slot:activator>
+            <v-list-item-content>
+              <v-list-item-title>Configurações</v-list-item-title>
+            </v-list-item-content>
+          </template>
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>Usuários</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>Logs</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list-group>
       </v-list>
     </v-navigation-drawer>
   </div>
@@ -198,6 +198,9 @@ export default {
             document.title = `Sommittee | Pessoas`
             this.pageName = 'Pessoas'
             break
+          case '/family':
+            document.title = `Sommittee | Famílias`
+            this.pageName = 'Famílias'
         }
       },
     },

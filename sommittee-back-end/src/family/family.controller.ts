@@ -1,8 +1,9 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
 import { FamilyService } from "./family.service";
 import { AuthGuard } from "../auth/auth.guard";
 import { CreateFamilyDto } from "./dto/create-family.dto";
 import { UpdateFamilyDto } from "./dto/update-family.dto";
+import { QueryFamilyDto } from "./dto/query-family.dto";
 
 
 @Controller('family')
@@ -17,8 +18,8 @@ export class FamilyController {
 
   @UseGuards(AuthGuard)
   @Get()
-  async getAll() {
-    return await this.familyService.findAll()
+  async getAll(@Query() query: QueryFamilyDto) {
+    return await this.familyService.findAll(query)
   }
 
   @UseGuards(AuthGuard)

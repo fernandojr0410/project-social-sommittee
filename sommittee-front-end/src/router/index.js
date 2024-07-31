@@ -6,6 +6,7 @@ import LoginCollaborator from '@/views/LoginCollaborator.vue'
 import Received from '@/views/Received.vue'
 import Address from '@/views/Address.vue'
 import People from '@/views/People.vue'
+import Family from '@/views/Family.vue'
 
 Vue.use(VueRouter)
 
@@ -40,6 +41,11 @@ const routes = [
     path: '/people',
     component: People,
     meta: { title: 'Pessoas', auth: true },
+  },
+  {
+    path: '/family',
+    component: Family,
+    meta: { title: 'Familias', auth: true },
   },
 ]
 

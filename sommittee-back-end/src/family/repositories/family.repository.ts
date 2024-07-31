@@ -12,8 +12,31 @@ export class FamilyRepository {
     return await this.prisma.family.create({ data: createFamilyDto })
   }
 
-  async findAll(): Promise<FamilyEntity[]> {
-    return await this.prisma.family.findMany()
+  async findAll(query: any): Promise<FamilyEntity[]> {
+    const _query: any = {
+      where: {
+        ...query
+      },
+      include: {
+        address: true,
+        people_family: {
+          include: {
+            people: true,
+          },
+        },
+      },
+    }
+
+    if (query.searchField && query.search) {
+      _query.where = {
+        [query.searchField]: {
+          contains: query.search,
+          mode: 'insensitive',
+        }
+      };
+    }
+
+    return await this.prisma.family.findMany(_query)
   }
 
   async findOne(id: string): Promise<FamilyEntity> {

@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { FamilyRepository } from "./repositories/family.repository";
 import { CreateFamilyDto } from "./dto/create-family.dto";
 import { UpdateFamilyDto } from "./dto/update-family.dto";
+import { QueryFamilyDto } from "./dto/query-family.dto";
 
 
 @Injectable()
@@ -12,8 +13,14 @@ export class FamilyService {
     return await this.repository.create(createFamilyDto)
   }
 
-  async findAll() {
-    return await this.repository.findAll()
+  async findAll(queryDto: QueryFamilyDto = {}) {
+    const query = {}
+    if (queryDto.searchField && queryDto.search) {
+      query[queryDto.searchField] = {
+        mode: 'insensitive'
+      }
+    }
+    return await this.repository.findAll(query)
   }
 
   async findOne(id: string) {

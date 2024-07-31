@@ -34,26 +34,22 @@ const getters = {
 const actions = {
   async create({ commit }, payload) {
     const response = await API.people.create(payload)
-    console.log('Resposta ao criar pessoa', response)
     commit('CREATE_PEOPLE', response)
   },
 
   async findAll({ commit }, query) {
     const response = await API.people.findAll(query)
-    console.log('Filtered Response:', response)
     commit('SET_PEOPLE', response)
   },
 
   async findById({ commit }, id) {
     const response = await API.people.findById(id)
-    console.log('Data returned findById:', response)
     commit('UPDATE_PEOPLE', response)
     return response
   },
 
   async update({ commit }, { id, payload }) {
     const response = await API.people.update(id, payload)
-    console.log('dados store', response)
     commit('UPDATE_PEOPLE', response)
     return response
   },

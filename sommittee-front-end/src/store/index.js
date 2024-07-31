@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 import auth from './auth/User'
 import received from './Received'
 import people from './People'
+import family from './Family'
 
 Vue.use(Vuex)
 
@@ -11,6 +12,7 @@ export default new Vuex.Store({
     auth,
     received,
     people,
+    family,
   },
   state: {
     snackbar: {
