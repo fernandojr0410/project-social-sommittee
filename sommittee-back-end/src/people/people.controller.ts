@@ -1,9 +1,9 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
 import { PeopleService } from "./people.service";
 import { AuthGuard } from "../auth/auth.guard";
 import { CreatePeopleDto } from "./dto/create-people.dto";
-import { UpdateUserDto } from "../user/dto/update-user.dto";
 import { UpdatePeopleDto } from "./dto/update-people.dto";
+import { QueryPeopleDto } from "./dto/query-people.dto";
 
 @Controller('people')
 export class PeopleController {
@@ -17,8 +17,8 @@ export class PeopleController {
 
   @UseGuards(AuthGuard)
   @Get()
-  async getAll() {
-    return await this.peopleService.findAll()
+  async findAll(@Query() query: QueryPeopleDto) {
+    return await this.peopleService.findAll(query);
   }
 
   @UseGuards(AuthGuard)

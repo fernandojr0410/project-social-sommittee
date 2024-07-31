@@ -70,7 +70,6 @@ model Address {
 model People {
   id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
   name          String
-  surname       String
   cpf           String          @unique @db.Char(14)
   email         String          @unique
   birth_date    String

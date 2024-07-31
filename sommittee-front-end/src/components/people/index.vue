@@ -2,6 +2,10 @@
   <v-container>
     <v-card>
       <v-card-text>
+        <div style="display: flex; align-items: center">
+          <PeopleSearch @search="handleSearch" />
+          <PeopleRefresh />
+        </div>
         <v-data-table
           :loading="loading"
           :headers="headers"
@@ -27,6 +31,22 @@
 
           <template v-slot:[`item.work`]="{ item }">
             <span>{{ item.work | work }}</span>
+          </template>
+
+          <template v-slot:[`item.zip_code`]="{ item }">
+            <span>{{ item.address?.zip_code }}</span>
+          </template>
+
+          <template v-slot:[`item.street`]="{ item }">
+            <span>{{ item.address?.street }}</span>
+          </template>
+
+          <template v-slot:[`item.number`]="{ item }">
+            <span>{{ item.address?.number }}</span>
+          </template>
+
+          <template v-slot:[`item.neighborhood`]="{ item }">
+            <span>{{ item.address?.neighborhood }}</span>
           </template>
 
           <template v-slot:[`item.address`]="{ item }">
@@ -60,6 +80,12 @@
           @close="editDialog = false"
           @save="saveUpdatedPeople"
         />
+
+        <PeopleDelete
+          :dialog="deleteDialog"
+          :id="itemToDelete"
+          @close="deleteDialog = false"
+        />
       </v-card-text>
     </v-card>
 
@@ -88,16 +114,8 @@
               <v-text-field
                 v-if="selectedPeople"
                 v-model="selectedPeople.name"
-                label="Nome"
+                label="Nome completo"
                 class="mr-3"
-                disabled
-              />
-            </v-col>
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-if="selectedPeople"
-                v-model="selectedPeople.surname"
-                label="Sobrenome"
                 disabled
               />
             </v-col>
@@ -141,7 +159,7 @@
                 v-model="selectedPeople.telephone"
                 label="Telefone"
                 disabled
-                v-mask="'(##) #####-####' || '(##) ####-####'"
+                v-mask="'(##) #####-####'"
               />
             </v-col>
           </v-row>
@@ -287,24 +305,38 @@ import { formatDate } from '@/filters'
 import { states } from '@/assets/state'
 import PeopleEdit from './PeopleEdit.vue'
 import PeopleCreate from './PeopleCreate.vue'
+import PeopleSearch from './PeopleSearch.vue'
+import PeopleRefresh from './PeopleRefresh.vue'
+import PeopleDelete from './PeopleDelete.vue'
 
 export default {
   name: 'index',
-  components: { PeopleEdit, PeopleCreate },
+  components: {
+    PeopleEdit,
+    PeopleCreate,
+    PeopleSearch,
+    PeopleRefresh,
+    PeopleDelete,
+  },
   data() {
     return {
       loading: false,
       dialog: false,
+      deleteDialog: false,
       editDialog: false,
       updatedPeopleId: null,
+      itemToDelete: null,
       selectedPeople: null,
       createDialog: false,
+      search: '',
       headers: [
         { text: 'Data criação', value: 'created_at' },
-        { text: 'Nome', value: 'name' },
-        { text: 'Sobrenome', value: 'surname' },
-        { text: 'Gênero', value: 'gender' },
+        { text: 'Nome completo', value: 'name' },
         { text: 'CPF', value: 'cpf' },
+        { text: 'CEP', value: 'zip_code' },
+        { text: 'Rua', value: 'street' },
+        { text: 'Número', value: 'number' },
+        { text: 'Bairro', value: 'neighborhood' },
         { text: 'Ações', value: 'actions' },
       ],
       states,
@@ -333,6 +365,22 @@ export default {
     async findAll() {
       await this.$store.dispatch('people/findAll')
     },
+    async fetchPeople() {
+      this.loading = true
+      try {
+        await this.$store.dispatch('people/filter', {
+          category: this.$store.state.people.searchCategory,
+          search: this.$store.state.people.searchTerm,
+        })
+      } catch (error) {
+        console.error('Error searching people:', error)
+      } finally {
+        this.loading = false
+      }
+    },
+    async handleSearch(search) {
+      this.search = search
+    },
     showDetails(item) {
       this.selectedPeople = item
       this.dialog = true
@@ -345,6 +393,7 @@ export default {
       try {
         await this.$store.dispatch('people/update', updatedPeople)
         this.loadData()
+        await this.fetchPeople()
         this.editDialog = false
       } catch (error) {
         console.error('Erro ao salvar pessoa:', error)
@@ -367,6 +416,10 @@ export default {
     },
     closeDialog() {
       this.dialog = false
+    },
+    confirmDelete(item) {
+      this.itemToDelete = item.id
+      this.deleteDialog = true
     },
   },
 }

@@ -77,46 +77,20 @@ class Http {
     }
   }
 
-  async filter(path, query) {
+  async delete(path = '') {
     try {
-      if (typeof query !== 'object' || query === null) {
-        throw new Error('Query parameter must be an object')
-      }
-
-      const { data } = await axios.get(
+      const { data } = await axios.delete(
         this.path + (path ? (path[0] === '/' ? path : `/${path}`) : ''),
         {
           headers: this.HTTP_CONFIG,
-          params: query,
         }
       )
       return data
     } catch (error) {
       this.checkExpires(error)
-      console.error('Erro ao filtrar:', error)
       throw error
     }
   }
-
-  // async avatar(path, body, isFormData = false) {
-  //   try {
-  //     const headers = isFormData
-  //       ? { ...this.HTTP_CONFIG, 'Content-Type': 'multipart/form-data' }
-  //       : this.HTTP_CONFIG
-
-  //     const url =
-  //       this.path + (path ? (path[0] === '/' ? path : `/${path}`) : '')
-
-  //     const response = await axios.post(url, body, { headers })
-  //     console.log('Resposta da solicitação:', response)
-
-  //     return response
-  //   } catch (error) {
-  //     this.checkExpires(error)
-  //     console.error('Erro no avatar:', error)
-  //     throw error
-  //   }
-  // }
 }
 
 export default Http

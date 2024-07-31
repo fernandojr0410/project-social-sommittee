@@ -9,10 +9,6 @@ export class CreatePeopleDto {
 
   @IsString()
   @IsNotEmpty()
-  surname: string;
-
-  @IsString()
-  @IsNotEmpty()
   cpf: string;
 
   @IsString()

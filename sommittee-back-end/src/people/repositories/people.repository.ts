@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
 import { CreatePeopleDto } from "../dto/create-people.dto";
 import { PeopleEntity } from "../entities/people.entity";
@@ -26,13 +26,27 @@ export class PeopleRepository {
     });
   }
 
-
-  async findAll(): Promise<PeopleEntity[]> {
-    return await this.prisma.people.findMany({
+  async findAll(query: any): Promise<PeopleEntity[]> {
+    const _query: any = {
+      where: {
+        ...query,
+      },
       include: {
-        address: true,
+        address: {
+          select: {
+            zip_code: true,
+            street: true,
+            number: true,
+            complement: true,
+            neighborhood: true,
+            city: true,
+            state: true,
+          }
+        }
       }
-    })
+    };
+
+    return await this.prisma.people.findMany(_query)
   }
 
   async findById(id: string): Promise<PeopleEntity> {
@@ -66,7 +80,6 @@ export class PeopleRepository {
         }
       }
     }
-    console.log('Update Data:', updateData);
     return await this.prisma.people.update({
       where: { id },
       data: updateData,
@@ -88,8 +101,21 @@ export class PeopleRepository {
   }
 
   async remove(id: string): Promise<PeopleEntity> {
-    return this.prisma.people.delete({
-      where: { id }
-    })
+    const people = await this.prisma.people.findUnique({
+      where: { id },
+      include: { address: true },
+    });
+
+    await this.prisma.people.delete({
+      where: { id },
+    });
+
+    if (people.address) {
+      await this.prisma.address.delete({
+        where: { id: people.address.id },
+      });
+    }
+
+    return people;
   }
 }

@@ -11,17 +11,17 @@ const mutations = {
 
   SET_PEOPLE(state, people) {
     state.people = people
+    state.filteredPeople = people
   },
-
-  // SET_ALL_PEOPLE(state, people) {
-  //   state.allpeople = people
-  //   state.filteredPeople = people
-  // },
 
   UPDATE_PEOPLE(state, updatedPeople) {
     state.people = state.people.map((item) => {
       return item.id === updatedPeople.id ? { ...item, ...updatedPeople } : item
     })
+  },
+
+  DELETE_PEOPLE(state, id) {
+    state.people = state.people.filter((person) => person.id !== id)
   },
 }
 
@@ -38,32 +38,29 @@ const actions = {
     commit('CREATE_PEOPLE', response)
   },
 
-  async findAll({ commit }) {
-    const response = await API.people.findAll()
+  async findAll({ commit }, query) {
+    const response = await API.people.findAll(query)
+    console.log('Filtered Response:', response)
     commit('SET_PEOPLE', response)
   },
 
   async findById({ commit }, id) {
     const response = await API.people.findById(id)
-    console.log('Dados retornados por findById:', response)
+    console.log('Data returned findById:', response)
     commit('UPDATE_PEOPLE', response)
     return response
   },
-
-  // async fetchAllPeople({ commit }) {
-  //   try {
-  //     const response = await API.people.findAll()
-  //     commit('SET_ALL_PEOPLE', response)
-  //     console.log('response')
-  //   } catch (error) {
-  //     console.error('Erro ao buscar todos os endereços:', error)
-  //   }
-  // },
 
   async update({ commit }, { id, payload }) {
     const response = await API.people.update(id, payload)
     console.log('dados store', response)
     commit('UPDATE_PEOPLE', response)
+    return response
+  },
+
+  async delete({ commit }, id) {
+    const response = await API.people.delete(id)
+    commit('DELETE_PEOPLE', id)
     return response
   },
 }

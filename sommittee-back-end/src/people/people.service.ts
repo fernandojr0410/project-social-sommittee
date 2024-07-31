@@ -3,6 +3,7 @@ import { PeopleRepository } from "./repositories/people.repository";
 import { CreatePeopleDto } from "./dto/create-people.dto";
 import { UpdatePeopleDto } from "./dto/update-people.dto";
 import { NotFoundError } from "../common/errors/types/notFoundError";
+import { QueryPeopleDto } from "./dto/query-people.dto";
 
 @Injectable()
 export class PeopleService {
@@ -12,9 +13,18 @@ export class PeopleService {
     return await this.repository.create(createPeopleDto)
   }
 
-  async findAll() {
-    return await this.repository.findAll()
+  async findAll(queryDto: QueryPeopleDto = {}) {
+    const query = {}
+
+    if (queryDto.searchField && queryDto.search) {
+      query[queryDto.searchField] = {
+        contains: queryDto.search,
+        mode: 'insensitive'
+      };
+    }
+    return await this.repository.findAll(query)
   }
+
 
   async findById(id: string) {
     const people = await this.repository.findById(id)
@@ -24,9 +34,6 @@ export class PeopleService {
     return people
   }
 
-  // async update(id: string, updatePeopleDto: UpdatePeopleDto) {
-  //   return await this.repository.update(id, updatePeopleDto)
-  // }
   async update(id: string, updatePeopleDto: UpdatePeopleDto) {
     const existingPeople = await this.repository.findById(id)
     if (!existingPeople) {

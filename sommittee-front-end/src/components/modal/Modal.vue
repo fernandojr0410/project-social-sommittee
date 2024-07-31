@@ -17,7 +17,8 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn text @click="handleButtonClick" class="buttonModal">
+          <v-btn text @click="handleCancel" class="buttonModal">Cancelar</v-btn>
+          <v-btn text @click="handleConfirm" class="buttonModal">
             {{ buttonText }}
           </v-btn>
         </v-card-actions>
@@ -58,7 +59,13 @@ export default {
     },
   },
   methods: {
-    handleButtonClick() {
+    handleConfirm() {
+      this.$emit('confirm')
+      this.dialog = false
+      this.$emit('input', false)
+    },
+    handleCancel() {
+      this.$emit('cancel')
       this.dialog = false
       this.$emit('input', false)
     },

@@ -20,12 +20,9 @@
           <v-col cols="12" md="6">
             <v-text-field
               v-model="updatedPeople.name"
-              label="Nome"
+              label="Nome completo"
               class="mr-3"
             />
-          </v-col>
-          <v-col cols="12" md="6">
-            <v-text-field v-model="updatedPeople.surname" label="Sobrenome" />
           </v-col>
         </v-row>
 
@@ -215,7 +212,6 @@ export default {
       updatedPeople: {
         id: '',
         name: '',
-        surname: '',
         cpf: '',
         email: '',
         birth_date: '',
@@ -234,7 +230,7 @@ export default {
         },
       },
       states,
-      today: new Date().toISOString().substr(0, 10), 
+      today: new Date().toISOString().substr(0, 10),
     }
   },
   watch: {
@@ -242,7 +238,6 @@ export default {
       immediate: true,
       handler: async function (id) {
         if (id) {
-          console.log('Buscando dados para id:', id)
           this.updatedPeople = await this.$store.dispatch('people/findById', id)
         }
       },
@@ -276,7 +271,6 @@ export default {
         id: this.updatedPeople.id,
         payload: {
           name: this.updatedPeople.name,
-          surname: this.updatedPeople.surname,
           birth_date: this.updatedPeople.birth_date,
           gender: this.updatedPeople.gender,
           telephone: this.updatedPeople.telephone.replace(/[^0-9]/g, ''),

@@ -10,8 +10,8 @@ class People extends Http {
     return response
   }
 
-  async findAll(data) {
-    const response = await this.get(data)
+  async findAll(query) {
+    const response = await this.get('', query)
     return response
   }
 
@@ -23,7 +23,12 @@ class People extends Http {
 
   async update(id, data) {
     const response = await super.patch(id, data)
-    console.log('dados service:', response)
+    console.log('data service:', response)
+    return response
+  }
+
+  async delete(id) {
+    const response = await super.delete(id)
     return response
   }
 }

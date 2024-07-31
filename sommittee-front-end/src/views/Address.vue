@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <v-app :style="{ backgroundColor: $vuetify.theme.themes.light.grayPrimary }">
     <Index />
   </v-app>
@@ -13,4 +13,4 @@ export default {
     Index,
   },
 }
-</script>
+</script> -->
