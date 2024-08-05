@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
 import { FamilyService } from "./family.service";
 import { AuthGuard } from "../auth/auth.guard";
 import { CreateFamilyDto } from "./dto/create-family.dto";
@@ -12,8 +12,12 @@ export class FamilyController {
 
   @UseGuards(AuthGuard)
   @Post('register')
-  async register(@Body() createFamilyDto: CreateFamilyDto) {
-    return await this.familyService.create(createFamilyDto)
+  async createFamily(@Body() createFamilyDto: CreateFamilyDto) {
+    if (!createFamilyDto.people_id) {
+      throw new BadRequestException('Person ID must be provided');
+    }
+
+    return await this.familyService.create(createFamilyDto);
   }
 
   @UseGuards(AuthGuard)

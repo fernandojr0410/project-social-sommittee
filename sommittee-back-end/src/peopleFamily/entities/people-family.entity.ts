@@ -1,4 +1,4 @@
-import { People_Family } from "@prisma/client";
+import { $Enums, People_Family } from "@prisma/client";
 
 export class PeopleFamilyEntity implements People_Family {
   id: string;
@@ -7,4 +7,5 @@ export class PeopleFamilyEntity implements People_Family {
   updated_at: Date;
   people_id: string;
   family_id: string;
+
 }

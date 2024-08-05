@@ -6,7 +6,8 @@ import { UpdatePeopleDto } from "../dto/update-people.dto";
 
 @Injectable()
 export class PeopleRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService,
+  ) { }
 
   async create(createPeopleDto: CreatePeopleDto): Promise<PeopleEntity> {
     const { address, ...peopleData } = createPeopleDto;
@@ -103,19 +104,45 @@ export class PeopleRepository {
   async remove(id: string): Promise<PeopleEntity> {
     const people = await this.prisma.people.findUnique({
       where: { id },
-      include: { address: true },
+      include: {
+        address: true,
+        People_Family: true,
+        families: true
+      },
     });
 
-    await this.prisma.people.delete({
-      where: { id },
-    });
-
-    if (people.address) {
-      await this.prisma.address.delete({
-        where: { id: people.address.id },
-      });
+    if (!people) {
+      throw new NotFoundException(`Pessoa com ID ${id} não encontrada.`);
     }
 
-    return people;
+    try {
+      await this.prisma.people_Family.deleteMany({
+        where: { people_id: id },
+      });
+      await this.prisma.family.deleteMany({
+        where: { people_id: id },
+      });
+      await this.prisma.people.delete({
+        where: { id },
+      });
+      if (people.address) {
+        const address = await this.prisma.address.findUnique({
+          where: { id: people.address_id },
+          include: {
+            people: true,
+          },
+        });
+
+        if (address && address.people.length === 0) {
+          await this.prisma.address.delete({
+            where: { id: people.address_id },
+          });
+        }
+      }
+      return people;
+    } catch (error) {
+      console.error('Erro ao remover pessoa:', error);
+      throw new BadRequestException('Não foi possível remover a pessoa.');
+    }
   }
 }

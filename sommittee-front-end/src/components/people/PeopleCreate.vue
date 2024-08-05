@@ -30,7 +30,7 @@
           </v-row>
 
           <v-row>
-            <v-col cols="12" md="6">
+            <v-col cols="12">
               <v-text-field
                 v-model="createdPeople.name"
                 label="Nome completo"
@@ -159,7 +159,7 @@
           </v-row>
 
           <v-row>
-            <v-col cols="12" md="4">
+            <v-col cols="12">
               <v-text-field
                 v-if="createdPeople && createdPeople.address"
                 v-model="createdPeople.address.complement"
@@ -167,8 +167,9 @@
                 class="mr-3"
               />
             </v-col>
-
-            <v-col cols="12" md="4">
+          </v-row>
+          <v-row>
+            <v-col cols="12" md="6">
               <v-text-field
                 v-if="createdPeople && createdPeople.address"
                 v-model="createdPeople.address.city"
@@ -176,7 +177,7 @@
               />
             </v-col>
 
-            <v-col cols="12" md="4">
+            <v-col cols="12" md="6">
               <v-select
                 v-if="createdPeople && createdPeople.address"
                 v-model="createdPeople.address.state"

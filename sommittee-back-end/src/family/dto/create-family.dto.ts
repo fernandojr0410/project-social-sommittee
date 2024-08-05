@@ -1,12 +1,15 @@
-import { IsNotEmpty, IsUUID, IsArray } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateFamilyDto {
-  @IsUUID()
+  @IsString()
   @IsNotEmpty()
   address_id: string;
 
-  @IsArray()
-  @IsUUID('all', { each: true })
+  @IsString()
   @IsNotEmpty()
-  people_id: string[];
+  people_id: string;
+
+  @IsString()
+  @IsNotEmpty()
+  function: string;
 }

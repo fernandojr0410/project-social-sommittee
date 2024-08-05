@@ -16,8 +16,8 @@ export class PeopleFamilyService {
     return await this.repository.findAll()
   }
 
-  async findOne(id: string) {
-    return await this.repository.findOne(id)
+  async findById(id: string) {
+    return await this.repository.findById(id)
   }
 
   async update(id: string, updatePeopleFamilyDto: UpdatePeopleFamilyDto) {

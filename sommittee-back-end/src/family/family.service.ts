@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { FamilyRepository } from "./repositories/family.repository";
 import { CreateFamilyDto } from "./dto/create-family.dto";
 import { UpdateFamilyDto } from "./dto/update-family.dto";
@@ -10,7 +10,10 @@ export class FamilyService {
   constructor(private readonly repository: FamilyRepository) { }
 
   async create(createFamilyDto: CreateFamilyDto) {
-    return await this.repository.create(createFamilyDto)
+    if (!createFamilyDto.address_id || !createFamilyDto.people_id) {
+      throw new BadRequestException('Both address_id and people_id must be provided');
+    }
+    return await this.repository.create(createFamilyDto);
   }
 
   async findAll(queryDto: QueryFamilyDto = {}) {

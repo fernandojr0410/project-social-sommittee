@@ -81,7 +81,8 @@ model People {
   updated_at    DateTime        @default(now()) @updatedAt
   address       Address         @relation(fields: [address_id], references: [id])
   address_id    String          @db.Uuid()
-  people_family People_Family[]
+  families      Family[]
+  People_Family People_Family[]
 
   @@map("people")
 }
@@ -95,6 +96,8 @@ model Family {
   id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
   created_at    DateTime        @default(now())
   updated_at    DateTime        @default(now()) @updatedAt
+  people        People          @relation(fields: [people_id], references: [id])
+  people_id     String          @db.Uuid()
   address       Address         @relation(fields: [address_id], references: [id])
   address_id    String          @db.Uuid()
   people_family People_Family[]

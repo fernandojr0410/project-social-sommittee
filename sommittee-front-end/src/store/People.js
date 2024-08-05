@@ -37,9 +37,15 @@ const actions = {
     commit('CREATE_PEOPLE', response)
   },
 
+  // async findAll({ commit }, query) {
+  //   const response = await API.people.findAll(query)
+  //   commit('SET_PEOPLE', response)
+  // },
+
   async findAll({ commit }, query) {
     const response = await API.people.findAll(query)
     commit('SET_PEOPLE', response)
+    return response
   },
 
   async findById({ commit }, id) {

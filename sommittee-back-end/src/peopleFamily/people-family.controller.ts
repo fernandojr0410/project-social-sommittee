@@ -5,13 +5,14 @@ import { CreatePeopleFamilyDto } from "./dto/create-people-family.dto";
 import { UpdatePeopleFamilyDto } from "./dto/update-people-family.dto";
 
 
-@Controller('PeopleFamily')
+@Controller('peopleFamily')
 export class PeopleFamilyController {
   constructor(private readonly service: PeopleFamilyService) { }
 
   @UseGuards(AuthGuard)
   @Post('register')
   async register(@Body() createPeopleFamilyDto: CreatePeopleFamilyDto) {
+    console.log('Creating PeopleFamily with:', createPeopleFamilyDto);
     return await this.service.create(createPeopleFamilyDto)
   }
 
@@ -24,15 +25,16 @@ export class PeopleFamilyController {
   @UseGuards(AuthGuard)
   @Get(':id')
   async findById(@Param('id') id: string) {
-    const peopleFamily = await this.service.findOne(id)
+    const peopleFamily = await this.service.findById(id)
     if (!peopleFamily) {
       throw new NotFoundException('PeopleFamily not found')
     }
+    return peopleFamily
   }
 
   @UseGuards(AuthGuard)
   @Patch(':id')
-  async updatedData(@Param('id') id: string, updatePeopleFamilyDto: UpdatePeopleFamilyDto) {
+  async updatedData(@Param('id') id: string, @Body() updatePeopleFamilyDto: UpdatePeopleFamilyDto) {
     return await this.service.update(id, updatePeopleFamilyDto)
   }
 
@@ -43,6 +45,7 @@ export class PeopleFamilyController {
     if (!peopleFamily) {
       throw new NotFoundException('PeopleFamily not found')
     }
-    return peopleFamily
+    return { message: 'PeopleFamily successfully deleted' };
+
   }
 }

@@ -9,7 +9,29 @@ export class FamilyRepository {
   constructor(private readonly prisma: PrismaService) { }
 
   async create(createFamilyDto: CreateFamilyDto): Promise<FamilyEntity> {
-    return await this.prisma.family.create({ data: createFamilyDto })
+    const { address_id, people_id, function: familyFunction } = createFamilyDto;
+
+    const createdFamily = await this.prisma.family.create({
+      data: {
+        address: {
+          connect: { id: address_id },
+        },
+        people: {
+          connect: { id: people_id },
+        },
+      },
+      include: { address: true, people: true },
+    });
+
+    await this.prisma.people_Family.create({
+      data: {
+        function: familyFunction,
+        people_id,
+        family_id: createdFamily.id,
+      },
+    });
+
+    return createdFamily;
   }
 
   async findAll(query: any): Promise<FamilyEntity[]> {
@@ -19,11 +41,8 @@ export class FamilyRepository {
       },
       include: {
         address: true,
-        people_family: {
-          include: {
-            people: true,
-          },
-        },
+        people: true,
+        people_family: true,
       },
     }
 
@@ -38,6 +57,7 @@ export class FamilyRepository {
 
     return await this.prisma.family.findMany(_query)
   }
+
 
   async findOne(id: string): Promise<FamilyEntity> {
     return await this.prisma.family.findFirst(

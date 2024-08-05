@@ -17,20 +17,26 @@
             <span>{{ formatDate(item.created_at) }}</span>
           </template>
 
-          <template v-slot:[``]></template>
+          <template v-slot:[`item.function`]="{ item }">
+            <span>{{ item.people_family[0].function }}</span>
+          </template>
 
           <template v-slot:[`item.name`]="{ item }">
             <span>
-              {{ item.people_family[0].people.name }}
+              {{ item.people.name }}
             </span>
           </template>
 
           <template v-slot:[`item.cpf`]="{ item }">
-            <span>{{ item.people_family[0].people.cpf }}</span>
+            <span>{{ item.people.cpf | cpf }}</span>
+          </template>
+
+          <template v-slot:[`item.function`]="{ item }">
+            {{ item.people_family[0].function }}
           </template>
 
           <template v-slot:[`item.zip_code`]="{ item }">
-            <span>{{ item.address.zip_code }}</span>
+            <span>{{ item.address.zip_code | cep }}</span>
           </template>
 
           <template v-slot:[`item.street`]="{ item }">
@@ -44,10 +50,10 @@
           <template v-slot:[`item.neighborhood`]="{ item }">
             <span>{{ item.address.neighborhood }}</span>
           </template>
-          <!-- :color="isSelected(item) ? 'primary' : ''"
-          @click="showDetails(item)" -->
+
+          <!-- :color="isSelected(item) ? 'primary' : ''" -->
           <template v-slot:[`item.actions`]="{ item }">
-            <v-icon class="mr-2">mdi-eye</v-icon>
+            <v-icon class="mr-2" @click="showDetails(item)">mdi-eye</v-icon>
 
             <v-icon class="mr-2" color="blue" @click="editItem(item)">
               mdi-pencil
@@ -60,28 +66,259 @@
         </v-data-table>
       </v-card-text>
     </v-card>
+
+    <v-dialog v-model="dialog" max-width="900px">
+      <v-card>
+        <v-card-title class="flex justify-space-between items-center">
+          <span class="headline">Detalhes da família</span>
+          <v-btn icon @click="closeDialog">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+        <v-card-text>
+          <v-row>
+            <v-col cols="12">
+              <span color="primary" style="font-weight: bold; font-size: 16px">
+                Informações da pessoa:
+              </span>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="6">
+              <v-text-field
+                v-if="selectedPeopleFamily?.people"
+                v-model="selectedPeopleFamily.people.name"
+                label="Nome completo"
+                class="mr-3"
+                disabled
+              />
+            </v-col>
+            <v-col cols="6">
+              <v-text-field
+                v-if="selectedPeopleFamily?.people"
+                v-model="selectedPeopleFamily.people.cpf"
+                label="CPF"
+                class="mr-3"
+                v-mask="'###.###.###-##'"
+                disabled
+              />
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col cols="6">
+              <v-text-field
+                v-if="selectedPeopleFamily?.people"
+                v-model="selectedPeopleFamily.people.birth_date"
+                type="date"
+                label="Data de nascimento"
+                class="mr-3"
+                disabled
+              />
+            </v-col>
+            <v-col cols="6">
+              <v-text-field
+                v-if="selectedPeopleFamily?.people"
+                v-model="selectedPeopleFamily.people.email"
+                label="E-mail"
+                class="mr-3"
+                disabled
+              />
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col cols="6">
+              <v-text-field
+                v-if="selectedPeopleFamily?.people"
+                v-model="selectedPeopleFamily.people.telephone"
+                label="Telefone"
+                class="mr-3"
+                v-mask="'(##) #####-####'"
+                disabled
+              />
+            </v-col>
+            <v-col cols="6">
+              <v-select
+                v-if="selectedPeopleFamily?.people"
+                v-model="selectedPeopleFamily.people.gender"
+                :items="[
+                  { text: 'Masculino', value: 'MALE' },
+                  { text: 'Feminino', value: 'FEMALE' },
+                ]"
+                item-value="value"
+                item-text="text"
+                class="mr-3"
+                label="Sexo"
+                disabled
+              />
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col cols="6">
+              <v-select
+                v-if="selectedPeopleFamily?.people"
+                v-model="selectedPeopleFamily.people.work"
+                :items="[
+                  { text: 'Sim', value: true },
+                  { text: 'Não', value: false },
+                ]"
+                item-value="value"
+                item-text="text"
+                class="mr-3"
+                label="Trabalha?"
+                disabled
+              />
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-if="selectedPeopleFamily?.people"
+                v-model="selectedPeopleFamily.people.education"
+                label="Educação"
+                class="mr-3"
+                disabled
+              />
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col cols="12">
+              <span color="primary" style="font-weight: bold; font-size: 16px">
+                Informações do endereço:
+              </span>
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col cols="6">
+              <v-text-field
+                v-if="selectedPeopleFamily && selectedPeopleFamily.address"
+                v-model="selectedPeopleFamily.address.zip_code"
+                class="mr-3"
+                label="CEP"
+                v-mask="'#####-###'"
+                disabled
+              />
+            </v-col>
+            <v-col cols="6">
+              <v-text-field
+                v-if="selectedPeopleFamily && selectedPeopleFamily.address"
+                v-model="selectedPeopleFamily.address.street"
+                label="Rua"
+                class="mr-3"
+                disabled
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="6">
+              <v-text-field
+                v-if="selectedPeopleFamily && selectedPeopleFamily.address"
+                v-model="selectedPeopleFamily.address.number"
+                label="Número"
+                class="mr-3"
+                disabled
+              />
+            </v-col>
+            <v-col cols="6">
+              <v-text-field
+                v-if="selectedPeopleFamily && selectedPeopleFamily.address"
+                v-model="selectedPeopleFamily.address.neighborhood"
+                label="Bairro"
+                class="mr-3"
+                disabled
+              />
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col cols="12" sm="6" md="4">
+              <v-text-field
+                v-if="selectedPeopleFamily && selectedPeopleFamily.address"
+                v-model="selectedPeopleFamily.address.complement"
+                label="Complemento"
+                class="mr-3"
+                disabled
+              />
+            </v-col>
+            <v-col cols="12" sm="6" md="4">
+              <v-text-field
+                v-if="selectedPeopleFamily && selectedPeopleFamily.address"
+                v-model="selectedPeopleFamily.address.city"
+                label="Cidade"
+                class="mr-3"
+                disabled
+              />
+            </v-col>
+            <v-col cols="12" sm="6" md="4">
+              <v-select
+                v-if="selectedPeopleFamily && selectedPeopleFamily.address"
+                v-model="selectedPeopleFamily.address.state"
+                :items="states"
+                item-value="acronym"
+                item-text="name"
+                class="mr-3"
+                label="Estado"
+                disabled
+              />
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col cols="16" md="10">
+              <span color="primary" style="font-weight: bold; font-size: 16px">
+                Função da pessoa na família:
+              </span>
+            </v-col>
+            <v-col>
+              <!-- <v-text-field
+                v-if="selectedPeopleFamily?.people_family"
+                v-model="selectedPeopleFamily.people_family.function"
+                label="Função"
+                class="mr-3"
+                disabled
+              /> -->
+            </v-col>
+          </v-row>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+    <FamilyCreate
+      :dialog="createDialog"
+      @close="createDialog = false"
+      @save="createdFamily"
+    />
   </v-container>
 </template>
 
 <script>
 import { formatDate } from '@/filters'
+import { states } from '@/assets/state'
+import FamilyCreate from './FamilyCreate.vue'
 
 export default {
   name: 'index',
-  components: {},
+  components: { FamilyCreate },
   data() {
     return {
       loading: false,
+      dialog: false,
+      selectedPeopleFamily: null,
+      createDialog: false,
       headers: [
         { text: 'Data criação', value: 'created_at' },
-        { text: 'Nome completo', value: 'name' },
+        { text: 'Nome', value: 'name' },
         { text: 'CPF', value: 'cpf' },
+        // { text: 'Função', value: 'function' },
         { text: 'CEP', value: 'zip_code' },
         { text: 'Rua', value: 'street' },
+        { text: 'Numer', value: 'number' },
         { text: 'Bairro', value: 'neighborhood' },
         { text: 'Ações', value: 'actions' },
       ],
       formatDate,
+      states,
     }
   },
   computed: {
@@ -108,14 +345,30 @@ export default {
     async findAll() {
       await this.$store.dispatch('family/findAll')
     },
-    // showDetails(item) {
-    //   this.selectedFamily = item
-    //   this.dialog = true
-    // },
+    showDetails(item) {
+      this.selectedPeopleFamily = item
+      this.dialog = true
+    },
     // editItem(item) {
     //   this.selectedFamilyId = item.id
     //   this.editDialog = true
     // },
+    closeDialog() {
+      this.dialog = false
+    },
+
+    async createdFamily(newFamily) {
+      try {
+        const response = await this.$store.dispatch('family/create', newFamily)
+        console.log('familia criada', response)
+        this.loadData()
+        this.createDialog = false
+      } catch (error) {
+        this.$error('Erro ao criar família')
+        console.error('Error create family', error)
+        throw error
+      }
+    },
   },
 }
 </script>
