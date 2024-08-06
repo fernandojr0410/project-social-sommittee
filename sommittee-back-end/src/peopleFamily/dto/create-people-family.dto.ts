@@ -1,6 +1,11 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreatePeopleFamilyDto {
+  
+  @IsString()
+  @IsNotEmpty()
+  function: string;
+
   @IsString()
   @IsNotEmpty()
   people_id: string;
@@ -9,7 +14,4 @@ export class CreatePeopleFamilyDto {
   @IsNotEmpty()
   family_id: string;
 
-  @IsString()
-  @IsNotEmpty()
-  function: string;
 }

@@ -37,11 +37,6 @@ const actions = {
     commit('CREATE_PEOPLE', response)
   },
 
-  // async findAll({ commit }, query) {
-  //   const response = await API.people.findAll(query)
-  //   commit('SET_PEOPLE', response)
-  // },
-
   async findAll({ commit }, query) {
     const response = await API.people.findAll(query)
     commit('SET_PEOPLE', response)
@@ -50,13 +45,11 @@ const actions = {
 
   async findById({ commit }, id) {
     const response = await API.people.findById(id)
-    commit('UPDATE_PEOPLE', response)
     return response
   },
 
   async update({ commit }, { id, payload }) {
     const response = await API.people.update(id, payload)
-    commit('UPDATE_PEOPLE', response)
     return response
   },
 

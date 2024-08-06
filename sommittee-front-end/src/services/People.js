@@ -17,13 +17,11 @@ class People extends Http {
 
   async findById(id, data) {
     const response = await this.get(id, data)
-    console.log('FindById people', response)
     return response
   }
 
   async update(id, data) {
     const response = await super.patch(id, data)
-    console.log('data service:', response)
     return response
   }
 

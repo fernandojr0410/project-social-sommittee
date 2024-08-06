@@ -26,8 +26,8 @@ export class FamilyService {
     return await this.repository.findAll(query)
   }
 
-  async findOne(id: string) {
-    return await this.repository.findOne(id)
+  async findByid(id: string) {
+    return await this.repository.findByid(id)
   }
 
   async update(id: string, updateFamilyDto: UpdateFamilyDto) {

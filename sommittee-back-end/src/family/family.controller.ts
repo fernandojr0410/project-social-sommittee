@@ -29,7 +29,7 @@ export class FamilyController {
   @UseGuards(AuthGuard)
   @Get(':id')
   async findById(@Param('id') id: string) {
-    const family = await this.familyService.findOne(id)
+    const family = await this.familyService.findByid(id)
     if (!family) {
       throw new NotFoundException('Family not found')
     }

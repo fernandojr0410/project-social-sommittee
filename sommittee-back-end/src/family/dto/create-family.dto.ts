@@ -8,8 +8,4 @@ export class CreateFamilyDto {
   @IsString()
   @IsNotEmpty()
   people_id: string;
-
-  @IsString()
-  @IsNotEmpty()
-  function: string;
 }

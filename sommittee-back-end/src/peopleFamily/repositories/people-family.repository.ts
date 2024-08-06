@@ -23,13 +23,17 @@ export class PeopleFamilyRepository {
   }
 
   async findById(id: string): Promise<PeopleFamilyEntity> {
-    return await this.prisma.people_Family.findFirst({ where: { id } })
+    return await this.prisma.people_Family.findUnique({ where: { id } });
   }
 
-  async update(id: string, updatePeopleFamily: UpdatePeopleFamilyDto): Promise<PeopleFamilyEntity> {
-    return await this.prisma.people_Family.update({ where: { id }, data: updatePeopleFamily })
+  async update(id: string, updatePeopleFamilyDto: UpdatePeopleFamilyDto): Promise<PeopleFamilyEntity> {
+    return await this.prisma.people_Family.update({
+      where: { id },
+      data: {
+        ...updatePeopleFamilyDto
+      }
+    });
   }
-
   async remove(id: string): Promise<PeopleFamilyEntity> {
     return await this.prisma.people_Family.delete({ where: { id } })
   }

@@ -31,10 +31,6 @@
             <span>{{ item.people.cpf | cpf }}</span>
           </template>
 
-          <template v-slot:[`item.function`]="{ item }">
-            {{ item.people_family[0].function }}
-          </template>
-
           <template v-slot:[`item.zip_code`]="{ item }">
             <span>{{ item.address.zip_code | cep }}</span>
           </template>
@@ -51,9 +47,14 @@
             <span>{{ item.address.neighborhood }}</span>
           </template>
 
-          <!-- :color="isSelected(item) ? 'primary' : ''" -->
           <template v-slot:[`item.actions`]="{ item }">
-            <v-icon class="mr-2" @click="showDetails(item)">mdi-eye</v-icon>
+            <v-icon
+              class="mr-2"
+              :color="isSelected(item) ? 'primary' : ''"
+              @click="showDetails(item)"
+            >
+              mdi-eye
+            </v-icon>
 
             <v-icon class="mr-2" color="blue" @click="editItem(item)">
               mdi-pencil
@@ -64,6 +65,12 @@
             </v-icon>
           </template>
         </v-data-table>
+        <FamilyEdit
+          :dialog="editDialog"
+          :id="updatedFamilyId"
+          @close="editDialog = false"
+          @save="saveUpdatedFamily"
+        />
       </v-card-text>
     </v-card>
 
@@ -272,13 +279,15 @@
               </span>
             </v-col>
             <v-col>
-              <!-- <v-text-field
-                v-if="selectedPeopleFamily?.people_family"
+              <v-text-field
+                v-if="
+                  selectedPeopleFamily && selectedPeopleFamily.people_family
+                "
                 v-model="selectedPeopleFamily.people_family.function"
                 label="Função"
                 class="mr-3"
                 disabled
-              /> -->
+              />
             </v-col>
           </v-row>
         </v-card-text>
@@ -296,24 +305,27 @@
 import { formatDate } from '@/filters'
 import { states } from '@/assets/state'
 import FamilyCreate from './FamilyCreate.vue'
+import FamilyEdit from './FamilyEdit.vue'
 
 export default {
   name: 'index',
-  components: { FamilyCreate },
+  components: { FamilyCreate, FamilyEdit },
   data() {
     return {
       loading: false,
       dialog: false,
       selectedPeopleFamily: null,
       createDialog: false,
+      editDialog: false,
+      updatedFamilyId: null,
       headers: [
         { text: 'Data criação', value: 'created_at' },
         { text: 'Nome', value: 'name' },
         { text: 'CPF', value: 'cpf' },
-        // { text: 'Função', value: 'function' },
+        { text: 'Função', value: 'function' },
         { text: 'CEP', value: 'zip_code' },
         { text: 'Rua', value: 'street' },
-        { text: 'Numer', value: 'number' },
+        { text: 'Número', value: 'number' },
         { text: 'Bairro', value: 'neighborhood' },
         { text: 'Ações', value: 'actions' },
       ],
@@ -335,7 +347,6 @@ export default {
       try {
         await this.findAll()
       } catch (error) {
-        console.error('Error loading data')
         this.$error('Erro ao carregador dados!')
         throw error
       } finally {
@@ -349,25 +360,36 @@ export default {
       this.selectedPeopleFamily = item
       this.dialog = true
     },
-    // editItem(item) {
-    //   this.selectedFamilyId = item.id
-    //   this.editDialog = true
-    // },
-    closeDialog() {
-      this.dialog = false
+    editItem(item) {
+      this.updatedFamilyId = item.id
+      this.editDialog = true
     },
-
+    async saveUpdatedFamily(updatedFamily) {
+      try {
+        await this.$store.dispatch('peopleFamily/update', updatedFamily)
+        this.loadData()
+        this.editDialog = false
+      } catch (error) {
+        this.$error('Erro ao salvar registro!')
+        throw error
+      }
+    },
     async createdFamily(newFamily) {
       try {
-        const response = await this.$store.dispatch('family/create', newFamily)
-        console.log('familia criada', response)
+        await this.$store.dispatch('family/create', newFamily)
+        this.$success('Registro criado!')
         this.loadData()
         this.createDialog = false
       } catch (error) {
-        this.$error('Erro ao criar família')
-        console.error('Error create family', error)
+        this.$error('Erro ao criar registro!')
         throw error
       }
+    },
+    isSelected(item) {
+      return this.updatedFamilyId === item.id
+    },
+    closeDialog() {
+      this.dialog = false
     },
   },
 }

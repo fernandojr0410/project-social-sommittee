@@ -396,7 +396,8 @@ export default {
         await this.fetchPeople()
         this.editDialog = false
       } catch (error) {
-        console.error('Erro ao salvar pessoa:', error)
+        this.$error('Erro ao salvar pessoa:')
+        throw error
       }
     },
     async createdPeople(newPerson) {

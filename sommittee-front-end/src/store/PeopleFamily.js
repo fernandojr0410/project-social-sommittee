@@ -21,6 +21,7 @@ const getters = {
 const actions = {
   async create({ commit }, payload) {
     const response = await API.peopleFamily.create(payload)
+    console.log('people_family response', response)
     commit('CREATE_PEOPLE_FAMILY', response)
   },
 }

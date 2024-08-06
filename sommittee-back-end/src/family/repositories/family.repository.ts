@@ -3,13 +3,12 @@ import { PrismaService } from "../../prisma/prisma.service";
 import { CreateFamilyDto } from "../dto/create-family.dto";
 import { FamilyEntity } from "../entities/family.entity";
 import { UpdateFamilyDto } from "../dto/update-family.dto";
-
 @Injectable()
 export class FamilyRepository {
   constructor(private readonly prisma: PrismaService) { }
 
   async create(createFamilyDto: CreateFamilyDto): Promise<FamilyEntity> {
-    const { address_id, people_id, function: familyFunction } = createFamilyDto;
+    const { address_id, people_id } = createFamilyDto;
 
     const createdFamily = await this.prisma.family.create({
       data: {
@@ -20,16 +19,13 @@ export class FamilyRepository {
           connect: { id: people_id },
         },
       },
-      include: { address: true, people: true },
-    });
-
-    await this.prisma.people_Family.create({
-      data: {
-        function: familyFunction,
-        people_id,
-        family_id: createdFamily.id,
+      include: {
+        address: true,
+        people: true,
       },
     });
+
+    console.log("createdFamily", createdFamily)
 
     return createdFamily;
   }
@@ -44,7 +40,7 @@ export class FamilyRepository {
         people: true,
         people_family: true,
       },
-    }
+    };
 
     if (query.searchField && query.search) {
       _query.where = {
@@ -55,29 +51,30 @@ export class FamilyRepository {
       };
     }
 
-    return await this.prisma.family.findMany(_query)
+    return await this.prisma.family.findMany(_query);
   }
 
-
-  async findOne(id: string): Promise<FamilyEntity> {
-    return await this.prisma.family.findFirst(
-      {
-        where: { id }
-      })
+  async findByid(id: string): Promise<FamilyEntity | null> {
+    return await this.prisma.family.findFirst({
+      where: { id },
+      include: {
+        address: true,
+        people: true,
+        people_family: true,
+      },
+    });
   }
 
   async update(id: string, updateFamilyDto: UpdateFamilyDto): Promise<FamilyEntity> {
-    return await this.prisma.family.update(
-      {
-        where: { id },
-        data: updateFamilyDto
-      })
+    return await this.prisma.family.update({
+      where: { id },
+      data: updateFamilyDto,
+    });
   }
 
   async remove(id: string): Promise<FamilyEntity> {
-    return await this.prisma.family.delete(
-      {
-        where: { id }
-      })
+    return await this.prisma.family.delete({
+      where: { id },
+    });
   }
 }

@@ -268,7 +268,7 @@ export default {
       loading: false,
       valid: false,
       rules: {
-        required: (value) => !!value || 'Required.',
+        required: (value) => !!value || 'Obrigatório.',
       },
       states,
     }
@@ -298,11 +298,6 @@ export default {
         },
       }
     },
-    handlePeopleChange(people) {
-      this.selectedPeople = people
-      // Reset selectedFunction when people changes
-      this.selectedFunction = people?.people_family?.function || ''
-    },
     openDialog() {
       this.dialog = true
     },
@@ -313,48 +308,53 @@ export default {
       this.loading = true
       try {
         const response = await this.findAll(search)
-        console.log('fetchPeople', response)
+
         this.peopleList = response
       } catch (error) {
-        console.error('Erro ao carregar dados:', error)
+        this.$error('Erro ao carregar dados')
+        throw error
       } finally {
         this.loading = false
       }
     },
     async findAll(search) {
       const response = await this.$store.dispatch('people/findAll', { search })
-      console.log('findAll', response)
       return response
     },
 
     async createFamily() {
       if (this.$refs.form && this.$refs.form.validate()) {
-        const functionValue = this.selectedFunction?.trim()
-
         const familyData = {
           address_id: this.selectedPeople?.address_id,
           people_id: this.selectedPeople?.id,
-          function: functionValue,
         }
 
         const familyResponse = await this.$store.dispatch(
           'family/create',
           familyData
         )
-        console.log('familyResponse', familyResponse)
 
-        const peopleFamilyData = {
-          function: functionValue,
-          people_id: this.selectedPeople.id,
-          family_id: familyResponse.id,
+        try {
+          familyResponse && familyResponse.id
+
+          const peopleFamilyData = {
+            function: this.selectedFunction?.trim(),
+            people_id: this.selectedPeople.id,
+            family_id: familyResponse.id,
+          }
+
+          await this.$store.dispatch('peopleFamily/create', peopleFamilyData)
+          this.$success('Registro criado!')
+          this.selectedFunction = ''
+          this.closeDialog()
+          this.selectedPeople = this.getPeople()
+        } catch (error) {
+          this.$error('Erro ao criar registro!')
+          throw error
         }
-        await this.$store.dispatch('peopleFamily/create', peopleFamilyData)
-        this.closeDialog()
-        this.selectedPeople = this.getPeople()
-      } else {
-        console.error('O formulário não é válido ou não foi encontrado.')
       }
     },
+
     searchPeople(search) {
       if (search && search.length > 2) {
         this.fetchPeople(search)
