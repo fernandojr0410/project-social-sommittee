@@ -6,16 +6,11 @@ const state = {
 
 const mutations = {
   CREATE_FAMILY(state, newFamily) {
-    if (newFamily && !Array.isArray(newFamily)) {
-      state.family.push(newFamily)
-    }
+    state.family.push(newFamily)
   },
 
   SET_FAMILY(state, family) {
-    if (Array.isArray(family)) {
-      state.family = family
-      state.filteredFamily = family
-    }
+    state.family = family
   },
 
   UPDATE_FAMILY(state, updatedFamily) {
@@ -32,29 +27,37 @@ const getters = {
 }
 
 const actions = {
-  async create({ commit }, payload) {
-    const response = await API.family.create(payload)
-    commit('CREATE_FAMILY', response)
-    return response
-  },
-
   async findAll({ commit }, query) {
     const response = await API.family.findAll(query)
+    console.log('findAll store family', response)
     commit('SET_FAMILY', response)
     return response
   },
 
+  async create({ commit }, payload) {
+    try {
+      const response = await API.family.create(payload)
+      console.log('response store family', response)
+      if (response) {
+        commit('CREATE_FAMILY', response)
+      } else {
+        console.error('Resposta inválida da API:', response)
+      }
+      return response
+    } catch (error) {
+      console.error('Erro ao criar família:', error)
+      throw error
+    }
+  },
+
   async findById({ commit }, id) {
-    console.log('ID store', id)
     const response = await API.family.findById(id)
-    console.log('Familia filtrado!', response)
     commit('UPDATE_FAMILY', response)
     return response
   },
 
   async update({ commit }, { id, payload }) {
     const response = await API.family.update(id, payload)
-    console.log('Data Family Update', response)
     commit('UPDATE_FAMILY', response)
     return response
   },

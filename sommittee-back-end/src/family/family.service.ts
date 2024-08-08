@@ -4,7 +4,6 @@ import { CreateFamilyDto } from "./dto/create-family.dto";
 import { UpdateFamilyDto } from "./dto/update-family.dto";
 import { QueryFamilyDto } from "./dto/query-family.dto";
 
-
 @Injectable()
 export class FamilyService {
   constructor(private readonly repository: FamilyRepository) { }
@@ -17,24 +16,25 @@ export class FamilyService {
   }
 
   async findAll(queryDto: QueryFamilyDto = {}) {
-    const query = {}
+    const query = {};
     if (queryDto.searchField && queryDto.search) {
       query[queryDto.searchField] = {
-        mode: 'insensitive'
-      }
+        contains: queryDto.search,
+        mode: 'insensitive',
+      };
     }
-    return await this.repository.findAll(query)
+    return await this.repository.findAll(query);
   }
 
-  async findByid(id: string) {
-    return await this.repository.findByid(id)
+  async findById(id: string) {
+    return await this.repository.findById(id);
   }
 
   async update(id: string, updateFamilyDto: UpdateFamilyDto) {
-    return await this.repository.update(id, updateFamilyDto)
+    return await this.repository.update(id, updateFamilyDto);
   }
 
   async remove(id: string) {
-    return await this.repository.remove(id)
+    return await this.repository.remove(id);
   }
 }

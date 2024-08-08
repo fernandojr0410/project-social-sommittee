@@ -3,37 +3,49 @@ import { PrismaService } from "../../prisma/prisma.service";
 import { CreateFamilyDto } from "../dto/create-family.dto";
 import { FamilyEntity } from "../entities/family.entity";
 import { UpdateFamilyDto } from "../dto/update-family.dto";
+
 @Injectable()
 export class FamilyRepository {
   constructor(private readonly prisma: PrismaService) { }
 
   async create(createFamilyDto: CreateFamilyDto): Promise<FamilyEntity> {
-    const { address_id, people_id } = createFamilyDto;
+    const { address_id, people_id, function: peopleFunction } = createFamilyDto;
 
-    const createdFamily = await this.prisma.family.create({
-      data: {
-        address: {
-          connect: { id: address_id },
+    return await this.prisma.$transaction(async (prisma) => {
+
+      const createdFamily = await prisma.family.create({
+        data: {
+          address: {
+            connect: { id: address_id },
+          },
+          people: {
+            connect: { id: people_id },
+          },
         },
-        people: {
-          connect: { id: people_id },
+        include: {
+          address: true,
+          people: true,
         },
-      },
-      include: {
-        address: true,
-        people: true,
-      },
+      });
+
+      if (peopleFunction) {
+        await prisma.people_Family.create({
+          data: {
+            people_id: people_id,
+            family_id: createdFamily.id,
+            function: peopleFunction,
+          },
+        });
+      }
+
+      return createdFamily;
     });
-
-    console.log("createdFamily", createdFamily)
-
-    return createdFamily;
   }
 
   async findAll(query: any): Promise<FamilyEntity[]> {
     const _query: any = {
       where: {
-        ...query
+        ...query,
       },
       include: {
         address: true,
@@ -47,14 +59,14 @@ export class FamilyRepository {
         [query.searchField]: {
           contains: query.search,
           mode: 'insensitive',
-        }
+        },
       };
     }
 
     return await this.prisma.family.findMany(_query);
   }
 
-  async findByid(id: string): Promise<FamilyEntity | null> {
+  async findById(id: string): Promise<FamilyEntity | null> {
     return await this.prisma.family.findFirst({
       where: { id },
       include: {

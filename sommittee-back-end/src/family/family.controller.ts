@@ -5,7 +5,6 @@ import { CreateFamilyDto } from "./dto/create-family.dto";
 import { UpdateFamilyDto } from "./dto/update-family.dto";
 import { QueryFamilyDto } from "./dto/query-family.dto";
 
-
 @Controller('family')
 export class FamilyController {
   constructor(private readonly familyService: FamilyService) { }
@@ -23,32 +22,33 @@ export class FamilyController {
   @UseGuards(AuthGuard)
   @Get()
   async getAll(@Query() query: QueryFamilyDto) {
-    return await this.familyService.findAll(query)
+    return await this.familyService.findAll(query);
   }
 
   @UseGuards(AuthGuard)
   @Get(':id')
   async findById(@Param('id') id: string) {
-    const family = await this.familyService.findByid(id)
+    const family = await this.familyService.findById(id);
     if (!family) {
-      throw new NotFoundException('Family not found')
+      throw new NotFoundException('Family not found');
     }
-    return family
+    return family;
   }
 
   @UseGuards(AuthGuard)
   @Patch(':id')
-  async updatedData(@Param('id') id: string, @Body() updateFamilyDto: UpdateFamilyDto) {
-    return await this.familyService.update(id, updateFamilyDto)
+  async updateData(@Param('id') id: string, @Body() updateFamilyDto: UpdateFamilyDto) {
+    const response = await this.familyService.update(id, updateFamilyDto);
+    return response;
   }
 
   @UseGuards(AuthGuard)
   @Delete(':id')
   async deleteById(@Param('id') id: string) {
-    const family = await this.familyService.remove(id)
+    const family = await this.familyService.remove(id);
     if (!family) {
-      throw new NotFoundException('Family not found')
+      throw new NotFoundException('Family not found');
     }
-    return family
+    return family;
   }
 }

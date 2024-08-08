@@ -7,7 +7,8 @@ class Family extends Http {
 
   async create(data) {
     const response = await this.post('register', data)
-    console.log('family service response:', response)
+    console.log("response service family", response)
+    return response
   }
 
   async findAll(query) {

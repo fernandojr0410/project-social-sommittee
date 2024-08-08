@@ -290,7 +290,6 @@ export default {
       }
 
       console.log('UpdateData', updateData)
-      console.log('Gender antes de salvar:', this.updatedPeople.gender)
       this.$loading('Carregando...')
       try {
         console.log('antes', updateData)

@@ -246,7 +246,7 @@ export default {
       selectedFunction: '',
       loading: false,
       rules: {
-        required: (value) => !!value || 'Obrigatório.',
+        required: (value) => !!value || 'Campo obrigatório.',
       },
       updatedFamily: this.getPeople(),
       states,
@@ -313,39 +313,37 @@ export default {
       }
     },
     async saveChanges() {
-      if (this.$refs.form && this.$refs.form.validate()) {
-        const familyData = {
-          address_id: this.updatedFamily?.address_id,
-          people_id: this.updatedFamily?.id,
-        }
+      const familyData = {
+        address_id: this.updatedFamily?.address_id,
+        people_id: this.updatedFamily?.id,
+      }
 
-        console.log('Family data to update:', familyData)
+      console.log('Family data to update:', familyData)
 
-        try {
-          const familyResponse = await this.$store.dispatch(
-            'family/update',
-            familyData
-          )
-          console.log('Family update response:', familyResponse)
+      try {
+        const familyResponse = await this.$store.dispatch(
+          'family/update',
+          familyData
+        )
+        console.log('Family update response:', familyResponse)
 
-          if (familyResponse && familyResponse.id) {
-            const peopleFamilyData = {
-              function: this.selectedFunction?.trim(),
-              people_id: this.updatedFamily.id,
-              family_id: familyResponse.id,
-            }
-
-            await this.$store.dispatch('peopleFamily/update', peopleFamilyData)
-            this.$success('Registro atualizado!')
-            this.selectedFunction = ''
-            this.closeDialog()
-            this.updatedFamily = this.getPeople()
+        if (familyResponse && familyResponse.id) {
+          const peopleFamilyData = {
+            function: this.selectedFunction?.trim(),
+            people_id: this.updatedFamily.id,
+            family_id: familyResponse.id,
           }
-        } catch (error) {
-          this.$error('Erro ao criar registro!')
-          console.error('Update error:', error)
-          throw error
+
+          await this.$store.dispatch('peopleFamily/update', peopleFamilyData)
+          this.$success('Registro atualizado!')
+          this.selectedFunction = ''
+          this.closeDialog()
+          this.updatedFamily = this.getPeople()
         }
+      } catch (error) {
+        this.$error('Erro ao criar registro!')
+        console.error('Update error:', error)
+        throw error
       }
     },
   },

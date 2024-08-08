@@ -268,7 +268,7 @@ export default {
       loading: false,
       valid: false,
       rules: {
-        required: (value) => !!value || 'Obrigatório.',
+        required: (value) => !!value || 'Campo obrigatório.',
       },
       states,
     }
@@ -293,9 +293,7 @@ export default {
           city: '',
           state: '',
         },
-        people_family: {
-          function: '',
-        },
+        people_family: [],
       }
     },
     openDialog() {
@@ -323,38 +321,32 @@ export default {
     },
 
     async createFamily() {
-      if (this.$refs.form && this.$refs.form.validate()) {
-        const familyData = {
-          address_id: this.selectedPeople?.address_id,
-          people_id: this.selectedPeople?.id,
-        }
+      const familyData = {
+        address_id: this.selectedPeople?.address_id,
+        people_id: this.selectedPeople?.id,
+        people_family: this.selectedPeople.people_family,
+        function: this.selectedFunction,
+      }
 
-        const familyResponse = await this.$store.dispatch(
-          'family/create',
-          familyData
-        )
+      console.log('familyData create', familyData)
 
-        try {
-          familyResponse && familyResponse.id
-
-          const peopleFamilyData = {
-            function: this.selectedFunction?.trim(),
-            people_id: this.selectedPeople.id,
-            family_id: familyResponse.id,
-          }
-
-          await this.$store.dispatch('peopleFamily/create', peopleFamilyData)
-          this.$success('Registro criado!')
+      try {
+        const response = await this.$store.dispatch('family/create', familyData)
+        console.log('response finalizado', familyData)
+        if (response) {
+          this.$success('Registro criado com sucesso!')
+          this.$store.dispatch('family/findAll')
           this.selectedFunction = ''
           this.closeDialog()
           this.selectedPeople = this.getPeople()
-        } catch (error) {
-          this.$error('Erro ao criar registro!')
-          throw error
+        } else {
+          this.$error('Erro ao criar a família!')
         }
+      } catch (error) {
+        this.$error('Erro ao criar registro!')
+        throw error
       }
     },
-
     searchPeople(search) {
       if (search && search.length > 2) {
         this.fetchPeople(search)

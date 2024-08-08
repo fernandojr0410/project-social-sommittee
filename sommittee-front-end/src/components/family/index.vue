@@ -5,7 +5,7 @@
         <v-data-table
           :loading="loading"
           :headers="headers"
-          :items="family"
+          :items="family || []"
           :items-per-page="10"
           no-data-text="Nenhuma família encontrada"
           :footer-props="{
@@ -17,13 +17,17 @@
             <span>{{ formatDate(item.created_at) }}</span>
           </template>
 
-          <template v-slot:[`item.function`]="{ item }">
-            <span>{{ item.people_family[0].function }}</span>
+          <template v-slot:item.function="{ item }">
+            {{
+              item.people_family && item.people_family.length > 0
+                ? item.people_family[0].function
+                : 'N/A'
+            }}
           </template>
 
           <template v-slot:[`item.name`]="{ item }">
             <span>
-              {{ item.people.name }}
+              {{ item.people?.name }}
             </span>
           </template>
 
@@ -335,7 +339,9 @@ export default {
   },
   computed: {
     family() {
-      return this.$store.state.family.family
+      const familyData = this.$store.state.family.family
+      console.log('index familyData', familyData)
+      return familyData
     },
   },
   created() {
@@ -345,17 +351,32 @@ export default {
     async loadData() {
       this.loading = true
       try {
+        console.log('Carregando dados...')
         await this.findAll()
       } catch (error) {
-        this.$error('Erro ao carregador dados!')
+        this.$error('Erro ao carregar dados!')
         throw error
       } finally {
         this.loading = false
       }
     },
+
     async findAll() {
-      await this.$store.dispatch('family/findAll')
+      try {
+        console.log('Buscando todas as famílias e pessoas da família...')
+        await this.$store.dispatch('family/findAll')
+        const findAll = await this.$store.dispatch('peopleFamily/findAll')
+        console.log('findAll', findAll)
+        return findAll
+      } catch (error) {
+        console.error(
+          'Erro ao buscar todas as famílias e pessoas da família:',
+          error
+        )
+        throw error
+      }
     },
+
     showDetails(item) {
       this.selectedPeopleFamily = item
       this.dialog = true
@@ -366,7 +387,8 @@ export default {
     },
     async saveUpdatedFamily(updatedFamily) {
       try {
-        await this.$store.dispatch('peopleFamily/update', updatedFamily)
+        console.log('Salvando família atualizada:', updatedFamily)
+        await this.$store.dispatch('family/update', updatedFamily)
         this.loadData()
         this.editDialog = false
       } catch (error) {
@@ -374,8 +396,10 @@ export default {
         throw error
       }
     },
+
     async createdFamily(newFamily) {
       try {
+        console.log('Criando nova família:', newFamily)
         await this.$store.dispatch('family/create', newFamily)
         this.$success('Registro criado!')
         this.loadData()

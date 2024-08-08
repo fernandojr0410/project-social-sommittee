@@ -13,5 +13,4 @@ export class CreatePeopleFamilyDto {
   @IsString()
   @IsNotEmpty()
   family_id: string;
-
 }
