@@ -84,7 +84,7 @@
         <PeopleDelete
           :dialog="deleteDialog"
           :id="itemToDelete"
-          @close="deleteDialog = false"
+          @close="handleDeleteClose"
         />
       </v-card-text>
     </v-card>
@@ -357,26 +357,14 @@ export default {
       try {
         await this.findAll()
       } catch (error) {
-        console.error('Erro ao carregar dados:', error)
+        this.$error('Erro ao carregar dados!')
+        throw error
       } finally {
         this.loading = false
       }
     },
     async findAll() {
       await this.$store.dispatch('people/findAll')
-    },
-    async fetchPeople() {
-      this.loading = true
-      try {
-        await this.$store.dispatch('people/filter', {
-          category: this.$store.state.people.searchCategory,
-          search: this.$store.state.people.searchTerm,
-        })
-      } catch (error) {
-        console.error('Error searching people:', error)
-      } finally {
-        this.loading = false
-      }
     },
     async handleSearch(search) {
       this.search = search
@@ -421,6 +409,10 @@ export default {
     confirmDelete(item) {
       this.itemToDelete = item.id
       this.deleteDialog = true
+    },
+    handleDeleteClose() {
+      this.deleteDialog = false
+      this.itemToDelete = null
     },
   },
 }

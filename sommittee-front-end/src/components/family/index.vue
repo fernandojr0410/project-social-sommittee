@@ -2,6 +2,9 @@
   <v-container>
     <v-card>
       <v-card-text>
+        <div style="display: flex; align-items: center">
+          <FamilySearch @search="handleSearch" />
+        </div>
         <v-data-table
           :loading="loading"
           :headers="headers"
@@ -74,6 +77,12 @@
           :id="updatedFamilyId"
           @close="editDialog = false"
           @save="saveUpdatedFamily"
+        />
+
+        <FamilyDelete
+          :dialog="deleteDialog"
+          :id="itemToDelete"
+          @close="handleDeleteClose"
         />
       </v-card-text>
     </v-card>
@@ -310,10 +319,12 @@ import { formatDate } from '@/filters'
 import { states } from '@/assets/state'
 import FamilyCreate from './FamilyCreate.vue'
 import FamilyEdit from './FamilyEdit.vue'
+import FamilyDelete from './FamilyDelete.vue'
+import FamilySearch from './FamilySearch.vue'
 
 export default {
   name: 'index',
-  components: { FamilyCreate, FamilyEdit },
+  components: { FamilyCreate, FamilyEdit, FamilyDelete, FamilySearch },
   data() {
     return {
       loading: false,
@@ -322,6 +333,9 @@ export default {
       createDialog: false,
       editDialog: false,
       updatedFamilyId: null,
+      deleteDialog: false,
+      itemToDelete: null,
+      search: '',
       headers: [
         { text: 'Data criação', value: 'created_at' },
         { text: 'Nome', value: 'name' },
@@ -339,9 +353,7 @@ export default {
   },
   computed: {
     family() {
-      const familyData = this.$store.state.family.family
-      console.log('index familyData', familyData)
-      return familyData
+      return this.$store.state.family.family
     },
   },
   created() {
@@ -351,7 +363,6 @@ export default {
     async loadData() {
       this.loading = true
       try {
-        console.log('Carregando dados...')
         await this.findAll()
       } catch (error) {
         this.$error('Erro ao carregar dados!')
@@ -362,21 +373,12 @@ export default {
     },
 
     async findAll() {
-      try {
-        console.log('Buscando todas as famílias e pessoas da família...')
-        await this.$store.dispatch('family/findAll')
-        const findAll = await this.$store.dispatch('peopleFamily/findAll')
-        console.log('findAll', findAll)
-        return findAll
-      } catch (error) {
-        console.error(
-          'Erro ao buscar todas as famílias e pessoas da família:',
-          error
-        )
-        throw error
-      }
+      await this.$store.dispatch('family/findAll')
     },
-
+    async handleSearch(search) {
+      console.log('search', search)
+      this.search = search
+    },
     showDetails(item) {
       this.selectedPeopleFamily = item
       this.dialog = true
@@ -414,6 +416,14 @@ export default {
     },
     closeDialog() {
       this.dialog = false
+    },
+    confirmDelete(item) {
+      this.itemToDelete = item.id
+      this.deleteDialog = true
+    },
+    handleDeleteClose() {
+      this.deleteDialog = false
+      this.itemToDelete = null
     },
   },
 }

@@ -44,27 +44,62 @@ export class FamilyRepository {
 
   async findAll(query: any): Promise<FamilyEntity[]> {
     const _query: any = {
-      where: {
-        ...query,
-      },
       include: {
-        address: true,
-        people: true,
-        people_family: true,
+        address: {
+          select: { 
+            zip_code: true,
+            street: true,
+            number: true,
+            complement: true,
+            neighborhood: true,
+            city: true,
+            state: true,
+          },
+        },
+        people: {
+          select: {
+            name: true,
+            cpf: true,
+          },
+        },
+        people_family: {
+          select: {
+            function: true,
+          },
+        },
       },
     };
 
+    console.log('query.searchField:', query.searchField);
+    console.log('query.search:', query.search);
+
     if (query.searchField && query.search) {
       _query.where = {
-        [query.searchField]: {
-          contains: query.search,
-          mode: 'insensitive',
+        people: {
+          some: {
+            [query.searchField]: {
+              contains: query.search,
+              mode: 'insensitive',
+            },
+          },
         },
       };
     }
 
-    return await this.prisma.family.findMany(_query);
+    console.log('Query being sent to findAll:', _query);
+
+    const results = await this.prisma.family.findMany(_query);
+
+    console.log('Resultados encontrados:', results);
+
+    return results;
   }
+
+
+
+
+
+
 
   async findById(id: string): Promise<FamilyEntity | null> {
     return await this.prisma.family.findFirst({
@@ -99,7 +134,7 @@ export class FamilyRepository {
 
     await this.prisma.people_Family.update({
       where: {
-        id: updatedFamily.people_family[0].id, 
+        id: updatedFamily.people_family[0].id,
       },
       data: {
         function: familyFunction,
@@ -111,34 +146,33 @@ export class FamilyRepository {
       include: {
         address: true,
         people: true,
-        people_family: true, 
+        people_family: true,
       },
     });
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   async remove(id: string): Promise<FamilyEntity> {
-    return await this.prisma.family.delete({
+    const family = await this.prisma.family.findUnique({
+      where: { id },
+      include: {
+        people_family: true,
+      },
+    });
+
+    if (!family) {
+      throw new NotFoundException('Family not found');
+    }
+
+    await this.prisma.people_Family.deleteMany({
+      where: {
+        family_id: id,
+      },
+    });
+
+    await this.prisma.family.delete({
       where: { id },
     });
+
+    return family;
   }
 }

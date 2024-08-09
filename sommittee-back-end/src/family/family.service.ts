@@ -31,21 +31,18 @@ export class FamilyService {
   }
 
   async update(id: string, updateFamilyDto: UpdateFamilyDto) {
-    // Desestrutura o DTO para obter a função e os dados restantes
     const { function: familyFunction, people_id, address_id } = updateFamilyDto;
 
     if (!people_id || !address_id) {
       throw new BadRequestException('Both people_id and address_id are required');
     }
 
-    // Chama o repositório para atualizar a entidade com os dados restantes e a função
     return await this.repository.update(id, {
       people_id,
       address_id,
       function: familyFunction,
     });
   }
-
 
   async remove(id: string) {
     return await this.repository.remove(id);

@@ -32,7 +32,7 @@
 
 <script>
 export default {
-  name: 'PeopleSearch',
+  name: 'FamilySearch',
   data() {
     return {
       query: {
@@ -43,7 +43,7 @@ export default {
       categories: [
         { value: 'name', text: 'Nome' },
         { value: 'cpf', text: 'CPF' },
-        { value: 'email', text: 'E-mail' },
+        { value: 'zip_code', text: 'CEP' },
       ],
     }
   },
@@ -59,7 +59,7 @@ export default {
   },
   computed: {
     filteredItems() {
-      return this.$store.state.filteredPeople
+      return this.$store.state.filteredFamily
     },
   },
   methods: {
@@ -73,7 +73,8 @@ export default {
       } else {
         this.query.search = this.formattedSearch
       }
-      await this.$store.dispatch('people/findAll', this.query)
+      const response = await this.$store.dispatch('family/findAll', this.query)
+      console.log('family/findAll', response)
     },
   },
 }

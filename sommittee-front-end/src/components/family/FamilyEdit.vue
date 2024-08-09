@@ -295,7 +295,8 @@ export default {
         const response = await this.findAll(search)
         this.peopleList = response
       } catch (error) {
-        this.$error('Erro ao carregar dados:', error)
+        this.$error('Erro ao carregar dados!')
+        throw error
       } finally {
         this.loading = false
       }
@@ -305,43 +306,7 @@ export default {
       return response
     },
 
-    // async saveChanges() {
-    //   console.log('people_id:', this.updatedFamily.id)
-    //   console.log('address_id:', this.updatedFamily.address_id)
-    //   console.log('selectedFunction:', this.selectedFunction)
-
-    //   try {
-    //     // Certifique-se de que o ID da família está correto
-    //     const familyId = this.id // Usando a prop id para obter o ID da família
-
-    //     const updateData = {
-    //       // O ID da família deve ser passado na URL do endpoint
-    //       id: familyId,
-    //       payload: {
-    //         // Usar o ID da pessoa se necessário, mas confirmar se é o campo certo
-    //         people_id: this.updatedFamily.people_id, // Verifique se está corretamente atribuído
-    //         address_id: this.updatedFamily.address_id,
-    //         people_family: {
-    //           function: this.selectedFunction, // Verifique se esta função é parte do payload esperado
-    //         },
-    //       },
-    //     }
-
-    //     console.log('updateData', updateData)
-
-    //     // Dispatch action to Vuex store to perform the update
-    //     await this.$store.dispatch('family/update', updateData)
-    //     this.$success('Dados atualizados com sucesso!')
-    //     this.closeDialog()
-    //   } catch (error) {
-    //     console.error('Erro ao atualizar família', error)
-    //     this.$error('Erro ao salvar dados.')
-    //   }
-    // },
     async saveChanges() {
-      console.log('people_id:', this.updatedFamily.id)
-      console.log('address_id:', this.updatedFamily.address_id)
-      console.log('selectedFunction:', this.selectedFunction)
       try {
         const familyId = this.id
         const updateData = {
@@ -353,17 +318,12 @@ export default {
           },
         }
 
-        console.log('updateData', updateData)
-        const responseStore = await this.$store.dispatch(
-          'family/update',
-          updateData
-        )
-        console.log('responseStore', responseStore)
-        this.$success('Dados atualizados com sucesso!')
+        await this.$store.dispatch('family/update', updateData)
+        this.$success('Registro atualizado!')
         this.closeDialog()
       } catch (error) {
-        console.error('Erro ao atualizar família:', error)
-        this.$error('Erro ao salvar dados.')
+        this.$error('Erro ao atualizar!')
+        throw error
       }
     },
 

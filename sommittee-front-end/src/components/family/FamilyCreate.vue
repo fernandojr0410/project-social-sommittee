@@ -309,7 +309,7 @@ export default {
 
         this.peopleList = response
       } catch (error) {
-        this.$error('Erro ao carregar dados')
+        this.$error('Erro ao carregar dados!')
         throw error
       } finally {
         this.loading = false
@@ -328,13 +328,10 @@ export default {
         function: this.selectedFunction,
       }
 
-      console.log('familyData create', familyData)
-
       try {
         const response = await this.$store.dispatch('family/create', familyData)
-        console.log('response finalizado', familyData)
         if (response) {
-          this.$success('Registro criado com sucesso!')
+          this.$success('Registro criado!')
           this.$store.dispatch('family/findAll')
           this.selectedFunction = ''
           this.closeDialog()

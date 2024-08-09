@@ -11,7 +11,6 @@ const mutations = {
 
   SET_PEOPLE(state, people) {
     state.people = people
-    state.filteredPeople = people
   },
 
   UPDATE_PEOPLE(state, updatedPeople) {

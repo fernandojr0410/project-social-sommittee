@@ -289,13 +289,10 @@ export default {
         },
       }
 
-      console.log('UpdateData', updateData)
       this.$loading('Carregando...')
       try {
-        console.log('antes', updateData)
         await this.$store.dispatch('people/update', updateData)
-        console.log('depois', updateData)
-        this.$success('Alterações salvas!')
+        this.$success('Registro atualizado!')
         this.$emit('close')
         return updateData
       } catch (error) {

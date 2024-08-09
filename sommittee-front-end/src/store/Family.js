@@ -10,6 +10,7 @@ const mutations = {
   },
 
   SET_FAMILY(state, family) {
+    console.log('SET_FAMILY mutation payload:', family)
     state.family = family
   },
 
@@ -17,6 +18,10 @@ const mutations = {
     state.family = state.family.map((item) => {
       return item.id === updatedFamily.id ? { ...item, ...updatedFamily } : item
     })
+  },
+
+  DELETE_FAMILY(state, id) {
+    state.family = state.family.filter((family) => family.id !== id)
   },
 }
 
@@ -35,45 +40,28 @@ const actions = {
   },
 
   async create({ commit }, payload) {
-    try {
-      const response = await API.family.create(payload)
-      console.log('response store family', response)
-      if (response) {
-        commit('CREATE_FAMILY', response)
-      } else {
-        console.error('Resposta inválida da API:', response)
-      }
-      return response
-    } catch (error) {
-      console.error('Erro ao criar família:', error)
-      throw error
-    }
+    const response = await API.family.create(payload)
+    commit('CREATE_FAMILY', response)
+    return response
   },
 
   async findById({ commit }, id) {
-    try {
-      console.log('ID store', id)
-      const response = await API.family.findById(id)
-      console.log('response store', response)
-      commit('UPDATE_FAMILY', response)
-      return response
-    } catch (error) {
-      console.error('Error findById', error)
-    }
+    const response = await API.family.findById(id)
+    commit('UPDATE_FAMILY', response)
+    return response
   },
 
   async update({ commit }, { id, payload }) {
-    try {
-      console.log('ID payload', id)
-      console.log('payload', payload)
-      const response = await API.family.update(id, payload)
-      console.log('response payload', response)
-      commit('UPDATE_FAMILY', response)
-      return response
-    } catch (error) {
-      console.error('Error to update family:', error)
-      throw error
-    }
+    const response = await API.family.update(id, payload)
+    commit('UPDATE_FAMILY', response)
+    return response
+  },
+
+  async delete({ commit }, id) {
+    const response = await API.family.delete(id)
+    console.log('response store', response)
+    commit('DELETE_FAMILY', id)
+    return response
   },
 }
 

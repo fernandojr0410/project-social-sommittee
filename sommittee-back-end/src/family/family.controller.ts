@@ -22,7 +22,9 @@ export class FamilyController {
   @UseGuards(AuthGuard)
   @Get()
   async getAll(@Query() query: QueryFamilyDto) {
-    return await this.familyService.findAll(query);
+    const response = await this.familyService.findAll(query);
+    console.log("controller", response)
+    return response
   }
 
   @UseGuards(AuthGuard)
@@ -40,11 +42,6 @@ export class FamilyController {
   async update(@Param('id') id: string, @Body() updateFamilyDto: UpdateFamilyDto) {
     return await this.familyService.update(id, updateFamilyDto);
   }
-
-
-
-
-
 
   @UseGuards(AuthGuard)
   @Delete(':id')
