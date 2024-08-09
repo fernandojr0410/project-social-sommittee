@@ -37,10 +37,14 @@ export class FamilyController {
 
   @UseGuards(AuthGuard)
   @Patch(':id')
-  async updateData(@Param('id') id: string, @Body() updateFamilyDto: UpdateFamilyDto) {
-    const response = await this.familyService.update(id, updateFamilyDto);
-    return response;
+  async update(@Param('id') id: string, @Body() updateFamilyDto: UpdateFamilyDto) {
+    return await this.familyService.update(id, updateFamilyDto);
   }
+
+
+
+
+
 
   @UseGuards(AuthGuard)
   @Delete(':id')

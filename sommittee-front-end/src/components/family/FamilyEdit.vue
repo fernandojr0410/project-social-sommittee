@@ -242,13 +242,13 @@ export default {
   },
   data() {
     return {
+      updatedFamily: this.getPeople(),
       peopleList: [],
       selectedFunction: '',
       loading: false,
       rules: {
         required: (value) => !!value || 'Campo obrigatório.',
       },
-      updatedFamily: this.getPeople(),
       states,
     }
   },
@@ -283,6 +283,7 @@ export default {
           city: '',
           state: '',
         },
+        people_family: [],
       }
     },
     closeDialog() {
@@ -292,7 +293,6 @@ export default {
       this.loading = true
       try {
         const response = await this.findAll(search)
-        console.log('Find all response:', response)
         this.peopleList = response
       } catch (error) {
         this.$error('Erro ao carregar dados:', error)
@@ -302,48 +302,76 @@ export default {
     },
     async findAll(search) {
       const response = await this.$store.dispatch('people/findAll', { search })
-      console.log('Find all response:', response)
       return response
     },
+
+    // async saveChanges() {
+    //   console.log('people_id:', this.updatedFamily.id)
+    //   console.log('address_id:', this.updatedFamily.address_id)
+    //   console.log('selectedFunction:', this.selectedFunction)
+
+    //   try {
+    //     // Certifique-se de que o ID da família está correto
+    //     const familyId = this.id // Usando a prop id para obter o ID da família
+
+    //     const updateData = {
+    //       // O ID da família deve ser passado na URL do endpoint
+    //       id: familyId,
+    //       payload: {
+    //         // Usar o ID da pessoa se necessário, mas confirmar se é o campo certo
+    //         people_id: this.updatedFamily.people_id, // Verifique se está corretamente atribuído
+    //         address_id: this.updatedFamily.address_id,
+    //         people_family: {
+    //           function: this.selectedFunction, // Verifique se esta função é parte do payload esperado
+    //         },
+    //       },
+    //     }
+
+    //     console.log('updateData', updateData)
+
+    //     // Dispatch action to Vuex store to perform the update
+    //     await this.$store.dispatch('family/update', updateData)
+    //     this.$success('Dados atualizados com sucesso!')
+    //     this.closeDialog()
+    //   } catch (error) {
+    //     console.error('Erro ao atualizar família', error)
+    //     this.$error('Erro ao salvar dados.')
+    //   }
+    // },
+    async saveChanges() {
+      console.log('people_id:', this.updatedFamily.id)
+      console.log('address_id:', this.updatedFamily.address_id)
+      console.log('selectedFunction:', this.selectedFunction)
+      try {
+        const familyId = this.id
+        const updateData = {
+          id: familyId,
+          payload: {
+            people_id: this.updatedFamily.id,
+            address_id: this.updatedFamily.address_id,
+            function: this.selectedFunction,
+          },
+        }
+
+        console.log('updateData', updateData)
+        const responseStore = await this.$store.dispatch(
+          'family/update',
+          updateData
+        )
+        console.log('responseStore', responseStore)
+        this.$success('Dados atualizados com sucesso!')
+        this.closeDialog()
+      } catch (error) {
+        console.error('Erro ao atualizar família:', error)
+        this.$error('Erro ao salvar dados.')
+      }
+    },
+
     searchPeople(search) {
       if (search && search.length > 2) {
         this.fetchPeople(search)
       } else {
         this.peopleList = []
-      }
-    },
-    async saveChanges() {
-      const familyData = {
-        address_id: this.updatedFamily?.address_id,
-        people_id: this.updatedFamily?.id,
-      }
-
-      console.log('Family data to update:', familyData)
-
-      try {
-        const familyResponse = await this.$store.dispatch(
-          'family/update',
-          familyData
-        )
-        console.log('Family update response:', familyResponse)
-
-        if (familyResponse && familyResponse.id) {
-          const peopleFamilyData = {
-            function: this.selectedFunction?.trim(),
-            people_id: this.updatedFamily.id,
-            family_id: familyResponse.id,
-          }
-
-          await this.$store.dispatch('peopleFamily/update', peopleFamilyData)
-          this.$success('Registro atualizado!')
-          this.selectedFunction = ''
-          this.closeDialog()
-          this.updatedFamily = this.getPeople()
-        }
-      } catch (error) {
-        this.$error('Erro ao criar registro!')
-        console.error('Update error:', error)
-        throw error
       }
     },
   },

@@ -7,7 +7,7 @@ class Family extends Http {
 
   async create(data) {
     const response = await this.post('register', data)
-    console.log("response service family", response)
+    console.log('response service family', response)
     return response
   }
 
@@ -35,7 +35,7 @@ class Family extends Http {
       console.log('update response', response)
       return response
     } catch (error) {
-      console.error('Erro ao buscar por ID:', error)
+      console.error('Erro ao atualizar família:', error)
       throw error
     }
   }

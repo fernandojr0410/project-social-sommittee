@@ -27,7 +27,7 @@
 
           <template v-slot:[`item.name`]="{ item }">
             <span>
-              {{ item.people?.name }}
+              {{ item.people.name }}
             </span>
           </template>
 

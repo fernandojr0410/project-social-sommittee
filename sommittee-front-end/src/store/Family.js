@@ -51,15 +51,29 @@ const actions = {
   },
 
   async findById({ commit }, id) {
-    const response = await API.family.findById(id)
-    commit('UPDATE_FAMILY', response)
-    return response
+    try {
+      console.log('ID store', id)
+      const response = await API.family.findById(id)
+      console.log('response store', response)
+      commit('UPDATE_FAMILY', response)
+      return response
+    } catch (error) {
+      console.error('Error findById', error)
+    }
   },
 
   async update({ commit }, { id, payload }) {
-    const response = await API.family.update(id, payload)
-    commit('UPDATE_FAMILY', response)
-    return response
+    try {
+      console.log('ID payload', id)
+      console.log('payload', payload)
+      const response = await API.family.update(id, payload)
+      console.log('response payload', response)
+      commit('UPDATE_FAMILY', response)
+      return response
+    } catch (error) {
+      console.error('Error to update family:', error)
+      throw error
+    }
   },
 }
 

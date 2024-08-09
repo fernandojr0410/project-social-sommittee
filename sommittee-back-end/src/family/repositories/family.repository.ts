@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
 import { CreateFamilyDto } from "../dto/create-family.dto";
 import { FamilyEntity } from "../entities/family.entity";
@@ -77,12 +77,64 @@ export class FamilyRepository {
     });
   }
 
-  async update(id: string, updateFamilyDto: UpdateFamilyDto): Promise<FamilyEntity> {
-    return await this.prisma.family.update({
+  async update(id: string, updateFamilyDto: Partial<UpdateFamilyDto>): Promise<FamilyEntity> {
+    const { people_id, address_id, function: familyFunction } = updateFamilyDto;
+
+    const updatedFamily = await this.prisma.family.update({
       where: { id },
-      data: updateFamilyDto,
+      data: {
+        address: {
+          connect: { id: address_id },
+        },
+        people: {
+          connect: { id: people_id },
+        },
+      },
+      include: {
+        address: true,
+        people: true,
+        people_family: true,
+      },
+    });
+
+    await this.prisma.people_Family.update({
+      where: {
+        id: updatedFamily.people_family[0].id, 
+      },
+      data: {
+        function: familyFunction,
+      },
+    });
+
+    return this.prisma.family.findUnique({
+      where: { id },
+      include: {
+        address: true,
+        people: true,
+        people_family: true, 
+      },
     });
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   async remove(id: string): Promise<FamilyEntity> {
     return await this.prisma.family.delete({

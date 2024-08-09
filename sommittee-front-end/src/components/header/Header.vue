@@ -77,18 +77,11 @@
           <v-list-item-title>Home</v-list-item-title>
         </v-list-item>
 
-        <v-list-item :to="{ path: '/received' }">
+        <v-list-item :to="{ path: '/people' }">
           <v-list-item-icon>
-            <v-icon>mdi-hand-coin</v-icon>
+            <v-icon>mdi-account-group</v-icon>
           </v-list-item-icon>
-          <v-list-item-title>Recebidos</v-list-item-title>
-        </v-list-item>
-
-        <v-list-item :to="{ path: '/address' }">
-          <v-list-item-icon>
-            <v-icon>mdi-truck-delivery-outline</v-icon>
-          </v-list-item-icon>
-          <v-list-item-title>Entregas</v-list-item-title>
+          <v-list-item-title>Pessoas</v-list-item-title>
         </v-list-item>
 
         <v-list-item :to="{ path: '/family' }">
@@ -98,11 +91,18 @@
           <v-list-item-title>Famílias</v-list-item-title>
         </v-list-item>
 
-        <v-list-item :to="{ path: '/people' }">
+        <v-list-item :to="{ path: '/address' }">
           <v-list-item-icon>
-            <v-icon>mdi-account-group</v-icon>
+            <v-icon>mdi-truck-delivery-outline</v-icon>
           </v-list-item-icon>
-          <v-list-item-title>Pessoas</v-list-item-title>
+          <v-list-item-title>Entregas</v-list-item-title>
+        </v-list-item>
+
+        <v-list-item :to="{ path: '/received' }">
+          <v-list-item-icon>
+            <v-icon>mdi-hand-coin</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title>Recebidos</v-list-item-title>
         </v-list-item>
 
         <v-list-item>
