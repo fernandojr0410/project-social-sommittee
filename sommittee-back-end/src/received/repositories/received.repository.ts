@@ -42,7 +42,6 @@ export class ReceivedRepository {
         donor: {
           select: {
             name: true,
-            surname: true,
             email: true,
             contact: true,
             type_donor: true,
@@ -89,7 +88,6 @@ export class ReceivedRepository {
         donor: {
           select: {
             name: true,
-            surname: true,
             email: true,
             contact: true,
             type_donor: true,

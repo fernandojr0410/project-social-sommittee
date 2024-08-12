@@ -396,7 +396,6 @@ export default {
       await this.$store.dispatch('family/findAll')
     },
     async handleSearch(search) {
-      console.log('search', search)
       this.search = search
     },
     showDetails(item) {

@@ -3,6 +3,7 @@ import { CreateAddressDto } from './dto/create-address.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
 import { AddressRepository } from './repository/address.repository';
 import { NotFoundError } from '../common/errors/types/notFoundError';
+import { QueryAddressDto } from './dto/query-address.dto';
 @Injectable()
 export class AddressService {
   constructor(private readonly repository: AddressRepository) { }
@@ -11,22 +12,9 @@ export class AddressService {
     return this.repository.create(createAddressDto)
   }
 
-  async findAll() {
-    return await this.repository.findAll()
+  async findAll(queryDto: QueryAddressDto = {}) {
+    return await this.repository.findAll(queryDto)
   }
-
-  // async filter(category: string, search: string) {
-  //   const filters = {
-  //     [category]: {
-  //       contains: search,
-  //       mode: 'insensitive'
-  //     }
-  //   };
-
-  //   console.log('Service filters:', filters);
-
-  //   return this.repository.filter(filters);
-  // }
 
   async findById(id: string) {
     const address = await this.repository.findById(id)

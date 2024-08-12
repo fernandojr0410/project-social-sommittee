@@ -5,6 +5,8 @@ import received from './Received'
 import people from './People'
 import family from './Family'
 import peopleFamily from './PeopleFamily'
+import address from './Address'
+import product from './Product'
 
 Vue.use(Vuex)
 
@@ -14,7 +16,9 @@ export default new Vuex.Store({
     received,
     people,
     family,
-    peopleFamily
+    peopleFamily,
+    product,
+    address,
   },
   state: {
     snackbar: {

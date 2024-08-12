@@ -1,15 +1,16 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query, Req, UseGuards } from "@nestjs/common";
 import { ProductService } from "./product.service";
 import { AuthGuard } from "../auth/auth.guard";
 import { CreateProductDto } from "./dto/create-product.dto";
 import { UpdateProductDto } from "./dto/update-product.dto";
+import { QueryProductDto } from "./dto/query-product.dto";
 
 
 @Controller('product')
 export class ProductController {
   constructor(private readonly service: ProductService) { }
 
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Post('register')
   async register(@Body() createProductDto: CreateProductDto) {
     return await this.service.create(createProductDto)
@@ -17,8 +18,8 @@ export class ProductController {
 
   @UseGuards(AuthGuard)
   @Get()
-  async findAll() {
-    return await this.service.findAll()
+  async findAll(@Query() query: QueryProductDto) {
+    return await this.service.findAll(query)
   }
 
   @UseGuards(AuthGuard)

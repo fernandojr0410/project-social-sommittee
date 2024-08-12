@@ -2,6 +2,7 @@ import { HttpException, Injectable } from "@nestjs/common";
 import { ProductRepository } from "./repositories/product.repository";
 import { CreateProductDto } from "./dto/create-product.dto";
 import { UpdateProductDto } from "./dto/update-product.dto";
+import { QueryProductDto } from "./dto/query-product.dto";
 @Injectable()
 export class ProductService {
   constructor(
@@ -13,8 +14,8 @@ export class ProductService {
     return await this.repository.create(createProductDto);
   }
 
-  async findAll() {
-    return await this.repository.findAll()
+  async findAll(queryDto: QueryProductDto = {}) {
+    return await this.repository.findAll(queryDto)
   }
 
   async findById(id: string) {

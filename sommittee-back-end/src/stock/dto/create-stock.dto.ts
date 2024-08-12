@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export class CreateStockDto {
 
@@ -11,6 +11,6 @@ export class CreateStockDto {
   product_id: string
 
   @IsString()
-  @IsNotEmpty()
-  donation_id: string
+  @IsOptional()
+  donation_id?: string
 }

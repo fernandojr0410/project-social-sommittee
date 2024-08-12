@@ -1,4 +1,5 @@
 import { IsNotEmpty, IsString } from "class-validator";
+import { CreateStockDto } from "src/stock/dto/create-stock.dto";
 
 export class CreateProductDto {
 
@@ -13,4 +14,7 @@ export class CreateProductDto {
   @IsString()
   @IsNotEmpty()
   type: string
+
+  @IsNotEmpty()
+  stock: CreateStockDto
 }

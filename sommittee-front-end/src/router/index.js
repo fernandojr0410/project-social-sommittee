@@ -7,6 +7,7 @@ import Received from '@/views/Received.vue'
 import Address from '@/views/Address.vue'
 import People from '@/views/People.vue'
 import Family from '@/views/Family.vue'
+import Product from '@/views/Product.vue'
 
 Vue.use(VueRouter)
 
@@ -28,16 +29,6 @@ const routes = [
   },
   { path: '*', redirect: '/' },
   {
-    path: '/received',
-    component: Received,
-    meta: { title: 'Recebidos', auth: true },
-  },
-  {
-    path: '/address',
-    component: Address,
-    meta: { title: 'Endereços', auth: true },
-  },
-  {
     path: '/people',
     component: People,
     meta: { title: 'Pessoas', auth: true },
@@ -46,6 +37,21 @@ const routes = [
     path: '/family',
     component: Family,
     meta: { title: 'Familias', auth: true },
+  },
+  {
+    path: '/product',
+    component: Product,
+    meta: { title: 'Produtos', auth: true },
+  },
+  {
+    path: '/received',
+    component: Received,
+    meta: { title: 'Recebidos', auth: true },
+  },
+  {
+    path: '/address',
+    component: Address,
+    meta: { title: 'Endereços', auth: true },
   },
 ]
 

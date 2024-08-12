@@ -91,6 +91,13 @@
           <v-list-item-title>Famílias</v-list-item-title>
         </v-list-item>
 
+        <v-list-item :to="{ path: '/product' }">
+          <v-list-item-icon>
+            <v-icon>mdi-package</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title>Produtos</v-list-item-title>
+        </v-list-item>
+
         <v-list-item :to="{ path: '/address' }">
           <v-list-item-icon>
             <v-icon>mdi-truck-delivery-outline</v-icon>
@@ -117,13 +124,6 @@
             <v-icon>mdi-shopping</v-icon>
           </v-list-item-icon>
           <v-list-item-title>Compras</v-list-item-title>
-        </v-list-item>
-
-        <v-list-item>
-          <v-list-item-icon>
-            <v-icon>mdi-package</v-icon>
-          </v-list-item-icon>
-          <v-list-item-title>Produtos</v-list-item-title>
         </v-list-item>
 
         <v-list-group no-action prepend-icon="mdi-cog-outline" color="#FFF">
@@ -201,6 +201,11 @@ export default {
           case '/family':
             document.title = `Sommittee | Famílias`
             this.pageName = 'Famílias'
+            break
+          case '/product':
+            document.title = `Sommittee | Produtos`
+            this.pageName = 'Produtos'
+            break
         }
       },
     },

@@ -3,7 +3,6 @@ import { $Enums, Donor } from "@prisma/client";
 export class DonorEntity implements Donor {
   id: string;
   name: string;
-  surname: string;
   cpf: string;
   email: string;
   contact: string;

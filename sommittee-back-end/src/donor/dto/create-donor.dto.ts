@@ -9,10 +9,6 @@ export class CreateDonorDto {
 
   @IsString()
   @IsNotEmpty()
-  surname: string
-
-  @IsString()
-  @IsNotEmpty()
   cpf: string
 
   @IsString()
