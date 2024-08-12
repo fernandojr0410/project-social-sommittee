@@ -16,14 +16,7 @@ export class FamilyService {
   }
 
   async findAll(queryDto: QueryFamilyDto = {}) {
-    const query = {};
-    if (queryDto.searchField && queryDto.search) {
-      query[queryDto.searchField] = {
-        contains: queryDto.search,
-        mode: 'insensitive',
-      };
-    }
-    return await this.repository.findAll(query);
+    return await this.repository.findAll(queryDto);
   }
 
   async findById(id: string) {

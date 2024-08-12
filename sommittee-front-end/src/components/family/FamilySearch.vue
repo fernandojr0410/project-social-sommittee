@@ -43,7 +43,7 @@ export default {
       categories: [
         { value: 'name', text: 'Nome' },
         { value: 'cpf', text: 'CPF' },
-        { value: 'zip_code', text: 'CEP' },
+        { value: 'e-mail', text: 'E-mail' },
       ],
     }
   },

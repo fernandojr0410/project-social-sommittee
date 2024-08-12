@@ -4,6 +4,7 @@
       <v-card-text>
         <div style="display: flex; align-items: center">
           <FamilySearch @search="handleSearch" />
+          <FamilyRefresh />
         </div>
         <v-data-table
           :loading="loading"
@@ -23,7 +24,9 @@
           <template v-slot:item.function="{ item }">
             {{
               item.people_family && item.people_family.length > 0
-                ? item.people_family[0].function
+                ? $options.filters.functionFamily(
+                    item.people_family[0].function
+                  )
                 : 'N/A'
             }}
           </template>
@@ -292,13 +295,23 @@
               </span>
             </v-col>
             <v-col>
-              <v-text-field
+              <v-select
                 v-if="
                   selectedPeopleFamily && selectedPeopleFamily.people_family
                 "
-                v-model="selectedPeopleFamily.people_family.function"
+                v-model="selectedPeopleFamily.people_family[0].function"
+                :items="[
+                  { text: 'Mãe', value: 'mother' },
+                  { text: 'Pai', value: 'father' },
+                  { text: 'Filho(a)', value: 'child' },
+                  { text: 'Vó', value: 'grandMother' },
+                  { text: 'Vô', value: 'grandFather' },
+                  { text: 'Tio', value: 'uncle' },
+                  { text: 'Tio', value: 'aunt' },
+                ]"
+                item-value="value"
+                item-text="text"
                 label="Função"
-                class="mr-3"
                 disabled
               />
             </v-col>
@@ -321,10 +334,17 @@ import FamilyCreate from './FamilyCreate.vue'
 import FamilyEdit from './FamilyEdit.vue'
 import FamilyDelete from './FamilyDelete.vue'
 import FamilySearch from './FamilySearch.vue'
+import FamilyRefresh from './FamilyRefresh.vue'
 
 export default {
   name: 'index',
-  components: { FamilyCreate, FamilyEdit, FamilyDelete, FamilySearch },
+  components: {
+    FamilyCreate,
+    FamilyEdit,
+    FamilyDelete,
+    FamilySearch,
+    FamilyRefresh,
+  },
   data() {
     return {
       loading: false,

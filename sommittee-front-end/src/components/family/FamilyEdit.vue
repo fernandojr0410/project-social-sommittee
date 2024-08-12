@@ -24,9 +24,21 @@
           </v-col>
 
           <v-col>
-            <v-text-field
+            <v-select
               v-if="updatedFamily"
               v-model="selectedFunction"
+              :rules="[rules.required]"
+              :items="[
+                { text: 'Mãe', value: 'mother' },
+                { text: 'Pai', value: 'father' },
+                { text: 'Filho(a)', value: 'child' },
+                { text: 'Vó', value: 'grandMother' },
+                { text: 'Vô', value: 'grandFather' },
+                { text: 'Tio', value: 'uncle' },
+                { text: 'Tio', value: 'aunt' },
+              ]"
+              item-value="value"
+              item-text="text"
               label="Função - Mãe, Pai, Filho(a), Vó..."
             />
           </v-col>
@@ -320,6 +332,8 @@ export default {
 
         await this.$store.dispatch('family/update', updateData)
         this.$success('Registro atualizado!')
+        this.updatedFamily = this.getPeople()
+        this.selectedFunction = ''
         this.closeDialog()
       } catch (error) {
         this.$error('Erro ao atualizar!')

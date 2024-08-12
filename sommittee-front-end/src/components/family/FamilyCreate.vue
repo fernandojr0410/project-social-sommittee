@@ -36,9 +36,21 @@
               </v-col>
 
               <v-col>
-                <v-text-field
+                <v-select
                   v-if="selectedPeople"
                   v-model="selectedFunction"
+                  :rules="[rules.required]"
+                  :items="[
+                    { text: 'Mãe', value: 'mother' },
+                    { text: 'Pai', value: 'father' },
+                    { text: 'Filho(a)', value: 'child' },
+                    { text: 'Vó', value: 'grandMother' },
+                    { text: 'Vô', value: 'grandFather' },
+                    { text: 'Tio', value: 'uncle' },
+                    { text: 'Tio', value: 'aunt' },
+                  ]"
+                  item-value="value"
+                  item-text="text"
                   label="Função - Mãe, Pai, Filho(a), Vó..."
                 />
               </v-col>

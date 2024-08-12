@@ -8,11 +8,11 @@
 
 <script>
 export default {
-  name: 'PeopleRefresh',
+  name: 'FamilyRefresh',
 
   methods: {
     async refreshData() {
-      await this.$store.dispatch('people/findAll')
+      await this.$store.dispatch('family/findAll')
     },
   },
 }

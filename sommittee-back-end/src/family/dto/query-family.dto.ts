@@ -1,11 +1,10 @@
-import { IsOptional, IsString } from "class-validator";
-
+import { IsOptional, IsString } from 'class-validator';
 export class QueryFamilyDto {
   @IsOptional()
   @IsString()
-  searchField?: string
+  searchField?: string;
 
   @IsOptional()
   @IsString()
-  search?: string
+  search?: string;
 }

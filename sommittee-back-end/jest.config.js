@@ -7,7 +7,7 @@ module.exports = {
     '**/user/tests/*.e2e-spec.ts',
     '**/email/tests/*.e2e-spec.ts',
     '**/password/tests/*.e2e-spec.ts',
-    '**/addr ess/tests/*.e2e-spec.ts',
+    '**/address/tests/*.e2e-spec.ts',
     '**/people/tests/*.e2e-spec.ts',
     '**/family/tests/*.e2e-spec.ts',
     '**/peopleFamily/tests/*.e2e-spec.ts',

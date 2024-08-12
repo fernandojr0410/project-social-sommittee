@@ -46,7 +46,7 @@ export class FamilyRepository {
     const _query: any = {
       include: {
         address: {
-          select: { 
+          select: {
             zip_code: true,
             street: true,
             number: true,
@@ -60,6 +60,12 @@ export class FamilyRepository {
           select: {
             name: true,
             cpf: true,
+            email: true,
+            birth_date: true,
+            gender: true,
+            telephone: true,
+            work: true,
+            education: true,
           },
         },
         people_family: {
@@ -70,29 +76,18 @@ export class FamilyRepository {
       },
     };
 
-    console.log('query.searchField:', query.searchField);
-    console.log('query.search:', query.search);
-
     if (query.searchField && query.search) {
       _query.where = {
         people: {
-          some: {
-            [query.searchField]: {
-              contains: query.search,
-              mode: 'insensitive',
-            },
+          [query.searchField]: {
+            contains: query.search,
+            mode: 'insensitive',
           },
         },
       };
     }
 
-    console.log('Query being sent to findAll:', _query);
-
-    const results = await this.prisma.family.findMany(_query);
-
-    console.log('Resultados encontrados:', results);
-
-    return results;
+    return await this.prisma.family.findMany(_query);
   }
 
 

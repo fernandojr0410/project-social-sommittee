@@ -21,9 +21,8 @@ export class FamilyController {
 
   @UseGuards(AuthGuard)
   @Get()
-  async getAll(@Query() query: QueryFamilyDto) {
+  async findAll(@Query() query: QueryFamilyDto) {
     const response = await this.familyService.findAll(query);
-    console.log("controller", response)
     return response
   }
 

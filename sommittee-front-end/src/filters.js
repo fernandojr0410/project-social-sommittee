@@ -41,9 +41,28 @@ Vue.filter('work', (value) => {
   return workMap[value]
 })
 
-// Vue.filter('boolean', (value) => {
-//   return value ? 'Sim' : 'Não'
-// })
+export const functionFamily = [
+  { text: 'Mãe', value: 'mother' },
+  { text: 'Pai', value: 'father' },
+  { text: 'Filho(a)', value: 'child' },
+  { text: 'Vó', value: 'grandMother' },
+  { text: 'Vô', value: 'grandFather' },
+  { text: 'Tio', value: 'uncle' },
+  { text: 'Tio', value: 'aunt' },
+]
+
+Vue.filter('functionFamily', (value) => {
+  const functionFamilyMap = {
+    mother: 'Mãe',
+    father: 'Pai',
+    child: 'Filho(a)',
+    grandMother: 'Vó',
+    grandFather: 'Vô',
+    uncle: 'Tio',
+    aunt: 'Tia',
+  }
+  return functionFamilyMap[value] || value
+})
 
 Vue.filter('firstname', (name) =>
   (name || '').indexOf(' ') > -1 ? name.substr(0, name.indexOf(' ')) : name
