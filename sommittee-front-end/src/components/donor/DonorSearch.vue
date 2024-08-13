@@ -32,7 +32,7 @@
 
 <script>
 export default {
-  name: 'FamilySearch',
+  name: 'DonorSearch',
   data() {
     return {
       query: {
@@ -43,7 +43,9 @@ export default {
       categories: [
         { value: 'name', text: 'Nome' },
         { value: 'cpf', text: 'CPF' },
-        { value: 'e-mail', text: 'E-mail' },
+        { value: 'email', text: 'E-mail' },
+        { value: 'contact', text: 'Contato' },
+        { value: 'type_donor', text: 'Tipo doador' },
       ],
     }
   },
@@ -53,13 +55,18 @@ export default {
       handler(newQuery) {
         if (this.query.searchField === 'cpf') {
           this.formattedSearch = this.formatCpf(newQuery.search)
+        } else if (this.query.searchField === 'contact') {
+          this.formattedSearch = this.formatContact(newQuery.search)
         }
       },
     },
   },
   computed: {
     filteredItems() {
-      return this.$store.state.filteredFamily
+      return this.$store.state.filteredDonor
+    },
+    selectedCategory() {
+      return this.query.searchField
     },
   },
   methods: {
@@ -67,13 +74,19 @@ export default {
       cpf = cpf.replace(/\D/g, '')
       return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
     },
+    formatContact(contact) {
+      contact = contact.replace(/\D/g, '')
+      return contact.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3')
+    },
     async applyFilter() {
       if (this.query.searchField === 'cpf') {
+        this.query.search = this.formattedSearch.replace(/\D/g, '')
+      } else if (this.query.searchField === 'contact') {
         this.query.search = this.formattedSearch.replace(/\D/g, '')
       } else {
         this.query.search = this.formattedSearch
       }
-      await this.$store.dispatch('family/findAll', this.query)
+      await this.$store.dispatch('donor/findAll', this.query)
     },
   },
 }

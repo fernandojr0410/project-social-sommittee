@@ -76,9 +76,7 @@ export default {
       }
     },
     async findAll() {
-      const response = await this.$store.dispatch('address/findAll')
-      console.log('findAll', response)
-      return response
+      return await this.$store.dispatch('address/findAll')
     },
   },
 }

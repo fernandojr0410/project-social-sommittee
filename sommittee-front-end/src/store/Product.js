@@ -19,7 +19,6 @@ const getters = {
 const actions = {
   async findAll({ commit }, query) {
     const response = await API.product.findAll(query)
-    console.log('response store', response)
     commit('SET_PRODUCT', response)
     return response
   },

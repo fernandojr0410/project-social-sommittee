@@ -14,7 +14,7 @@
 import Modal from '../modal/Modal.vue'
 
 export default {
-  name: 'FamilyDelete',
+  name: 'DonorDelete',
   components: { Modal },
   props: {
     dialog: Boolean,
@@ -28,15 +28,17 @@ export default {
       showModal: false,
     }
   },
+
   watch: {
     dialog(val) {
       this.showModal = val
     },
   },
+
   methods: {
     async deleteData() {
       try {
-        const response = await this.$store.dispatch('family/delete', this.id)
+        const response = await this.$store.dispatch('donor/delete', this.id)
         this.$success('Registro deletado!')
         this.$emit('close')
         return response

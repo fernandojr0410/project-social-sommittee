@@ -8,6 +8,7 @@ import Address from '@/views/Address.vue'
 import People from '@/views/People.vue'
 import Family from '@/views/Family.vue'
 import Product from '@/views/Product.vue'
+import Donor from '@/views/Donor.vue'
 
 Vue.use(VueRouter)
 
@@ -36,7 +37,12 @@ const routes = [
   {
     path: '/family',
     component: Family,
-    meta: { title: 'Familias', auth: true },
+    meta: { title: 'Famílias', auth: true },
+  },
+  {
+    path: '/donor',
+    component: Donor,
+    meta: { title: 'Doadores', auth: true },
   },
   {
     path: '/product',

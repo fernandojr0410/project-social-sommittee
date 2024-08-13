@@ -1,8 +1,8 @@
 import Http from './Http'
 
-class Family extends Http {
+class Donor extends Http {
   constructor() {
-    super('family')
+    super('donor')
   }
 
   async create(data) {
@@ -26,4 +26,4 @@ class Family extends Http {
   }
 }
 
-export default Family
+export default Donor

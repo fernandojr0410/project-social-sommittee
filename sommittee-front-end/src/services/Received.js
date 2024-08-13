@@ -6,19 +6,15 @@ class Received extends Http {
   }
 
   async findAll(data) {
-    const response = await this.get(data)
-    console.log('FindAll received', response)
-    return response
+    return await this.get(data)
   }
 
   async findById(id, data) {
-    const response = await this.get(id, data)
-    return response
+    return await this.get(id, data)
   }
 
   async update(id, data) {
-    const response = await super.patch(id, data)
-    return response
+    return await super.patch(id, data)
   }
 }
 

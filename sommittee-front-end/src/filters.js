@@ -64,6 +64,19 @@ Vue.filter('functionFamily', (value) => {
   return functionFamilyMap[value] || value
 })
 
+export const typeDonor = [
+  { value: 'INTERNAL', text: 'Interno' },
+  { value: 'EXTERNAL', text: 'Externo' },
+]
+
+Vue.filter('typeDonor', (value) => {
+  const typeDonorMap = {
+    INTERNAL: 'Interno',
+    EXTERNAL: 'Externo',
+  }
+  return typeDonorMap[value]
+})
+
 Vue.filter('firstname', (name) =>
   (name || '').indexOf(' ') > -1 ? name.substr(0, name.indexOf(' ')) : name
 )

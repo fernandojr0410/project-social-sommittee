@@ -253,8 +253,6 @@ export default {
         const address = await API.cep.getAddressByZipcode(
           this.updatedPeople.address.zip_code
         )
-
-        console.log('Endereço recebido:', address)
         if (address) {
           this.updatedPeople.address = {
             ...this.updatedPeople.address,

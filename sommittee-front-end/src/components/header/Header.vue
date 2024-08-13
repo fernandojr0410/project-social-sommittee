@@ -91,6 +91,13 @@
           <v-list-item-title>Famílias</v-list-item-title>
         </v-list-item>
 
+        <v-list-item :to="{ path: '/donor' }">
+          <v-list-item-icon>
+            <v-icon>mdi-gift</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title>Doadores</v-list-item-title>
+        </v-list-item>
+
         <v-list-item :to="{ path: '/product' }">
           <v-list-item-icon>
             <v-icon>mdi-package</v-icon>
@@ -201,6 +208,10 @@ export default {
           case '/family':
             document.title = `Sommittee | Famílias`
             this.pageName = 'Famílias'
+            break
+          case '/donor':
+            document.title = `Sommittee | Doadores`
+            this.pageName = 'Doadores'
             break
           case '/product':
             document.title = `Sommittee | Produtos`

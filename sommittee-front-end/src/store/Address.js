@@ -19,7 +19,6 @@ const getters = {
 const actions = {
   async findAll({ commit }, query) {
     const response = await API.address.findAll(query)
-    console.log('response store', response)
     commit('SET_ADDRESS', response)
     return response
   },

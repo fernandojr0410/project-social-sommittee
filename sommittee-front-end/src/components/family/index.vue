@@ -408,7 +408,6 @@ export default {
     },
     async saveUpdatedFamily(updatedFamily) {
       try {
-        console.log('Salvando família atualizada:', updatedFamily)
         await this.$store.dispatch('family/update', updatedFamily)
         this.loadData()
         this.editDialog = false
@@ -420,7 +419,6 @@ export default {
 
     async createdFamily(newFamily) {
       try {
-        console.log('Criando nova família:', newFamily)
         await this.$store.dispatch('family/create', newFamily)
         this.$success('Registro criado!')
         this.loadData()

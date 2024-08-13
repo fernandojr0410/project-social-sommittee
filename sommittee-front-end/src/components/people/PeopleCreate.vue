@@ -248,7 +248,6 @@ export default {
         const address = await API.cep.getAddressByZipcode(
           this.createdPeople.address.zip_code
         )
-        console.log('Endereço recebido:', address)
         if (address && address.street) {
           this.createdPeople.address = {
             ...this.createdPeople.address,
@@ -262,7 +261,6 @@ export default {
     },
     async saveData() {
       try {
-        console.log('Dados a serem enviados:', this.createdPeople)
         const newAddress = {
           name: this.createdPeople.name,
           cpf: this.createdPeople.cpf.replace(/\D/g, ''),
@@ -285,7 +283,6 @@ export default {
             state: this.createdPeople.address.state,
           },
         }
-        console.log('Dados antes de salvar:', newAddress)
         await this.$store.dispatch('people/create', newAddress)
         this.$success('Registro criado!')
         this.closeDialog()

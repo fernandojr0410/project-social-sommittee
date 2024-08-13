@@ -88,7 +88,6 @@ export default {
       }
       try {
         const response = await this.$store.dispatch('auth/login', requestBody)
-        console.log('redirect', this.$route.query.redirect || '/')
         await this.$store.dispatch('auth/fetchUser')
         this.$router.push(this.$route.query.redirect || '/')
         return response

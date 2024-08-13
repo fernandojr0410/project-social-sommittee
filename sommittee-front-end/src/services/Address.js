@@ -6,9 +6,7 @@ class Address extends Http {
   }
 
   async findAll(query) {
-    const response = await this.get('', query)
-    console.log('response service', response)
-    return response
+    return await this.get('', query)
   }
 }
 

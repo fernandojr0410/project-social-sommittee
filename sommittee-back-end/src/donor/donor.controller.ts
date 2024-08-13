@@ -1,8 +1,9 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
 import { DonorService } from "./donor.service";
 import { AuthGuard } from "../auth/auth.guard";
 import { CreateDonorDto } from "./dto/create-donor.dto";
 import { UpdateDonorDto } from "./dto/update-donor.dto";
+import { QueryDonorDto } from "./dto/query-donor.dto";
 
 
 @Controller('donor')
@@ -17,8 +18,8 @@ export class DonorController {
 
   @UseGuards(AuthGuard)
   @Get()
-  async findAll() {
-    return await this.service.findAll()
+  async findAll(@Query() query: QueryDonorDto) {
+    return await this.service.findAll(query)
   }
 
   @UseGuards(AuthGuard)

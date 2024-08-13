@@ -10,7 +10,6 @@ const mutations = {
   },
 
   SET_FAMILY(state, family) {
-    console.log('SET_FAMILY mutation payload:', family)
     state.family = family
   },
 
@@ -34,7 +33,6 @@ const getters = {
 const actions = {
   async findAll({ commit }, query) {
     const response = await API.family.findAll(query)
-    console.log('findAll store family', response)
     commit('SET_FAMILY', response)
     return response
   },
@@ -59,7 +57,6 @@ const actions = {
 
   async delete({ commit }, id) {
     const response = await API.family.delete(id)
-    console.log('response store', response)
     commit('DELETE_FAMILY', id)
     return response
   },

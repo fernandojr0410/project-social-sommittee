@@ -166,7 +166,6 @@ export default {
           'auth/uploadAvatar',
           formData
         )
-        console.log('Avatar enviado com sucesso!', response)
         return response
       } catch (error) {
         console.error('Erro ao enviar o avatar:', error)

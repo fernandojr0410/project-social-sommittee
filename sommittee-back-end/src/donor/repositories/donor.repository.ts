@@ -13,8 +13,18 @@ export class DonorRepository {
     return await this.prisma.donor.create({ data: createDonorDto })
   }
 
-  async findAll(): Promise<DonorEntity[]> {
-    return await this.prisma.donor.findMany()
+  async findAll(query: any): Promise<DonorEntity[]> {
+    const _query: any = {}
+
+    if (query.searchField && query.search) {
+      _query.where = {
+        [query.searchField]: {
+          contains: query.search,
+          mode: 'insensitive'
+        }
+      }
+    }
+    return await this.prisma.donor.findMany(_query)
   }
 
   async findOne(id: string): Promise<DonorEntity> {

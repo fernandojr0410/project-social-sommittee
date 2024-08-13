@@ -5,8 +5,9 @@ import received from './Received'
 import people from './People'
 import family from './Family'
 import peopleFamily from './PeopleFamily'
-import address from './Address'
+import donor from './Donor'
 import product from './Product'
+import address from './Address'
 
 Vue.use(Vuex)
 
@@ -17,6 +18,7 @@ export default new Vuex.Store({
     people,
     family,
     peopleFamily,
+    donor,
     product,
     address,
   },
