@@ -7,4 +7,5 @@ export class ProductEntity implements Product {
   type: string;
   created_at: Date;
   updated_at: Date;
+  donor_id: string;
 }

@@ -314,8 +314,7 @@ export default {
       }
     },
     async findAll(search) {
-      const response = await this.$store.dispatch('people/findAll', { search })
-      return response
+      return await this.$store.dispatch('people/findAll', { search })
     },
 
     async saveChanges() {

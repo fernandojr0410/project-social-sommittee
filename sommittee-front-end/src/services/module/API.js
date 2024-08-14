@@ -1,12 +1,12 @@
 import Auth from '../Auth'
 import User from '../User'
 import Received from '../Received'
-import Address from '../Address'
 import People from '../People'
 import Cep from '../Cep'
 import Family from '../Family'
 import PeopleFamily from '../PeopleFamily'
 import Donor from '../Donor'
+import Donation from '../Donation'
 import Product from '../Product'
 class API {
   static user = new User()
@@ -17,8 +17,8 @@ class API {
   static family = new Family()
   static peopleFamily = new PeopleFamily()
   static donor = new Donor()
+  static donation = new Donation()
   static product = new Product()
-  static address = new Address()
 }
 
 export default API

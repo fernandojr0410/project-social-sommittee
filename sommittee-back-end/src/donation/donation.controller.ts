@@ -1,8 +1,9 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
 import { DonationService } from "./donation.service";
 import { CreateDonationDto } from "./dto/create-donation.dto";
 import { AuthGuard } from "../auth/auth.guard";
 import { UpdateDonationDto } from "./dto/update-donation.dto";
+import { QueryDonationDto } from "./dto/query-donation.dto";
 
 
 @Controller('donation')
@@ -17,14 +18,14 @@ export class DonationController {
 
   @UseGuards(AuthGuard)
   @Get()
-  async getAll() {
-    return await this.service.findAll()
+  async getAll(@Query() query: QueryDonationDto) {
+    return await this.service.findAll(query)
   }
 
   @UseGuards(AuthGuard)
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    const donation = await this.service.findOne(id)
+  async findById(@Param('id') id: string) {
+    const donation = await this.service.findById(id)
     if (!donation) {
       throw new NotFoundException('Donation not found')
     }

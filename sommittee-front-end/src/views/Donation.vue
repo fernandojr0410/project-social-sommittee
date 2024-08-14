@@ -5,10 +5,10 @@
 </template>
 
 <script>
-import Index from '@/components/address/index.vue'
+import Index from '@/components/donation/index.vue'
 
 export default {
-  name: 'Address',
+  name: 'Donation',
   components: {
     Index,
   },

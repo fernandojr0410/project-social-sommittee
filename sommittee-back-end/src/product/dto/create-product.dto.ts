@@ -1,20 +1,23 @@
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsOptional, IsString } from "class-validator";
 import { CreateStockDto } from "src/stock/dto/create-stock.dto";
 
 export class CreateProductDto {
+  @IsString()
+  @IsNotEmpty()
+  name: string;
 
   @IsString()
   @IsNotEmpty()
-  name: string
+  description: string;
 
   @IsString()
   @IsNotEmpty()
-  description: string
+  type: string;
+
+  @IsNotEmpty()
+  stock: CreateStockDto;
 
   @IsString()
-  @IsNotEmpty()
-  type: string
-
-  @IsNotEmpty()
-  stock: CreateStockDto
+  @IsOptional()
+  donor_id?: string;
 }

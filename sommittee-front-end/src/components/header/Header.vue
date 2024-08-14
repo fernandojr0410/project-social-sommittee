@@ -105,7 +105,7 @@
           <v-list-item-title>Produtos</v-list-item-title>
         </v-list-item>
 
-        <v-list-item :to="{ path: '/address' }">
+        <v-list-item :to="{ path: '/donation' }">
           <v-list-item-icon>
             <v-icon>mdi-truck-delivery-outline</v-icon>
           </v-list-item-icon>
@@ -197,10 +197,6 @@ export default {
             document.title = `Sommittee | Recebidos`
             this.pageName = 'Recebidos'
             break
-          case '/address':
-            document.title = `Sommittee | Entregas`
-            this.pageName = 'Entregas'
-            break
           case '/people':
             document.title = `Sommittee | Pessoas`
             this.pageName = 'Pessoas'
@@ -212,6 +208,10 @@ export default {
           case '/donor':
             document.title = `Sommittee | Doadores`
             this.pageName = 'Doadores'
+            break
+          case '/donation':
+            document.title = `Sommittee | Entregas`
+            this.pageName = 'Entregas'
             break
           case '/product':
             document.title = `Sommittee | Produtos`

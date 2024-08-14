@@ -4,11 +4,11 @@ import Home from '@/views/Home.vue'
 import index from '@/forms/myData/index.vue'
 import LoginCollaborator from '@/views/LoginCollaborator.vue'
 import Received from '@/views/Received.vue'
-import Address from '@/views/Address.vue'
 import People from '@/views/People.vue'
 import Family from '@/views/Family.vue'
-import Product from '@/views/Product.vue'
 import Donor from '@/views/Donor.vue'
+import Donation from '@/views/Donation.vue'
+import Product from '@/views/Product.vue'
 
 Vue.use(VueRouter)
 
@@ -55,9 +55,9 @@ const routes = [
     meta: { title: 'Recebidos', auth: true },
   },
   {
-    path: '/address',
-    component: Address,
-    meta: { title: 'Endereços', auth: true },
+    path: '/donation',
+    component: Donation,
+    meta: { title: 'Doações', auth: true },
   },
 ]
 

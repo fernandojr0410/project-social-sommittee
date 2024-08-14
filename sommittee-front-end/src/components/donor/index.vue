@@ -232,7 +232,7 @@ export default {
         this.loadData()
         this.editDialog = false
       } catch (error) {
-        this.$error('Erro ao salvar registro!')
+        this.$error('Erro ao atualizar registro!')
         throw error
       }
     },

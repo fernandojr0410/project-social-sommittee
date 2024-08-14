@@ -90,12 +90,6 @@ export class FamilyRepository {
     return await this.prisma.family.findMany(_query);
   }
 
-
-
-
-
-
-
   async findById(id: string): Promise<FamilyEntity | null> {
     return await this.prisma.family.findFirst({
       where: { id },

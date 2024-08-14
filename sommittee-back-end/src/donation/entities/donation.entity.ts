@@ -1,11 +1,11 @@
 import { $Enums, Donation } from "@prisma/client";
 
 export class DonationEntity implements Donation {
-
   id: string;
   description: string;
-  state: $Enums.State;
-  date: Date;
+  state: string;
+  date_delivery: string;
+  observation: string;
   address_zip_code: string;
   address_street: string;
   address_complement: string;
@@ -14,6 +14,9 @@ export class DonationEntity implements Donation {
   address_state: string;
   created_at: Date;
   updated_at: Date;
-  user_id: string;
   donor_id: string;
+  product_id: string;
+  stock_id: string;
+  userId: string;
+
 }

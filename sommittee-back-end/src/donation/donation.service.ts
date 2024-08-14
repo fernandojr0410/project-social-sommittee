@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { DonationRepository } from "./repositories/donation.repository";
 import { CreateDonationDto } from "./dto/create-donation.dto";
 import { UpdateDonationDto } from "./dto/update-donation.dto";
+import { QueryDonationDto } from "./dto/query-donation.dto";
 
 
 @Injectable()
@@ -12,12 +13,12 @@ export class DonationService {
     return await this.repository.create(createDonationDto)
   }
 
-  async findAll() {
-    return await this.repository.findAll()
+  async findAll(querydto: QueryDonationDto = {}) {
+    return await this.repository.findAll(querydto)
   }
 
-  async findOne(id: string) {
-    return await this.repository.findOne(id)
+  async findById(id: string) {
+    return await this.repository.findById(id)
   }
 
   async update(id: string, updateDonationDto: UpdateDonationDto) {

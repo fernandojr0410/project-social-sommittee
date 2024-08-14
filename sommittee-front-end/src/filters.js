@@ -77,6 +77,33 @@ Vue.filter('typeDonor', (value) => {
   return typeDonorMap[value]
 })
 
+export const stateDonation = [
+  { text: 'Pendente', value: 'PENDING' },
+  { text: 'Processada', value: 'PROCESSED' },
+  { text: 'Em Estoque', value: 'IN_STOCK' },
+  { text: 'Em Rota', value: 'ON_ROUTE' },
+  { text: 'Entregue', value: 'DELIVERED' },
+  { text: 'Cancelado', value: 'CANCELED' },
+  { text: 'Devolvido', value: 'RETURNED' },
+  { text: 'Parcialmente Entregue', value: 'PARTIALLY_DELIVERED' },
+  { text: 'Agendado', value: 'SCHEDULED' },
+]
+
+Vue.filter('stateDonation', (value) => {
+  const stateDonationMap = {
+    PENDING: 'Pendente',
+    PROCESSED: 'Processada',
+    IN_STOCK: 'Em Estoque',
+    ON_ROUTE: 'Em Rota',
+    DELIVERED: 'Entregue',
+    CANCELED: 'Cancelado',
+    RETURNED: 'Devolvido',
+    PARTIALLY_DELIVERED: 'Parcialmente Entregue',
+    SCHEDULED: 'Agendado',
+  }
+  return stateDonationMap[value] || value
+})
+
 Vue.filter('firstname', (name) =>
   (name || '').indexOf(' ') > -1 ? name.substr(0, name.indexOf(' ')) : name
 )
