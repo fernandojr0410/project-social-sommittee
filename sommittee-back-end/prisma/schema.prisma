@@ -150,7 +150,6 @@ model Product {
   updated_at  DateTime   @default(now()) @updatedAt
   donor       Donor?     @relation(fields: [donor_id], references: [id])
   donor_id    String?    @db.Uuid()
-  stocks      Stock[]
   donations   Donation[]
   receiveds   Received[]
 
@@ -162,8 +161,6 @@ model Stock {
   amount     String
   created_at DateTime   @default(now())
   updated_at DateTime   @default(now()) @updatedAt
-  product    Product    @relation(fields: [product_id], references: [id])
-  product_id String     @db.Uuid()
   receiveds  Received[]
   purchases  Purchase[]
   Donation   Donation[]

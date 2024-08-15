@@ -20,6 +20,10 @@ const mutations = {
         : item
     })
   },
+
+  DELETE_PRODUCT(state, id) {
+    state.product = state.product.filter((product) => product.id !== id)
+  },
 }
 
 const getters = {
@@ -30,8 +34,7 @@ const getters = {
 
 const actions = {
   async create({ commit }, payload) {
-    const response = await API.product.post(payload)
-    console.log('create store', response)
+    const response = await API.product.create(payload)
     commit('CREATE_PRODUCT', response)
     return response
   },
@@ -44,16 +47,20 @@ const actions = {
 
   async findById({ commit }, id) {
     const response = await API.product.findById(id)
-    console.log('findById store', response)
     commit('UPDATE_PRODUCT', response)
-    
+
     return response
   },
 
   async update({ commit }, { id, payload }) {
     const response = await API.product.update(id, payload)
-    console.log('update store', response)
     commit('UPDATE_PRODUCT', response)
+    return response
+  },
+
+  async delete({ commit }, id) {
+    const response = await API.product.delete(id)
+    commit('DELETE_PRODUCT', id)
     return response
   },
 }

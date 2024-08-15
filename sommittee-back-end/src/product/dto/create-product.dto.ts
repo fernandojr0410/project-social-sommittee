@@ -1,5 +1,6 @@
-import { IsNotEmpty, IsOptional, IsString } from "class-validator";
-import { CreateStockDto } from "src/stock/dto/create-stock.dto";
+import { IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import { CreateDonorDto } from 'src/donor/dto/create-donor.dto';
 
 export class CreateProductDto {
   @IsString()
@@ -14,10 +15,8 @@ export class CreateProductDto {
   @IsNotEmpty()
   type: string;
 
-  @IsNotEmpty()
-  stock: CreateStockDto;
-
-  @IsString()
+  @ValidateNested()
+  @Type(() => CreateDonorDto)
   @IsOptional()
-  donor_id?: string;
+  donor?: CreateDonorDto;
 }

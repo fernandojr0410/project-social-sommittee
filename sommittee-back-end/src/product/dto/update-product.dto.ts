@@ -14,8 +14,5 @@ export class UpdateProductDto {
   type?: string;
 
   @IsOptional()
-  stock_id?: string;
-
-  @IsOptional()
   donor_id?: string;
 }

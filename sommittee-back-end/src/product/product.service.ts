@@ -23,17 +23,14 @@ export class ProductService {
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {
-    // return await this.repository.update(id, updateProductDto)
-    const { stock_id, donor_id } = updateProductDto
+    const { donor_id, ...productData } = updateProductDto;
 
-    if (!stock_id || !donor_id) {
-      throw new BadRequestException("Erro service update")
-    }
     return await this.repository.update(id, {
-      stock_id,
-      donor_id
-    })
+      ...productData,
+      donor_id,
+    });
   }
+
 
   async remove(id: string) {
     return await this.repository.remove(id)

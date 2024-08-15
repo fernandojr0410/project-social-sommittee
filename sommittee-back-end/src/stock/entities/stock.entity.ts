@@ -5,6 +5,4 @@ export class StockEntity implements Stock {
   amount: string;
   created_at: Date;
   updated_at: Date;
-  product_id: string;
-
 }

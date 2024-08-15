@@ -26,7 +26,7 @@
           <v-col>
             <v-text-field
               v-model="updatedProduct.type"
-              label="Tipo"
+              label="Categoria"
               class="mr-3"
             />
           </v-col>

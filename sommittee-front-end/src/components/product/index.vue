@@ -2,6 +2,10 @@
   <v-container>
     <v-card>
       <v-card-text>
+        <div style="display: flex; align-items: center">
+          <ProductSearch @search="handleSearch" />
+          <ProductRefresh />
+        </div>
         <v-data-table
           :loading="loading"
           :headers="headers"
@@ -48,6 +52,12 @@
           :id="updatedProductId"
           @close="editDialog = false"
           @save="saveUpdatedProduct"
+        />
+
+        <ProductDelete
+          :dialog="deleteDialog"
+          :id="itemToDelete"
+          @close="handleDeleteClose"
         />
       </v-card-text>
     </v-card>
@@ -180,10 +190,19 @@
 import { formatDate } from '@/filters'
 import ProductEdit from './ProductEdit.vue'
 import ProductCreate from './ProductCreate.vue'
+import ProductDelete from './ProductDelete.vue'
+import ProductSearch from './ProductSearch.vue'
+import ProductRefresh from './ProductRefresh.vue'
 
 export default {
   name: 'index',
-  components: { ProductEdit, ProductCreate },
+  components: {
+    ProductEdit,
+    ProductCreate,
+    ProductDelete,
+    ProductSearch,
+    ProductRefresh,
+  },
   data() {
     return {
       loading: false,
@@ -192,11 +211,13 @@ export default {
       editDialog: false,
       updatedProductId: null,
       createDialog: false,
+      deleteDialog: false,
+      itemToDelete: null,
       headers: [
         { text: 'Data criação', value: 'created_at' },
         { text: 'Produto', value: 'name' },
         { text: 'Descrição', value: 'description' },
-        { text: 'Tipo produto', value: 'type' },
+        { text: 'Categoria', value: 'type' },
         { text: 'Ações', value: 'actions' },
       ],
       formatDate,
@@ -224,6 +245,9 @@ export default {
     },
     async findAll() {
       await this.$store.dispatch('product/findAll')
+    },
+    async handleSearch(search) {
+      this.search = search
     },
     showDetails(item) {
       this.selectedProduct = item
@@ -263,6 +287,14 @@ export default {
     },
     closeDialog() {
       this.dialog = false
+    },
+    confirmDelete(item) {
+      this.itemToDelete = item.id
+      this.deleteDialog = true
+    },
+    handleDeleteClose() {
+      this.deleteDialog = false
+      this.itemToDelete = null
     },
   },
 }

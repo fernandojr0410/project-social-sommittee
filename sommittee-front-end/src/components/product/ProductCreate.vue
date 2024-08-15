@@ -38,7 +38,7 @@
             <v-col>
               <v-text-field
                 v-model="createdProduct.type"
-                label="Tipo"
+                label="Categoria"
                 class="mr-3"
                 :rules="[rules.required]"
               />
@@ -80,6 +80,7 @@
           <v-row>
             <v-col cols="6">
               <v-text-field
+                v-if="createdProduct"
                 v-model="createdProduct.donor.name"
                 label="Nome completo"
                 class="mr-3"
@@ -171,6 +172,15 @@ export default {
       },
     }
   },
+  watch: {
+    selectedDonor(newValue) {
+      if (newValue) {
+        this.createdProduct.donor = { ...newValue }
+      } else {
+        this.createdProduct.donor = this.getProduct().donor
+      }
+    },
+  },
   methods: {
     getProduct() {
       return {
@@ -205,9 +215,7 @@ export default {
       }
     },
     async findAll(search) {
-      const response = await this.$store.dispatch('donor/findAll', { search })
-      console.log('response findAll', response)
-      return response
+      return await this.$store.dispatch('donor/findAll', { search })
     },
     async createProduct() {
       const productData = {
@@ -219,18 +227,20 @@ export default {
           cpf: this.createdProduct.donor.cpf.replace(/[^\d]/g, ''),
           email: this.createdProduct.donor.email,
           contact: this.createdProduct.donor.contact,
-          typeDonor: this.createdProduct.donor.typeDonor,
+          type_donor: this.createdProduct.donor.type_donor,
         },
       }
+      console.log('Product Data:', productData)
+
       try {
         const response = await this.$store.dispatch(
           'product/create',
           productData
         )
+        console.log('Response:', response)
         if (response) {
           this.$success('Registro criado!')
           this.$store.dispatch('product/findAll')
-          console.log('response criado', response)
           this.selectedDonor = ''
           this.closeDialog()
           this.selectedDonor = this.getProduct()

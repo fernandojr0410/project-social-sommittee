@@ -6,9 +6,7 @@ class Product extends Http {
   }
 
   async create(data) {
-    const response = await this.post('register', data)
-    console.log('create service', store)
-    return response
+    return await this.post('register', data)
   }
 
   async findAll(query) {
@@ -16,17 +14,15 @@ class Product extends Http {
   }
 
   async findById(id, data) {
-    // return await this.get(id, data)
-    const response = await this.get(id, data)
-    console.log('findById service', response)
-    return response
+    return await this.get(id, data)
   }
 
   async update(id, data) {
-    // return await this.patch(id, data)
-    const response = await this.patch(id, data)
-    console.log('update service', response)
-    return response
+    return await this.patch(id, data)
+  }
+
+  async delete(id) {
+    return await super.delete(id)
   }
 }
 
