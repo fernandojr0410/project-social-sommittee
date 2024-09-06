@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { ReceivedRepository } from "./repositories/received.repository";
 import { CreateReceivedDto } from "./dto/create-received.dto";
-import { UpdateReceivedDto } from "./dto/update-received.dto";
 
 
 @Injectable()
@@ -20,9 +19,9 @@ export class ReceivedService {
     return await this.repository.findById(id)
   }
 
-  async update(id: string, updateReceivedDto: UpdateReceivedDto) {
-    return await this.repository.update(id, updateReceivedDto)
-  }
+  // async update(id: string, updateReceivedDto: UpdateReceivedDto) {
+  //   return await this.repository.update(id, updateReceivedDto)
+  // }
 
   async remove(id: string) {
     return this.repository.remove(id)

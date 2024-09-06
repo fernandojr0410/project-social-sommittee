@@ -1,6 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
-import { CreateDonorDto } from 'src/donor/dto/create-donor.dto';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateProductDto {
   @IsString()
@@ -14,9 +12,4 @@ export class CreateProductDto {
   @IsString()
   @IsNotEmpty()
   type: string;
-
-  @ValidateNested()
-  @Type(() => CreateDonorDto)
-  @IsOptional()
-  donor?: CreateDonorDto;
 }

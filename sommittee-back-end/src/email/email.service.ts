@@ -33,14 +33,14 @@ export class EmailService {
     return info;
   }
 
-  async sendPasswordByEmail(recipient: string, name: string, surname: string, newPassword: string): Promise<boolean> {
+  async sendPasswordByEmail(recipient: string, name: string, identifier: string, newPassword: string): Promise<boolean> {
     const subject = 'Senha alterada';
 
     const htmlBody = fs.readFileSync(this.newPasswordTemplatePath, 'utf8');
 
     const replacedHtmlBody = htmlBody
       .replace('{{name}}', name)
-      .replace('{{surname}}', surname)
+      .replace('{{identifier}}', identifier)
       .replace('{{newPassword}}', newPassword);
 
     const emailSent = await this.sendEmailUser(recipient, subject, replacedHtmlBody);

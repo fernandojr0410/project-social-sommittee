@@ -12,7 +12,4 @@ export class UpdateProductDto {
   @IsOptional()
   @IsString()
   type?: string;
-
-  @IsOptional()
-  donor_id?: string;
 }

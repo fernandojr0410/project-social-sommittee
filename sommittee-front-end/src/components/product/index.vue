@@ -11,7 +11,7 @@
           :headers="headers"
           :items="product"
           :items-per-page="10"
-          no-data-text="Nenhuma família encontrada"
+          no-data-text="Nenhum produto encontrado"
           :footer-props="{
             'items-per-page-options': [10, 20, 30],
             'show-current-page': true,
@@ -68,7 +68,7 @@
           <span class="headline">Detalhes do produto</span>
           <v-btn icon @click="closeDialog">
             <v-icon>mdi-close</v-icon>
-          </v-btn>
+          </v-btn> 
         </v-card-title>
         <v-card-text>
           <v-row>

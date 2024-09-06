@@ -6,17 +6,9 @@ const state = {
 }
 
 const mutations = {
-  // SET_USER(state, user) {
-  //   state.user = user
-  // },
-  // store/modules/auth.js
   SET_USER(state, payload) {
     state.user = { ...state.user, ...payload }
   },
-
-  // SET_AVATAR_URL(state, avatarUrl) {
-  //   state.avatarUrl = avatarUrl
-  // },
 }
 
 const getters = {

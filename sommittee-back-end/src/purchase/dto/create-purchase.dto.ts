@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { Decimal } from "@prisma/client/runtime/library";
+import { IsDecimal, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreatePurchaseDto {
 
@@ -10,9 +11,9 @@ export class CreatePurchaseDto {
   @IsNotEmpty()
   supplier: string
 
-  @IsNumber()
+  @IsDecimal()
   @IsNotEmpty()
-  value_amount: number
+  amount: Decimal
 
   @IsString()
   @IsNotEmpty()

@@ -1,81 +1,50 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateReceivedDto } from './create-received.dto';
-import { IsOptional, IsString, IsNotEmpty, ValidateNested } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
 import { Type } from 'class-transformer';
 
-class AddressDto {
-  @IsOptional()
-  @IsString()
-  @IsNotEmpty()
-  zip_code?: string;
-
-  @IsOptional()
-  @IsString()
-  @IsNotEmpty()
-  street?: string;
-
-  @IsOptional()
-  @IsString()
-  @IsNotEmpty()
-  number?: string;
-
-  @IsOptional()
-  @IsString()
-  complement?: string;
-
-  @IsOptional()
-  @IsString()
-  @IsNotEmpty()
-  neighborhood?: string;
-
-  @IsOptional()
-  @IsString()
-  @IsNotEmpty()
-  city?: string;
-
-  @IsOptional()
-  @IsString()
-  @IsNotEmpty()
-  state?: string;
-}
-
 class ProductDto {
-  @IsOptional()
   @IsString()
   @IsNotEmpty()
-  name?: string
+  name: string;
 
-  @IsOptional()
   @IsString()
   @IsNotEmpty()
-  description?: string
+  description: string;
 
-  @IsOptional()
   @IsString()
   @IsNotEmpty()
-  type?: string
+  type: string;
+
+  @IsNumber({}, { message: 'Amount must be a decimal number' })
+  @IsNotEmpty()
+  amount: number;
 }
 
-class StockDto {
-  @IsOptional()
+export class UpdateReceivedDto {
   @IsString()
   @IsNotEmpty()
-  value?: string
-}
+  date: string;
 
-export class UpdateReceivedDto extends PartialType(CreateReceivedDto) {
+  @IsNumber({}, { message: 'Amount must be a decimal number' })
   @IsOptional()
-  @ValidateNested()
-  @Type(() => AddressDto)
-  address?: AddressDto;
+  amount?: number;
 
+  @IsString()
   @IsOptional()
-  @ValidateNested()
+  description?: string;
+
+  @IsUUID()
+  @IsOptional()
+  product_id?: string;
+
   @Type(() => ProductDto)
-  product?: ProductDto;
-
   @IsOptional()
-  @ValidateNested()
-  @Type(() => ProductDto)
-  stock?: StockDto;
+  product?: ProductDto[];
+
+  @IsUUID()
+  @IsOptional()
+  donor_id?: string;
+
+  @IsUUID()
+  @IsOptional()
+  stock_id?: string;
 }

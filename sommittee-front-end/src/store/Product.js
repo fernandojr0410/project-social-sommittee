@@ -48,7 +48,6 @@ const actions = {
   async findById({ commit }, id) {
     const response = await API.product.findById(id)
     commit('UPDATE_PRODUCT', response)
-
     return response
   },
 

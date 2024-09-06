@@ -110,7 +110,7 @@
           </v-row>
 
           <v-row>
-            <v-col cols="12" md="6">
+            <v-col>
               <v-text-field
                 v-if="selectedPeople"
                 v-model="selectedPeople.name"

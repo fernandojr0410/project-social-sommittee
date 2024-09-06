@@ -26,7 +26,7 @@
           <v-text-field label="Nome" filled v-model="form.name" />
         </v-col>
         <v-col cols="12" sm="6">
-          <v-text-field label="Sobrenome" filled v-model="form.surname" />
+          <v-text-field label="Sobrenome" filled v-model="form.identifier" />
         </v-col>
         <v-col cols="12" sm="6">
           <v-text-field label="Telefone" filled v-model="form.telephone" />
@@ -69,13 +69,13 @@ export default {
     return {
       form: {
         name: '',
-        surname: '',
+        identifier: '',
         telephone: '',
         email: '',
       },
       originalForm: {
         name: '',
-        surname: '',
+        identifier: '',
         telephone: '',
         email: '',
       },
@@ -120,7 +120,7 @@ export default {
     checkFormChanges() {
       return (
         this.form.name !== this.originalForm.name ||
-        this.form.surname !== this.originalForm.surname ||
+        this.form.identifier !== this.originalForm.identifier ||
         this.form.telephone !== this.originalForm.telephone ||
         this.form.email !== this.originalForm.email
       )

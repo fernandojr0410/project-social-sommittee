@@ -1,6 +1,20 @@
 import Vue from 'vue'
 import { format } from 'date-fns'
 
+export function currencyFilter(number) {
+  if (number === undefined || number === null) return 'R$ 0,00'
+  let formatted = parseFloat(number).toFixed(2).toString()
+  formatted = formatted.replace('.', ',')
+  return `R$ ${formatted}`
+}
+
+Vue.filter('formatCurrency', (value) => {
+  if (!value) return 'R$ 0,00'
+  let formatted = parseFloat(value).toFixed(2).toString()
+  formatted = formatted.replace('.', ',')
+  return `R$ ${formatted}`
+})
+
 export function formatDate(value) {
   if (!value) return ''
 

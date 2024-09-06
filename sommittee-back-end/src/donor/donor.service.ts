@@ -17,8 +17,8 @@ export class DonorService {
     return await this.repository.findAll(queryDto)
   }
 
-  async findOne(id: string) {
-    return await this.repository.findOne(id)
+  async findById(id: string) {
+    return await this.repository.findById(id)
   }
 
   async update(id: string, updateDonorDto: UpdateDonorDto) {

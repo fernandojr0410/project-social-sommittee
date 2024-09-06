@@ -1,134 +1,191 @@
 <template>
   <v-dialog v-model="dialog" max-width="900px">
     <v-card>
-      <v-card-title class="flex justify-space-between items-center">
-        <span class="headline">Editar recebimento</span>
+      <v-card-title class="d-flex justify-space-between items-center">
+        <span class="headline">Editar informações</span>
         <v-btn icon @click="closeDialog">
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-card-title>
       <v-card-text>
         <v-row>
-          <v-col cols="12" md="6">
+          <v-col>
             <span color="primary" style="font-weight: bold; font-size: 16px">
-              Colaborador:
+              Informações do recebimento:
             </span>
-            <v-text-field
-              v-if="updatedReceived && updatedReceived.user"
-              v-model="updatedReceived.user.name"
-              label="Nome"
-              disabled
-            ></v-text-field>
-            <v-text-field
-              v-if="updatedReceived && updatedReceived.user"
-              v-model="updatedReceived.user.surname"
-              label="Sobrenome"
-              disabled
-            ></v-text-field>
-            <v-text-field
-              v-if="updatedReceived && updatedReceived.user"
-              v-model="updatedReceived.user.email"
-              label="E-mail"
-              disabled
-            ></v-text-field>
           </v-col>
-          <v-col cols="12" md="6">
-            <span color="primary" style="font-weight: bold; font-size: 16px">
-              Recebimento:
-            </span>
+        </v-row>
+        <v-row>
+          <v-col>
             <v-text-field
-              v-model="updatedReceived.id"
-              label="Código"
-              disabled
-            ></v-text-field>
+              v-model="updatedReceived.date"
+              type="date"
+              label="Data de recebimento"
+              class="mr-3"
+              :rules="[rules.required]"
+            />
+          </v-col>
+          <v-col>
             <v-text-field
               v-model="updatedReceived.value"
-              label="Valor"
-            ></v-text-field>
-            <v-text-field
+              label="Valor total"
+              class="mr-3"
+              :rules="[rules.required]"
+            />
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-textarea
               v-model="updatedReceived.description"
               label="Descrição"
-            ></v-text-field>
-            <v-text-field
-              :value="formatDate(updatedReceived.created_at)"
-              label="Data de criação"
-              disabled
-            ></v-text-field>
-            <v-text-field
-              :value="formatDate(updatedReceived.updated_at)"
-              label="Data de atualização"
-              disabled
-            ></v-text-field>
+              class="mr-3"
+              :rules="[rules.required]"
+            />
           </v-col>
-          <v-col cols="12">
+        </v-row>
+        <v-row>
+          <v-col>
             <span color="primary" style="font-weight: bold; font-size: 16px">
-              Endereço:
+              Informações do produto doado:
             </span>
-            <v-text-field
-              v-if="updatedReceived && updatedReceived.address"
-              v-model="updatedReceived.address.zip_code"
-              label="Cep"
-            ></v-text-field>
-            <v-text-field
-              v-if="updatedReceived && updatedReceived.address"
-              v-model="updatedReceived.address.street"
-              label="Rua"
-            ></v-text-field>
-            <v-text-field
-              v-if="updatedReceived && updatedReceived.address"
-              v-model="updatedReceived.address.number"
-              label="Número"
-            ></v-text-field>
-            <v-text-field
-              v-if="updatedReceived && updatedReceived.address"
-              v-model="updatedReceived.address.complement"
-              label="Complemento"
-            ></v-text-field>
-            <v-text-field
-              v-if="updatedReceived && updatedReceived.address"
-              v-model="updatedReceived.address.neighborhood"
-              label="Bairro"
-            ></v-text-field>
-            <v-text-field
-              v-if="updatedReceived && updatedReceived.address"
-              v-model="updatedReceived.address.city"
-              label="Cidade"
-            ></v-text-field>
-            <v-text-field
-              v-if="updatedReceived && updatedReceived.address"
-              v-model="updatedReceived.address.state"
-              label="Estado"
-            ></v-text-field>
           </v-col>
-          <v-col cols="12">
-            <span color="primary" style="font-weight: bold; font-size: 16px">
-              Produto:
-            </span>
+        </v-row>
+
+        <v-row>
+          <v-col>
+            <v-autocomplete
+              v-model="selectedProduct"
+              :items="productList"
+              item-text="name"
+              item-value="id"
+              label="Buscar produto..."
+              :loading="loading"
+              :rules="[rules.required]"
+              return-object
+              @update:search-input="searchProduct"
+            />
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col>
             <v-text-field
-              v-if="updatedReceived && updatedReceived.product"
               v-model="updatedReceived.product.name"
               label="Produto"
-            ></v-text-field>
+              class="mr-3"
+              disabled
+            />
+          </v-col>
+          <v-col>
             <v-text-field
-              v-if="updatedReceived && updatedReceived.product"
-              v-model="updatedReceived.product.description"
-              label="Descrição"
-            ></v-text-field>
-            <v-text-field
-              v-if="updatedReceived && updatedReceived.product"
               v-model="updatedReceived.product.type"
               label="Categoria"
-            ></v-text-field>
+              class="mr-3"
+              disabled
+            />
           </v-col>
-          <v-col cols="12" md="3">
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-textarea
+              v-model="updatedReceived.product.description"
+              label="Descrição"
+              class="mr-3"
+              disabled
+            />
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col>
             <span color="primary" style="font-weight: bold; font-size: 16px">
-              Estoque:
+              Informações do Estoque:
             </span>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
             <v-text-field
-              v-if="updatedReceived && updatedReceived.stock"
-              v-model="updatedReceived.stock.value"
-              label="Quantidade no estoque"
-            ></v-text-field>
+              v-model="updatedReceived.stock.amount"
+              type="number"
+              label="Quantidade"
+              class="mr-3"
+            />
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col>
+            <span color="primary" style="font-weight: bold; font-size: 16px">
+              Informações do Doador:
+            </span>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-autocomplete
+              v-model="selectedDonor"
+              :items="donorList"
+              item-text="name"
+              item-value="id"
+              label="Buscar doador..."
+              :loading="loading"
+              :rules="[rules.required]"
+              return-object
+              @update:search-input="searchDonor"
+            />
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-text-field
+              v-model="updatedReceived.donor.name"
+              label="Nome completo"
+              class="mr-3"
+              disabled
+            />
+          </v-col>
+          <v-col>
+            <v-text-field
+              v-model="updatedReceived.donor.cpf"
+              label="CPF"
+              class="mr-3"
+              disabled
+            />
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-text-field
+              :value="updatedReceived.donor.contact | phone"
+              label="Contato"
+              class="mr-3"
+              disabled
+            />
+          </v-col>
+          <v-col>
+            <v-select
+              v-model="updatedReceived.donor.type_donor"
+              :items="[
+                { value: 'INTERNAL', text: 'Interno' },
+                { value: 'EXTERNAL', text: 'Externo' },
+              ]"
+              item-value="value"
+              item-text="text"
+              label="Tipo"
+              disabled
+            />
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-text-field
+              v-model="updatedReceived.donor.email"
+              label="E-mail"
+              class="mr-3"
+              disabled
+            />
           </v-col>
         </v-row>
       </v-card-text>
@@ -147,11 +204,8 @@
 </template>
 
 <script>
-import { formatDate } from '@/filters'
-
 export default {
   name: 'ReceivedEdit',
-  components: {},
   props: {
     dialog: {
       type: Boolean,
@@ -163,31 +217,14 @@ export default {
   },
   data() {
     return {
-      updatedReceived: {
-        id: '',
-        value: '',
-        description: '',
-        date: '',
-        created_at: '',
-        updated_at: '',
-        user: {},
-        address: {
-          zip_code: '',
-          street: '',
-          number: '',
-          complement: '',
-          neighborhood: '',
-          city: '',
-          state: '',
-        },
-        product: {
-          name: '',
-          description: '',
-          type: '',
-        },
-        stock: {
-          value: '',
-        },
+      updatedReceived: this.getReceived(),
+      selectedProduct: null,
+      selectedDonor: null,
+      productList: [],
+      donorList: [],
+      loading: false,
+      rules: {
+        required: (value) => !!value || 'Campo obrigatório.',
       },
     }
   },
@@ -203,48 +240,149 @@ export default {
         }
       },
     },
+    selectedProduct(newValue) {
+      if (newValue) {
+        this.updatedReceived.product = { ...newValue }
+      } else {
+        this.updatedReceived.product = this.getReceived().product
+      }
+    },
+    selectedDonor(newValue) {
+      if (newValue) {
+        this.updatedReceived.donor = { ...newValue }
+      } else {
+        this.updatedReceived.donor = this.getReceived().donor
+      }
+    },
   },
   methods: {
+    getReceived() {
+      return {
+        date: '',
+        value: '',
+        description: '',
+        product: {
+          name: '',
+          description: '',
+          type: '',
+        },
+        stock: {
+          amount: '',
+        },
+        donor: {
+          name: '',
+          cpf: '',
+          email: '',
+          contact: '',
+          type_donor: '',
+        },
+      }
+    },
     closeDialog() {
       this.$emit('close')
     },
-    async saveChanges() {
-      const dataToUpdate = {
-        id: this.updatedReceived.id,
-        payload: {
-          value: this.updatedReceived.value,
-          description: this.updatedReceived.description,
-          address: {
-            zip_code: this.updatedReceived.address.zip_code,
-            street: this.updatedReceived.address.street,
-            number: this.updatedReceived.address.number,
-            complement: this.updatedReceived.address.complement,
-            neighborhood: this.updatedReceived.address.neighborhood,
-            city: this.updatedReceived.address.city,
-            state: this.updatedReceived.address.state,
-          },
-          product: {
-            name: this.updatedReceived.product.name,
-            description: this.updatedReceived.product.description,
-            type: this.updatedReceived.product.type,
-          },
-          stock: {
-            value: this.updatedReceived.stock.value,
-          },
-        },
+    async findAll(search, type) {
+      if (type === 'product') {
+        const responseProduct = await this.$store.dispatch('product/findAll', {
+          search,
+        })
+        return responseProduct
+      } else if (type === 'donor') {
+        const responseDonor = await this.$store.dispatch('donor/findAll', {
+          search,
+        })
+        return responseDonor
       }
-      this.$loading('Carregando...')
+    },
+
+    async fetchProduct(search = '') {
+      this.loading = true
       try {
-        await this.$store.dispatch('received/update', dataToUpdate)
-        this.$success('Alterações salvas!')
-        this.$emit('close')
-        return dataToUpdate
+        const response = await this.findAll(search, 'product')
+        this.productList = response
       } catch (error) {
-        this.$error('Erro ao atualizar!')
+        this.$error('Erro ao carregar produto!')
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async fetchDonor(search = '') {
+      this.loading = true
+      try {
+        const response = await this.findAll(search, 'donor')
+        console.log('data donor', response)
+        this.donorList = response
+      } catch (error) {
+        this.$error('Erro ao carregar doador!')
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+    async saveChanges() {
+      try {
+        const receivedId = this.id
+        const updateData = {
+          id: receivedId,
+          payload: {
+            date: this.updatedReceived.date,
+            value: this.updatedReceived.value,
+            description: this.updatedReceived.description,
+            product: {
+              name: this.updatedReceived.product.name,
+              description: this.updatedReceived.product.description,
+              type: this.updatedReceived.product.type,
+            },
+            stock: {
+              amount: Number(this.updatedReceived.stock.amount),
+            },
+            donor: {
+              // id: this.updatedReceived.donor.id,
+              name: this.updatedReceived.donor.name,
+              cpf: this.updatedReceived.donor.cpf
+                ? this.updatedReceived.donor.cpf.replace(/[^\d]/g, '')
+                : '',
+
+              email: this.updatedReceived.donor.email,
+              contact: this.updatedReceived.donor.contact,
+              type_donor: this.updatedReceived.donor.type_donor,
+            },
+          },
+        }
+        const response = await this.$store.dispatch(
+          'received/update',
+          updateData
+        )
+        console.log('registro atualizado!', response)
+        if (response) {
+          this.$success('Registro atualizado!')
+          this.selectedProduct = null
+          this.selectedDonor = null
+          this.closeDialog()
+          this.updatedReceived = this.getReceived()
+          return response
+        }
+      } catch (error) {
+        console.error('Erro saveChances', error)
         throw error
       }
     },
-    formatDate,
+    async searchProduct(search) {
+      if (search && search.length > 2) {
+        this.fetchProduct(search)
+      } else {
+        this.productList = []
+      }
+    },
+    async searchDonor(search) {
+      if (search && search.length > 2) {
+        this.fetchDonor(search)
+      } else {
+        this.donorList = []
+      }
+    },
   },
 }
 </script>

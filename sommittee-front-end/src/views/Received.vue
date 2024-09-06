@@ -1,12 +1,11 @@
 <template>
-  <v-app>
-    <v-card-title>Lista de Recebimentos</v-card-title>
+  <v-app :style="{ backgroundColor: $vuetify.theme.themes.light.grayPrimary }">
     <Index />
   </v-app>
 </template>
 
 <script>
-import Index from '../components/received/index.vue'
+import Index from '@/components/received/index.vue'
 
 export default {
   name: 'Received',

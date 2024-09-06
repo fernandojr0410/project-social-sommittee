@@ -27,7 +27,7 @@ export class DonorRepository {
     return await this.prisma.donor.findMany(_query)
   }
 
-  async findOne(id: string): Promise<DonorEntity> {
+  async findById(id: string): Promise<DonorEntity> {
     return await this.prisma.donor.findFirst({ where: { id } })
   }
 

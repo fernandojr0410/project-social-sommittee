@@ -8,6 +8,7 @@ import peopleFamily from './PeopleFamily'
 import donor from './Donor'
 import donation from './Donation'
 import product from './Product'
+import user from './UserColaborator'
 
 Vue.use(Vuex)
 
@@ -21,6 +22,7 @@ export default new Vuex.Store({
     donor,
     donation,
     product,
+    user,
   },
   state: {
     snackbar: {

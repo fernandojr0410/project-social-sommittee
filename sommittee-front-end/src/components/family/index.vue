@@ -107,7 +107,7 @@
             </v-col>
           </v-row>
           <v-row>
-            <v-col cols="6">
+            <v-col>
               <v-text-field
                 v-if="selectedPeopleFamily?.people"
                 v-model="selectedPeopleFamily.people.name"
@@ -294,6 +294,8 @@
                 Função da pessoa na família:
               </span>
             </v-col>
+          </v-row>
+          <v-row>
             <v-col>
               <v-select
                 v-if="

@@ -1,4 +1,4 @@
-import { $Enums, Donation } from "@prisma/client";
+import { Donation } from "@prisma/client";
 
 export class DonationEntity implements Donation {
   id: string;
@@ -15,8 +15,5 @@ export class DonationEntity implements Donation {
   created_at: Date;
   updated_at: Date;
   donor_id: string;
-  product_id: string;
   stock_id: string;
-  userId: string;
-
 }

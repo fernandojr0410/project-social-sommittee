@@ -4,13 +4,13 @@
     left
     bottom
     :value="true"
-    :timeout="-1"
+    :timeout="15000"
   >
     <div class="d-flex align-center caption">
       <v-icon color="red">mdi-close-circle</v-icon>
       <div class="pl-3">
         <div class="font-weight-bold">Oops!</div>
-        <div class="font-weight-medium">{{text}}</div>
+        <div class="font-weight-medium">{{ text }}</div>
       </div>
     </div>
   </v-snackbar>
@@ -19,15 +19,12 @@
     left
     bottom
     :value="true"
-    :timeout="-1"
+    :timeout="15000"
   >
     <div class="d-flex align-center caption">
-      <v-progress-circular
-        indeterminate
-        color="primary"
-      ></v-progress-circular>
+      <v-progress-circular indeterminate color="primary"></v-progress-circular>
       <div class="pl-3">
-        <div class="font-weight-medium">{{text}}</div>
+        <div class="font-weight-medium">{{ text }}</div>
       </div>
     </div>
   </v-snackbar>
@@ -36,12 +33,12 @@
     left
     bottom
     :value="true"
-    :timeout="-1"
+    :timeout="15000"
   >
     <div class="d-flex align-center caption">
       <v-icon color="green">mdi-check-circle</v-icon>
       <div class="pl-3">
-        <div class="font-weight-bold">{{text}}</div>
+        <div class="font-weight-bold">{{ text }}</div>
       </div>
     </div>
   </v-snackbar>
@@ -51,17 +48,17 @@
 import { mapState } from 'vuex'
 
 export default {
-  data () {
+  data() {
     return {
       visible: false,
       text: '',
-      status: ''
+      status: '',
     }
   },
   computed: {
     ...mapState({
-      snackbar: state => state.snackbar
-    })
+      snackbar: (state) => state.snackbar,
+    }),
   },
   watch: {
     snackbar: {
@@ -74,16 +71,14 @@ export default {
         clearTimeout(this.timeout)
 
         if (snackbar.status === 'success') {
-          this.timeout = setTimeout(() => this.visible = false, 3000)
+          this.timeout = setTimeout(() => (this.visible = false), 3000)
         } else if (snackbar.status === 'error') {
-          this.timeout = setTimeout(() => this.visible = false, 5000)
+          this.timeout = setTimeout(() => (this.visible = false), 5000)
         }
-      }
-    }
-  }
+      },
+    },
+  },
 }
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

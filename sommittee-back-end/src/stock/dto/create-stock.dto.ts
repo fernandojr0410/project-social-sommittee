@@ -1,10 +1,15 @@
-import { IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { Decimal } from "@prisma/client/runtime/library";
+import { IsDecimal, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateStockDto {
 
-  @IsString()
+  // @IsDecimal()
+  // @IsNotEmpty()
+  // amount: Decimal
+
+  @IsNumber({}, { message: 'Amount must be a number' })
   @IsNotEmpty()
-  amount: string
+  amount: number;
 
   @IsString()
   @IsNotEmpty()

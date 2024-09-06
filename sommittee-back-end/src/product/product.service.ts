@@ -22,13 +22,17 @@ export class ProductService {
     return await this.repository.findById(id)
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto) {
-    const { donor_id, ...productData } = updateProductDto;
+  // async update(id: string, updateProductDto: UpdateProductDto) {
+  //   const { donor_id, ...productData } = updateProductDto;
 
-    return await this.repository.update(id, {
-      ...productData,
-      donor_id,
-    });
+  //   return await this.repository.update(id, {
+  //     ...productData,
+  //     donor_id,
+  //   });
+  // }
+
+  async update(id: string, updatedProductDTO: UpdateProductDto) {
+    return await this.repository.update(id, updatedProductDTO)
   }
 
 

@@ -3,67 +3,41 @@ import { PrismaService } from "../../prisma/prisma.service";
 import { CreateProductDto } from "../dto/create-product.dto";
 import { ProductEntity } from "../entities/product.entity";
 import { UpdateProductDto } from "../dto/update-product.dto";
+import { Decimal } from "@prisma/client/runtime/library";
 
 @Injectable()
 export class ProductRepository {
   constructor(private prisma: PrismaService) { }
 
-
-  // async create(createProductDto: CreateProductDto): Promise<ProductEntity> {
-  //   const { donor_id, ...productData } = createProductDto;
-
-  //   const createdProduct = await this.prisma.product.create({
-  //     data: {
-  //       ...productData,
-  //     },
-  //   });
-
-  //   const updatedProduct = await this.prisma.product.update({
-  //     where: { id: createdProduct.id },
-  //     data: {
-  //       donor: {
-  //         connect: { id: donor_id }
-  //       }
-  //     },
-  //     include: {
-  //       donor: true,
-  //     },
-  //   });
-
-  //   return updatedProduct;
-  // }
-
-
   async create(createProductDto: CreateProductDto) {
-    const { donor, ...productData } = createProductDto;
+    const { name, description, type } = createProductDto;
 
-    let connectedDonor;
+    return await this.prisma.$transaction(async (prisma) => {
 
-    if (donor) {
-      connectedDonor = await this.prisma.donor.findUnique({
-        where: { cpf: donor.cpf },
+      const createdProduct = await prisma.product.create({
+        data: {
+          name,
+          description,
+          type,
+        },
       });
-      if (!connectedDonor) {
-        connectedDonor = await this.prisma.donor.create({
-          data: donor,
-        });
-      }
-    }
 
-    return this.prisma.product.create({
-      data: {
-        ...productData,
-        donor: connectedDonor
-          ? { connect: { id: connectedDonor.id } }
-          : undefined,
-      },
+      await prisma.stock.create({
+        data: {
+          product_id: createdProduct.id,
+          amount: new Decimal(0),
+        },
+      });
+
+      return createdProduct;
     });
   }
+
 
   async findAll(query: any): Promise<ProductEntity[]> {
     const _query: any = {
       include: {
-        donor: true,
+        stocks: true,
       },
     };
 
@@ -71,42 +45,46 @@ export class ProductRepository {
       _query.where = {
         [query.searchField]: {
           contains: query.search,
-          mode: 'insensitive'
-        }
-      }
+          mode: 'insensitive',
+        },
+      };
     }
+
     return await this.prisma.product.findMany(_query);
   }
 
-
-  async findById(id: string): Promise<ProductEntity> {
-    return await this.prisma.product.findFirst({
+  async findById(id: string): Promise<ProductEntity | null> {
+    const product = await this.prisma.product.findUnique({
       where: { id },
       include: {
-        donor: true,
-      }
-    })
-  }
-
-  async update(id: string, updateProductDto: UpdateProductDto): Promise<ProductEntity> {
-    const { donor_id, ...productData } = updateProductDto;
-
-    const updatedProduct = await this.prisma.product.update({
-      where: { id },
-      data: {
-        ...productData,
-        ...(donor_id && { donor: { connect: { id: donor_id } } })
+        stocks: true,
       },
-      include: {
-        donor: true
-      }
     });
 
-    return updatedProduct;
+    return product;
   }
 
+  async update(productId: string, updateProductDto: UpdateProductDto) {
+    const { name, description, type } = updateProductDto;
+
+    return await this.prisma.product.update({
+      where: { id: productId },
+      data: {
+        name,
+        description,
+        type,
+      },
+    });
+  }
 
   async remove(id: string): Promise<ProductEntity> {
-    return await this.prisma.product.delete({ where: { id } })
+    await this.prisma.stock.deleteMany({
+      where: { product_id: id },
+    });
+
+
+    return await this.prisma.product.delete({
+      where: { id },
+    });
   }
 }

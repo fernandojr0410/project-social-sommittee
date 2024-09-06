@@ -47,13 +47,6 @@ export class CreateDonationDto {
 
   @IsString()
   @IsNotEmpty()
-  product_id: string;
-
-  @IsString()
-  @IsNotEmpty()
   stock_id: string;
 
-  @IsString()
-  @IsOptional()
-  user_id?: string;
 }

@@ -3,13 +3,24 @@ import { PrismaService } from "../../prisma/prisma.service";
 import { CreateStockDto } from "../dto/create-stock.dto";
 import { StockEntity } from "../entities/stock.entity";
 import { UpdateStockDto } from "../dto/update-stock.dto";
+import { Decimal } from "@prisma/client/runtime/library";
 
 @Injectable()
 export class StockRepository {
   constructor(private readonly prisma: PrismaService) { }
 
+
+
   async create(createStockDto: CreateStockDto): Promise<StockEntity> {
-    return await this.prisma.stock.create({ data: createStockDto })
+    const { amount, ...rest } = createStockDto;
+    const decimalAmount = new Decimal(amount);
+
+    return await this.prisma.stock.create({
+      data: {
+        ...rest,
+        amount: decimalAmount,
+      },
+    });
   }
 
   async findAll(): Promise<StockEntity[]> {
@@ -20,8 +31,21 @@ export class StockRepository {
     return await this.prisma.stock.findFirst({ where: { id } })
   }
 
+  // async update(id: string, updateStockDto: UpdateStockDto): Promise<StockEntity> {
+  //   return await this.prisma.stock.update({ where: { id }, data: updateStockDto })
+  // }
+
   async update(id: string, updateStockDto: UpdateStockDto): Promise<StockEntity> {
-    return await this.prisma.stock.update({ where: { id }, data: updateStockDto })
+    const { amount, ...rest } = updateStockDto;
+    const decimalAmount = amount ? new Decimal(amount) : undefined;
+
+    return await this.prisma.stock.update({
+      where: { id },
+      data: {
+        ...rest,
+        amount: decimalAmount,
+      },
+    });
   }
 
   async remove(id: string): Promise<StockEntity> {

@@ -35,7 +35,7 @@
               mdi-account-circle
             </v-icon>
             <div class="d-flex flex-column pr-10">
-              <v-card-title>{{ user.name }} {{ user.surname }}</v-card-title>
+              <v-card-title>{{ user.name }}</v-card-title>
               <v-card-subtitle class="email-title">
                 {{ user.email }}
               </v-card-subtitle>
@@ -105,18 +105,18 @@
           <v-list-item-title>Produtos</v-list-item-title>
         </v-list-item>
 
+        <v-list-item :to="{ path: '/received' }">
+          <v-list-item-icon>
+            <v-icon>mdi-hand-coin</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title>Recebimento</v-list-item-title>
+        </v-list-item>
+
         <v-list-item :to="{ path: '/donation' }">
           <v-list-item-icon>
             <v-icon>mdi-truck-delivery-outline</v-icon>
           </v-list-item-icon>
           <v-list-item-title>Entregas</v-list-item-title>
-        </v-list-item>
-
-        <v-list-item :to="{ path: '/received' }">
-          <v-list-item-icon>
-            <v-icon>mdi-hand-coin</v-icon>
-          </v-list-item-icon>
-          <v-list-item-title>Recebidos</v-list-item-title>
         </v-list-item>
 
         <v-list-item>
@@ -168,7 +168,7 @@ export default {
       imgSoon: require('../../assets/img/soon.png'),
       altSoon: 'Imagem Logo',
       name: '',
-      surname: '',
+      identifier: '',
       email: '',
       drawer: true,
       mini: true,
@@ -194,8 +194,8 @@ export default {
             this.pageName = 'Meu perfil'
             break
           case '/received':
-            document.title = `Sommittee | Recebidos`
-            this.pageName = 'Recebidos'
+            document.title = `Sommittee | Recebimento`
+            this.pageName = 'Recebimentos'
             break
           case '/people':
             document.title = `Sommittee | Pessoas`

@@ -47,7 +47,7 @@ export class PasswordController {
       throw new Error('Usuário não encontrado');
     }
 
-    const emailSent = await this.emailService.sendPasswordByEmail(user.email, user.name, user.surname, newPassword);
+    const emailSent = await this.emailService.sendPasswordByEmail(user.email, user.name, user.identifier, newPassword);
 
     if (emailSent) {
       return { message: 'Senha atualizada com sucesso e enviada por email' };

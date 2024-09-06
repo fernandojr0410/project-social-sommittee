@@ -25,7 +25,7 @@ export class DonorController {
   @UseGuards(AuthGuard)
   @Get(':id')
   async findById(@Param('id') id: string) {
-    const donor = await this.service.findOne(id)
+    const donor = await this.service.findById(id)
     if (!donor) {
       throw new NotFoundException('Donor not found')
     }

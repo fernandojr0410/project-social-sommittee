@@ -1,11 +1,11 @@
 <template>
-  <v-container fluid>
+  <v-container>
     <v-card>
       <v-card-text>
         <v-data-table
           :loading="loading"
           :headers="headers"
-          :items="receiveds"
+          :items="received"
           :items-per-page="10"
           no-data-text="Nenhum recebimento encontrado"
           :footer-props="{
@@ -13,6 +13,30 @@
             'show-current-page': true,
           }"
         >
+          <template v-slot:[`item.created_at`]="{ item }">
+            <span>{{ formatDate(item.created_at) }}</span>
+          </template>
+
+          <template v-slot:[`item.value`]="{ item }">
+            <span>{{ item.value | currency }}</span>
+          </template>
+
+          <template v-slot:[`item.name`]="{ item }">
+            <span>{{ item.donor.name }}</span>
+          </template>
+
+          <template v-slot:[`item.contact`]="{ item }">
+            <span>{{ item.donor.contact | phone }}</span>
+          </template>
+
+          <template v-slot:[`item.type_donor`]="{ item }">
+            <span>{{ item.donor.type_donor | typeDonor }}</span>
+          </template>
+
+          <template v-slot:[`item.type`]="{ item }">
+            <span>{{ item.product.type }}</span>
+          </template>
+
           <template v-slot:[`item.actions`]="{ item }">
             <v-icon
               class="mr-2"
@@ -21,24 +45,16 @@
             >
               mdi-eye
             </v-icon>
+
             <v-icon class="mr-2" color="blue" @click="editItem(item)">
               mdi-pencil
             </v-icon>
-            <v-icon color="red" @click="confirmDelete(item)">mdi-delete</v-icon>
-          </template>
 
-          <template v-slot:[`item.value`]="{ item }">
-            {{ item.value | currency }}
+            <v-icon class="mr-2" color="red" @click="confirmDelete(item)">
+              mdi-delete
+            </v-icon>
           </template>
         </v-data-table>
-
-        <ReceivedSelect
-          :dialog="filterDialog"
-          :filters="filters"
-          @close="filterDialog = false"
-          @apply="applyFilters"
-        />
-
         <ReceivedEdit
           :dialog="editDialog"
           :id="updatedReceivedId"
@@ -57,60 +73,199 @@
           </v-btn>
         </v-card-title>
         <v-card-text>
-          <v-container>
-            <v-row v-if="selectedReceived">
-              <v-col
-                v-for="(value, key) in selectedReceived"
-                :key="key"
-                cols="12"
-              >
-                <v-list-item>
-                  <v-list-item-content>
-                    <v-list-item-title>
-                      {{ translateKey(key) }}
-                    </v-list-item-title>
-                    <v-list-item-subtitle>{{ value }}</v-list-item-subtitle>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-col>
-            </v-row>
-          </v-container>
+          <v-row>
+            <v-col>
+              <span color="primary" style="font-weight: bold; font-size: 16px">
+                Informações do recebimento:
+              </span>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-if="selectedReceived"
+                :value="formatDate(selectedReceived.date)"
+                label="Data de recebimento"
+                class="mr-3"
+                disabled
+              />
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-if="selectedReceived"
+                :value="selectedReceived.value | currency"
+                label="Valor total"
+                class="mr-3"
+                disabled
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-textarea
+                v-if="selectedReceived"
+                v-model="selectedReceived.description"
+                label="Descrição"
+                class="mr-3"
+                disabled
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <span color="primary" style="font-weight: bold; font-size: 16px">
+                Informações do produto doado:
+              </span>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-if="selectedReceived && selectedReceived.product"
+                v-model="selectedReceived.product.name"
+                label="Produto"
+                class="mr-3"
+                disabled
+              />
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-if="selectedReceived && selectedReceived.product"
+                v-model="selectedReceived.product.type"
+                label="Categoria"
+                class="mr-3"
+                disabled
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-textarea
+                v-if="selectedReceived && selectedReceived.product"
+                v-model="selectedReceived.product.description"
+                label="Descrição"
+                class="mr-3"
+                disabled
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <span color="primary" style="font-weight: bold; font-size: 16px">
+                Informações do Estoque:
+              </span>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-if="selectedReceived && selectedReceived.stock"
+                v-model="selectedReceived.stock.amount"
+                label="Quantidade"
+                class="mr-3"
+                disabled
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <span color="primary" style="font-weight: bold; font-size: 16px">
+                Informações do Doador:
+              </span>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-if="selectedReceived && selectedReceived.donor"
+                v-model="selectedReceived.donor.name"
+                label="Nome completo"
+                class="mr-3"
+                disabled
+              />
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-if="selectedReceived && selectedReceived.donor"
+                :value="selectedReceived.donor.cpf | cpf"
+                label="CPF"
+                class="mr-3"
+                disabled
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-if="selectedReceived && selectedReceived.donor"
+                :value="selectedReceived.donor.contact | phone"
+                label="Contato"
+                class="mr-3"
+                disabled
+              />
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-if="selectedReceived && selectedReceived.donor"
+                :value="selectedReceived.donor.type_donor | typeDonor"
+                label="Tipo"
+                class="mr-3"
+                disabled
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-if="selectedReceived && selectedReceived.donor"
+                v-model="selectedReceived.donor.email"
+                label="E-mail"
+                class="mr-3"
+                disabled
+              />
+            </v-col>
+          </v-row>
         </v-card-text>
       </v-card>
     </v-dialog>
-    <FloatingAction />
+    <ReceivedCreate
+      :dialog="createDialog"
+      @close="createDialog = false"
+      @save="createdReceived"
+    />
   </v-container>
 </template>
 
 <script>
-import { mapActions } from 'vuex'
-import ReceivedSelect from '@/components/received/ReceivedSelect.vue'
-import ReceivedEdit from '@/components/received/ReceivedEdit.vue'
-import FloatingAction from '@/components/button/FloatingAction.vue'
+import { formatDate } from '@/filters'
+import ReceivedCreate from './ReceivedCreate.vue'
+import ReceivedEdit from './ReceivedEdit.vue'
 
 export default {
   name: 'index',
-  components: { ReceivedSelect, ReceivedEdit, FloatingAction },
+  components: { ReceivedCreate, ReceivedEdit },
   data() {
     return {
       loading: false,
       dialog: false,
-      filterDialog: false,
       selectedReceived: null,
-      filters: {},
+      createDialog: false,
       editDialog: false,
       updatedReceivedId: null,
       headers: [
-        { text: 'Data do Recebimento', value: 'date' },
-        { text: 'Código do Recebimento', value: 'id' },
-        { text: 'Descrição', value: 'description' },
-        { text: 'Valor do Recebimento', value: 'value' },
+        { text: 'Data criação', value: 'created_at' },
+        { text: 'Valor total doação', value: 'value' },
+        { text: 'Nome doador', value: 'name' },
+        { text: 'Contato doador', value: 'contact' },
+        { text: 'Tipo doador', value: 'type_donor' },
+        { text: 'Tipo doação', value: 'type' },
         { text: 'Ações', value: 'actions' },
       ],
+      formatDate,
     }
   },
   computed: {
-    receiveds() {
+    received() {
       return this.$store.state.received.received
     },
   },
@@ -123,7 +278,8 @@ export default {
       try {
         await this.findAll()
       } catch (error) {
-        console.error('Erro ao carregar dados:', error)
+        this.$error('Erro ao carregar dados!')
+        throw error
       } finally {
         this.loading = false
       }
@@ -135,35 +291,47 @@ export default {
       this.selectedReceived = item
       this.dialog = true
     },
-    closeDialog() {
-      this.dialog = false
-      this.selectedReceived = null
-    },
-    applyFilters() {
-      this.filterDialog = false
-      this.findAll()
-    },
     editItem(item) {
       this.updatedReceivedId = item.id
       this.editDialog = true
     },
-    ...mapActions('received', ['update']),
+
     async saveUpdatedReceived(updatedReceived) {
-      await this.update(updatedReceived)
-    },
-    translateKey(key) {
-      const translations = {
-        id: 'Código',
-        date: 'Data',
-        value: 'Valor',
-        description: 'Descrição',
-        created_at: 'Data de criação',
-        updated_at: 'Data de atualização',
+      try {
+        const response = await this.$store.dispatch(
+          'received/update',
+          updatedReceived
+        )
+        console.log('updatedReceived', response)
+        this.loadData()
+        this.editDialog = false
+        return response
+      } catch (error) {
+        console.error('Error saveUpdatedReceived', error)
+        throw error
       }
-      return translations[key] || key
+    },
+
+    async createdReceived(newReceived) {
+      try {
+        const createIndex = await this.$store.dispatch(
+          'received/create',
+          newReceived
+        )
+        console.log('createIndex', createIndex)
+        this.$success('Registro criado!')
+        this.loadData()
+        this.createDialog = false
+      } catch (error) {
+        this.$error('Erro ao criar registro!')
+        throw error
+      }
+    },
+    closeDialog() {
+      this.dialog = false
     },
     isSelected(item) {
-      return this.selectedReceived === item
+      this.updatedReceivedid === item.id
     },
   },
 }

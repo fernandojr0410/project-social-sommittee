@@ -9,7 +9,7 @@ export class CreateUserDto {
 
   @IsString()
   @IsNotEmpty()
-  surname: string
+  identifier: string
 
   @IsString()
   @IsNotEmpty()

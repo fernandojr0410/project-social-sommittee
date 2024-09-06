@@ -9,6 +9,10 @@ const mutations = {
     state.received = received
   },
 
+  CREATE_RECEIVED(state, newReceived) {
+    state.received.push(newReceived)
+  },
+
   UPDATE_RECEIVED(state, updatedReceived) {
     state.received = state.received.map((item) => {
       return item.id === updatedReceived.id
@@ -25,21 +29,41 @@ const getters = {
 }
 
 const actions = {
-  async findAll({ commit }) {
-    const response = await API.received.findAll()
+  async findAll({ commit }, query) {
+    const response = await API.received.findAll(query)
     commit('SET_RECEIVED', response)
+    return response
+  },
+
+  async create({ commit }, payload) {
+    const response = await API.received.create(payload)
+    console.log('create store', response)
+    commit('CREATE_RECEIVED', response)
+    return response
   },
 
   async findById({ commit }, id) {
-    const response = await API.received.findById(id)
-    commit('UPDATE_RECEIVED', response)
-    return response
+    try {
+      const response = await API.received.findById(id)
+      console.log('findById store', response)
+      commit('UPDATE_RECEIVED', response)
+      return response
+    } catch (error) {
+      console.error('erro ao filtrar ID store', error)
+      throw error
+    }
   },
 
   async update({ commit }, { id, payload }) {
-    const response = await API.received.update(id, payload)
-    commit('UPDATE_RECEIVED', response)
-    return response
+    try {
+      const response = await API.received.update(id, payload)
+      console.log('update store', response)
+      commit('UPDATE_RECEIVED', response)
+      return response
+    } catch (error) {
+      console.error('erro ao atualizar store', error)
+      throw error
+    }
   },
 }
 

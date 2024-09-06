@@ -35,7 +35,7 @@ export const validationSchema = Yup.object({
     /^[A-Za-zÀ-ÿ\s]+$/,
     'O nome é obrigatório e não pode conter números ou caracteres especiais'
   ),
-  surname: Yup.string()
+  identifier: Yup.string()
 
     .matches(
       /^[A-Za-zÀ-ÿ\s]+$/,

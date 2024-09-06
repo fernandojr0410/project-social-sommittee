@@ -6,7 +6,7 @@
           :loading="loading"
           :headers="headers"
           :items="address"
-          no-data-text="Nenhuma família encontrada"
+          no-data-text="Nenhuma doação encontrada"
           :footer-props="{
             'items-per-page-options': [10, 20, 30],
             'show-current-page': true,

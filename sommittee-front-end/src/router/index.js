@@ -52,7 +52,7 @@ const routes = [
   {
     path: '/received',
     component: Received,
-    meta: { title: 'Recebidos', auth: true },
+    meta: { title: 'Recebimento', auth: true },
   },
   {
     path: '/donation',
