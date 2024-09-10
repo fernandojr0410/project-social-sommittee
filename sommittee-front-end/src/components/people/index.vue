@@ -21,8 +21,8 @@
             <span>{{ formatDate(item.created_at) }}</span>
           </template>
 
-          <template v-slot:[`item.cpf`]="{ item }">
-            <span>{{ item.cpf | cpf }}</span>
+          <template v-slot:[`item.identifier`]="{ item }">
+            <span>{{ item.identifier | cpf }}</span>
           </template>
 
           <template v-slot:[`item.gender`]="{ item }">
@@ -34,7 +34,7 @@
           </template>
 
           <template v-slot:[`item.zip_code`]="{ item }">
-            <span>{{ item.address?.zip_code }}</span>
+            <span>{{ item.address?.zip_code | cep }}</span>
           </template>
 
           <template v-slot:[`item.street`]="{ item }">
@@ -125,7 +125,7 @@
             <v-col cols="12" md="6">
               <v-text-field
                 v-if="selectedPeople"
-                v-model="selectedPeople.cpf"
+                v-model="selectedPeople.identifier"
                 label="CPF"
                 class="mr-3"
                 disabled
@@ -222,7 +222,7 @@
             <v-col cols="12" md="6">
               <v-text-field
                 v-if="selectedPeople?.address"
-                v-model="selectedPeople.address.zip_code"
+                :value="selectedPeople.address.zip_code"
                 label="CEP"
                 class="mr-3"
                 disabled
@@ -332,7 +332,7 @@ export default {
       headers: [
         { text: 'Data criação', value: 'created_at' },
         { text: 'Nome completo', value: 'name' },
-        { text: 'CPF', value: 'cpf' },
+        { text: 'CPF', value: 'identifier' },
         { text: 'CEP', value: 'zip_code' },
         { text: 'Rua', value: 'street' },
         { text: 'Número', value: 'number' },

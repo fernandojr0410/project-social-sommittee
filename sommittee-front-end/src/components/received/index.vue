@@ -17,16 +17,12 @@
             <span>{{ formatDate(item.created_at) }}</span>
           </template>
 
-          <template v-slot:[`item.value`]="{ item }">
-            <span>{{ item.value | currency }}</span>
-          </template>
-
           <template v-slot:[`item.name`]="{ item }">
             <span>{{ item.donor.name }}</span>
           </template>
 
-          <template v-slot:[`item.contact`]="{ item }">
-            <span>{{ item.donor.contact | phone }}</span>
+          <template v-slot:[`item.telephone`]="{ item }">
+            <span>{{ item.donor.telephone | phone }}</span>
           </template>
 
           <template v-slot:[`item.type_donor`]="{ item }">
@@ -34,7 +30,13 @@
           </template>
 
           <template v-slot:[`item.type`]="{ item }">
-            <span>{{ item.product.type }}</span>
+            <span>
+              {{ item.products[0].product.type }}
+            </span>
+          </template>
+
+          <template v-slot:[`item.condition_product`]="{ item }">
+            <span>{{ item.condition_product | conditionProduct }}</span>
           </template>
 
           <template v-slot:[`item.actions`]="{ item }">
@@ -73,158 +75,197 @@
           </v-btn>
         </v-card-title>
         <v-card-text>
-          <v-row>
-            <v-col>
-              <span color="primary" style="font-weight: bold; font-size: 16px">
-                Informações do recebimento:
-              </span>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <v-text-field
-                v-if="selectedReceived"
-                :value="formatDate(selectedReceived.date)"
-                label="Data de recebimento"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-            <v-col>
-              <v-text-field
-                v-if="selectedReceived"
-                :value="selectedReceived.value | currency"
-                label="Valor total"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <v-textarea
-                v-if="selectedReceived"
-                v-model="selectedReceived.description"
-                label="Descrição"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <span color="primary" style="font-weight: bold; font-size: 16px">
-                Informações do produto doado:
-              </span>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <v-text-field
-                v-if="selectedReceived && selectedReceived.product"
-                v-model="selectedReceived.product.name"
-                label="Produto"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-            <v-col>
-              <v-text-field
-                v-if="selectedReceived && selectedReceived.product"
-                v-model="selectedReceived.product.type"
-                label="Categoria"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <v-textarea
-                v-if="selectedReceived && selectedReceived.product"
-                v-model="selectedReceived.product.description"
-                label="Descrição"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <span color="primary" style="font-weight: bold; font-size: 16px">
-                Informações do Estoque:
-              </span>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <v-text-field
-                v-if="selectedReceived && selectedReceived.stock"
-                v-model="selectedReceived.stock.amount"
-                label="Quantidade"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <span color="primary" style="font-weight: bold; font-size: 16px">
-                Informações do Doador:
-              </span>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <v-text-field
-                v-if="selectedReceived && selectedReceived.donor"
-                v-model="selectedReceived.donor.name"
-                label="Nome completo"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-            <v-col>
-              <v-text-field
-                v-if="selectedReceived && selectedReceived.donor"
-                :value="selectedReceived.donor.cpf | cpf"
-                label="CPF"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <v-text-field
-                v-if="selectedReceived && selectedReceived.donor"
-                :value="selectedReceived.donor.contact | phone"
-                label="Contato"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-            <v-col>
-              <v-text-field
-                v-if="selectedReceived && selectedReceived.donor"
-                :value="selectedReceived.donor.type_donor | typeDonor"
-                label="Tipo"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <v-text-field
-                v-if="selectedReceived && selectedReceived.donor"
-                v-model="selectedReceived.donor.email"
-                label="E-mail"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-          </v-row>
+          <v-card class="elevation-4" style="padding: 16px">
+            <v-card-title
+              color="primary"
+              style="font-weight: bold; font-size: 16px"
+            >
+              Informações do recebimento:
+            </v-card-title>
+            <v-row>
+              <v-col>
+                <v-text-field
+                  v-if="selectedReceived"
+                  :value="formatDate(selectedReceived.date)"
+                  label="Data de recebimento"
+                  class="mr-3"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+              <v-col>
+                <v-text-field
+                  v-if="selectedReceived"
+                  :value="selectedReceived.condition_product | conditionProduct"
+                  label="Condição do Produto"
+                  class="mr-3"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <v-textarea
+                  v-if="selectedReceived"
+                  v-model="selectedReceived.description"
+                  label="Descrição"
+                  class="mr-3"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+            </v-row>
+          </v-card>
+          <v-card class="elevation-4" style="padding: 16px; margin-top: 30px">
+            <v-card-title
+              color="primary"
+              style="font-weight: bold; font-size: 16px"
+            >
+              Informações do produto doado:
+            </v-card-title>
+            <v-row>
+              <v-col>
+                <v-text-field
+                  v-if="selectedReceived && selectedReceived.products"
+                  v-model="selectedReceived.products[0].product.name"
+                  label="Produto"
+                  class="mr-3"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+              <v-col>
+                <v-text-field
+                  v-if="selectedReceived && selectedReceived.products"
+                  :value="selectedReceived.products[0].product.type"
+                  label="Categoria"
+                  class="mr-3"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <v-textarea
+                  v-if="selectedReceived && selectedReceived.products.product"
+                  v-model="selectedReceived.products[0].product.description"
+                  label="Descrição"
+                  class="mr-3"
+                  disabled
+                />
+              </v-col>
+            </v-row>
+          </v-card>
+          <v-card class="elevation-4" style="padding: 16px; margin-top: 30px">
+            <v-card-title
+              color="primary"
+              style="font-weight: bold; font-size: 16px"
+            >
+              Informações do Estoque:
+            </v-card-title>
+            <v-row>
+              <v-col>
+                <v-text-field
+                  v-if="selectedReceived && selectedReceived.products"
+                  :value="selectedReceived.products[0].amount"
+                  label="Quantidade"
+                  class="mr-3"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+            </v-row>
+          </v-card>
+
+          <v-card class="elevation-4" style="padding: 16px; margin-top: 30px">
+            <v-card-title
+              color="primary"
+              style="font-weight: bold; font-size: 16px"
+            >
+              Informações do Doador:
+            </v-card-title>
+
+            <v-row>
+              <v-col>
+                <v-text-field
+                  v-if="selectedReceived && selectedReceived.donor"
+                  v-model="selectedReceived.donor.name"
+                  label="Nome completo"
+                  class="mr-3"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+              <v-col>
+                <v-text-field
+                  v-if="selectedReceived && selectedReceived.donor"
+                  :value="selectedReceived.donor.identifier | cpf"
+                  label="CPF"
+                  class="mr-3"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <v-text-field
+                  v-if="selectedReceived && selectedReceived.donor"
+                  :value="selectedReceived.donor.telephone | phone"
+                  label="Contato"
+                  class="mr-3"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+              <v-col>
+                <v-text-field
+                  v-if="selectedReceived && selectedReceived.donor"
+                  :value="selectedReceived.donor.type_donor | typeDonor"
+                  label="Tipo"
+                  class="mr-3"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <v-text-field
+                  v-if="selectedReceived && selectedReceived.donor"
+                  v-model="selectedReceived.donor.email"
+                  label="E-mail"
+                  class="mr-3"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+            </v-row>
+          </v-card>
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -254,11 +295,11 @@ export default {
       updatedReceivedId: null,
       headers: [
         { text: 'Data criação', value: 'created_at' },
-        { text: 'Valor total doação', value: 'value' },
         { text: 'Nome doador', value: 'name' },
-        { text: 'Contato doador', value: 'contact' },
+        { text: 'Contato doador', value: 'telephone' },
         { text: 'Tipo doador', value: 'type_donor' },
         { text: 'Tipo doação', value: 'type' },
+        { text: 'Condição', value: 'condition_product' },
         { text: 'Ações', value: 'actions' },
       ],
       formatDate,
@@ -285,7 +326,7 @@ export default {
       }
     },
     async findAll() {
-      await this.$store.dispatch('received/findAll')
+       await this.$store.dispatch('received/findAll')
     },
     showDetails(item) {
       this.selectedReceived = item
@@ -307,18 +348,14 @@ export default {
         this.editDialog = false
         return response
       } catch (error) {
-        console.error('Error saveUpdatedReceived', error)
+        this.$error('Erro ao atualizar registro!')
         throw error
       }
     },
 
     async createdReceived(newReceived) {
       try {
-        const createIndex = await this.$store.dispatch(
-          'received/create',
-          newReceived
-        )
-        console.log('createIndex', createIndex)
+        await this.$store.dispatch('received/create', newReceived)
         this.$success('Registro criado!')
         this.loadData()
         this.createDialog = false
@@ -331,7 +368,7 @@ export default {
       this.dialog = false
     },
     isSelected(item) {
-      this.updatedReceivedid === item.id
+      return this.updatedReceivedId === item.id
     },
   },
 }

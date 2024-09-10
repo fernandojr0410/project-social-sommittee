@@ -77,7 +77,7 @@
               </v-col>
               <v-col cols="6">
                 <v-text-field
-                  v-model="selectedPeople.cpf"
+                  v-model="selectedPeople.identifier"
                   label="CPF"
                   class="mr-3"
                   v-mask="'###.###.###-##'"
@@ -289,7 +289,7 @@ export default {
     getPeople() {
       return {
         name: '',
-        cpf: '',
+        identifier: '',
         birth_date: '',
         email: '',
         telephone: '',

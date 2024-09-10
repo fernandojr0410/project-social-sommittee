@@ -5,12 +5,12 @@ class Received extends Http {
     super('received')
   }
 
-  async findAll(query) {
-    return await this.get('', query)
-  }
-
   async create(data) {
     return await this.post('register', data)
+  }
+
+  async findAll(query) {
+    return await this.get('', query)
   }
 
   async findById(id, data) {

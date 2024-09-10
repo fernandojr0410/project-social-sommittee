@@ -5,12 +5,12 @@ const state = {
 }
 
 const mutations = {
-  SET_RECEIVED(state, received) {
-    state.received = received
-  },
-
   CREATE_RECEIVED(state, newReceived) {
     state.received.push(newReceived)
+  },
+
+  SET_RECEIVED(state, received) {
+    state.received = received
   },
 
   UPDATE_RECEIVED(state, updatedReceived) {
@@ -29,16 +29,16 @@ const getters = {
 }
 
 const actions = {
-  async findAll({ commit }, query) {
-    const response = await API.received.findAll(query)
-    commit('SET_RECEIVED', response)
-    return response
-  },
-
   async create({ commit }, payload) {
     const response = await API.received.create(payload)
     console.log('create store', response)
     commit('CREATE_RECEIVED', response)
+    return response
+  },
+
+  async findAll({ commit }, query) {
+    const response = await API.received.findAll(query)
+    commit('SET_RECEIVED', response)
     return response
   },
 

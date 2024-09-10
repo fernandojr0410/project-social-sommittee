@@ -41,7 +41,7 @@ export const validationSchema = Yup.object({
       /^[A-Za-zÀ-ÿ\s]+$/,
       'O sobrenome é obrigatório e não pode conter números ou caracteres especiais'
     ),
-  cpf: Yup.string().required('O CPF é obrigatório'),
+  identifier: Yup.string().required('O CPF é obrigatório'),
   birth_date: Yup.date()
     .required('A data de nascimento é obrigatória')
     .typeError('Data de nascimento inválida')

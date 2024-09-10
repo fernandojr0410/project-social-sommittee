@@ -32,7 +32,7 @@
             <v-col cols="6">
               <v-text-field
                 v-if="createdDonor"
-                v-model="createdDonor.cpf"
+                v-model="createdDonor.identifier"
                 label="CPF"
                 class="mr-3"
                 v-mask="'###.###.###.##'"
@@ -53,7 +53,7 @@
             <v-col cols="6">
               <v-text-field
                 v-if="createdDonor"
-                v-model="createdDonor.contact"
+                v-model="createdDonor.telephone"
                 label="Contato"
                 class="mr-3"
                 v-mask="'(##) #####-####'"
@@ -118,9 +118,9 @@ export default {
     getDonor() {
       return {
         name: '',
-        cpf: '',
+        cpidentifierf: '',
         email: '',
-        contact: '',
+        telephone: '',
         type_donor: '',
       }
     },
@@ -134,9 +134,9 @@ export default {
       try {
         const donorData = {
           name: this.createdDonor.name,
-          cpf: this.createdDonor.cpf.replace(/\D/g, ''),
+          identifier: this.createdDonor.identifier.replace(/\D/g, ''),
           email: this.createdDonor.email,
-          contact: this.createdDonor.contact.replace(/\D/g, ''),
+          telephone: this.createdDonor.telephone.replace(/\D/g, ''),
           type_donor: this.createdDonor.type_donor,
         }
         await this.$store.dispatch('donor/create', donorData)

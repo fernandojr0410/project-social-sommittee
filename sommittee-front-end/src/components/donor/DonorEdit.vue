@@ -20,7 +20,7 @@
           <v-col cols="6">
             <v-text-field
               v-if="updatedDonor"
-              v-model="updatedDonor.cpf"
+              v-model="updatedDonor.identifier"
               label="CPF"
               class="mr-3"
               v-mask="'###.###.###.##'"
@@ -39,7 +39,7 @@
           <v-col cols="6">
             <v-text-field
               v-if="updatedDonor"
-              v-model="updatedDonor.contact"
+              v-model="updatedDonor.telephone"
               label="Contato"
               class="mr-3"
               v-mask="'(##) #####-####'"
@@ -109,9 +109,9 @@ export default {
     getDonor() {
       return {
         name: '',
-        cpf: '',
+        identifier: '',
         email: '',
-        contact: '',
+        telephone: '',
         type_donor: '',
       }
     },
@@ -125,9 +125,9 @@ export default {
           id: donorId,
           payload: {
             name: this.updatedDonor.name,
-            cpf: this.updatedDonor.cpf.replace(/\D/g, ''),
+            identifier: this.updatedDonor.identifier.replace(/\D/g, ''),
             email: this.updatedDonor.email,
-            contact: this.updatedDonor.contact.replace(/\D/g, ''),
+            telephone: this.updatedDonor.telephone.replace(/\D/g, ''),
             type_donor: this.updatedDonor.type_donor,
           },
         }

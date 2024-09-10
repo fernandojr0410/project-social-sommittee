@@ -22,7 +22,7 @@ export class ReceivedRepository {
         products: {
           create: products.map(product => ({
             product_id: product.product_id,
-            amount: product.amount,
+            amount: Number(product.amount),
           })),
         },
       },
@@ -48,7 +48,7 @@ export class ReceivedRepository {
         await this.prisma.stock.create({
           data: {
             product_id: product.product_id,
-            amount: product.amount,
+            amount: Number(product.amount)
           },
         });
       }
@@ -60,18 +60,27 @@ export class ReceivedRepository {
   async findAll(): Promise<ReceivedEntity[]> {
     return await this.prisma.received.findMany({
       include: {
-        products: true,
+        products: {
+          include: {
+            product: true,
+          }
+        },
         donor: true,
         user: true,
       },
     });
   }
 
+
   async findById(id: string): Promise<ReceivedEntity> {
     const received = await this.prisma.received.findFirst({
       where: { id },
       include: {
-        products: true,
+        products: {
+          include: {
+            product: true,
+          }
+        },
         user: true,
         donor: true,
       },
@@ -83,7 +92,6 @@ export class ReceivedRepository {
 
     return received;
   }
-
 
   async update(id: string, updateReceivedDto: UpdateReceivedDto): Promise<ReceivedEntity> {
     const { date, description, condition_product, donor, products } = updateReceivedDto;
@@ -103,15 +111,31 @@ export class ReceivedRepository {
       } : undefined,
     };
 
-
     const updatedReceived = await this.prisma.received.update({
-      where: { id: id },
+      where: { id },
       data: updateData,
+      include: {
+        products: true,
+        donor: true,
+        user: true,
+      },
     });
 
 
     if (products) {
+      await this.prisma.receivedProduct.deleteMany({
+        where: { received_id: id },
+      });
+
       for (const p of products) {
+        await this.prisma.receivedProduct.create({
+          data: {
+            received_id: id,
+            product_id: p.product_id,
+            amount: new Decimal(p.amount),
+          },
+        });
+
         const existingStock = await this.prisma.stock.findFirst({
           where: { product_id: p.product_id },
         });
@@ -120,14 +144,14 @@ export class ReceivedRepository {
           await this.prisma.stock.update({
             where: { id: existingStock.id },
             data: {
-              amount: new Decimal(p.amount),
+              amount: existingStock.amount.add(new Decimal(p.amount)),
             },
           });
         } else {
           await this.prisma.stock.create({
             data: {
               product_id: p.product_id,
-              amount: p.amount,
+              amount: new Decimal(p.amount),
             },
           });
         }
@@ -137,12 +161,16 @@ export class ReceivedRepository {
     return updatedReceived;
   }
 
-  async remove(id: string): Promise<ReceivedEntity> {
 
+  async remove(id: string): Promise<ReceivedEntity> {
     const receivedItem = await this.prisma.received.findUnique({
       where: { id },
       include: {
-        products: true,
+        products: {
+          include: {
+            product: true,
+          },
+        },
       },
     });
 
@@ -150,20 +178,26 @@ export class ReceivedRepository {
       throw new Error('Item not found');
     }
 
-
     await Promise.all(
-      receivedItem.products.map(async (product) => {
-        await this.prisma.stock.update({
-          where: { id: product.product_id },
-          data: {
-            amount: {
-              decrement: product.amount,
-            },
-          },
+      receivedItem.products.map(async (receivedProduct) => {
+        const existingStock = await this.prisma.stock.findFirst({
+          where: { product_id: receivedProduct.product_id },
         });
+
+        if (existingStock) {
+          const currentAmount = new Decimal(existingStock.amount);
+          const decrementAmount = new Decimal(receivedProduct.amount);
+          const newAmount = currentAmount.minus(decrementAmount);
+
+          await this.prisma.stock.update({
+            where: { id: existingStock.id },
+            data: {
+              amount: newAmount.greaterThan(new Decimal(0)) ? newAmount : new Decimal(0),
+            },
+          });
+        }
       })
     );
-
 
     return await this.prisma.received.delete({ where: { id } });
   }

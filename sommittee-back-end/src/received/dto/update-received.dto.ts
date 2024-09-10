@@ -6,6 +6,10 @@ class ProductDto {
   @IsNotEmpty()
   product_id: string;
 
+  @IsString()
+  @IsNotEmpty()
+  type: string
+
   @IsNumber()
   @IsNotEmpty()
   amount: number;

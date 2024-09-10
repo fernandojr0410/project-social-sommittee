@@ -42,9 +42,9 @@ export default {
       formattedSearch: '',
       categories: [
         { value: 'name', text: 'Nome' },
-        { value: 'cpf', text: 'CPF' },
+        { value: 'identifier', text: 'CPF' },
         { value: 'email', text: 'E-mail' },
-        { value: 'contact', text: 'Contato' },
+        { value: 'telephone', text: 'Contato' },
         { value: 'type_donor', text: 'Tipo doador' },
       ],
     }
@@ -53,10 +53,10 @@ export default {
     query: {
       deep: true,
       handler(newQuery) {
-        if (this.query.searchField === 'cpf') {
+        if (this.query.searchField === 'identifier') {
           this.formattedSearch = this.formatCpf(newQuery.search)
-        } else if (this.query.searchField === 'contact') {
-          this.formattedSearch = this.formatContact(newQuery.search)
+        } else if (this.query.searchField === 'telephone') {
+          this.formattedSearch = this.formatTelephone(newQuery.search)
         }
       },
     },
@@ -70,18 +70,18 @@ export default {
     },
   },
   methods: {
-    formatCpf(cpf) {
-      cpf = cpf.replace(/\D/g, '')
-      return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
+    formatCpf(identifier) {
+      identifier = identifier.replace(/\D/g, '')
+      return identifier.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
     },
-    formatContact(contact) {
-      contact = contact.replace(/\D/g, '')
-      return contact.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3')
+    formatTelephone(telephone) {
+      telephone = telephone.replace(/\D/g, '')
+      return telephone.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3')
     },
     async applyFilter() {
-      if (this.query.searchField === 'cpf') {
+      if (this.query.searchField === 'identifier') {
         this.query.search = this.formattedSearch.replace(/\D/g, '')
-      } else if (this.query.searchField === 'contact') {
+      } else if (this.query.searchField === 'telephone') {
         this.query.search = this.formattedSearch.replace(/\D/g, '')
       } else {
         this.query.search = this.formattedSearch

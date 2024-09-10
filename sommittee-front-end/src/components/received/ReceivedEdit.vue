@@ -148,7 +148,7 @@
           </v-col>
           <v-col>
             <v-text-field
-              v-model="updatedReceived.donor.cpf"
+              v-model="updatedReceived.donor.identifier"
               label="CPF"
               class="mr-3"
               disabled
@@ -158,7 +158,7 @@
         <v-row>
           <v-col>
             <v-text-field
-              :value="updatedReceived.donor.contact | phone"
+              :value="updatedReceived.donor.telephone | phone"
               label="Contato"
               class="mr-3"
               disabled
@@ -271,9 +271,9 @@ export default {
         },
         donor: {
           name: '',
-          cpf: '',
+          identifier: '',
           email: '',
-          contact: '',
+          telephone: '',
           type_donor: '',
         },
       }
@@ -341,12 +341,12 @@ export default {
             donor: {
               // id: this.updatedReceived.donor.id,
               name: this.updatedReceived.donor.name,
-              cpf: this.updatedReceived.donor.cpf
-                ? this.updatedReceived.donor.cpf.replace(/[^\d]/g, '')
+              identifier: this.updatedReceived.donor.identifier
+                ? this.updatedReceived.donor.identifier.replace(/[^\d]/g, '')
                 : '',
 
               email: this.updatedReceived.donor.email,
-              contact: this.updatedReceived.donor.contact,
+              telephone: this.updatedReceived.donor.telephone,
               type_donor: this.updatedReceived.donor.type_donor,
             },
           },

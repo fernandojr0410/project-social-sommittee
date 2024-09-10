@@ -37,8 +37,8 @@
             </span>
           </template>
 
-          <template v-slot:[`item.cpf`]="{ item }">
-            <span>{{ item.people.cpf | cpf }}</span>
+          <template v-slot:[`item.identifier`]="{ item }">
+            <span>{{ item.people.identifier | cpf }}</span>
           </template>
 
           <template v-slot:[`item.zip_code`]="{ item }">
@@ -119,7 +119,7 @@
             <v-col cols="6">
               <v-text-field
                 v-if="selectedPeopleFamily?.people"
-                v-model="selectedPeopleFamily.people.cpf"
+                v-model="selectedPeopleFamily.people.identifier"
                 label="CPF"
                 class="mr-3"
                 v-mask="'###.###.###-##'"
@@ -361,7 +361,7 @@ export default {
       headers: [
         { text: 'Data criação', value: 'created_at' },
         { text: 'Nome', value: 'name' },
-        { text: 'CPF', value: 'cpf' },
+        { text: 'CPF', value: 'identifier' },
         { text: 'Função', value: 'function' },
         { text: 'CEP', value: 'zip_code' },
         { text: 'Rua', value: 'street' },

@@ -42,7 +42,7 @@
           <v-row>
             <v-col cols="12" md="6">
               <v-text-field
-                v-model="createdPeople.cpf"
+                v-model="createdPeople.identifier"
                 label="CPF"
                 class="mr-3"
                 v-mask="'###.###.###-##'"
@@ -220,7 +220,7 @@ export default {
         name: '',
         gender: '',
         work: '',
-        cpf: '',
+        identifier: '',
         email: '',
         birth_date: '',
         telephone: '',
@@ -263,7 +263,7 @@ export default {
       try {
         const newAddress = {
           name: this.createdPeople.name,
-          cpf: this.createdPeople.cpf.replace(/\D/g, ''),
+          identifier: this.createdPeople.identifier.replace(/\D/g, ''),
           birth_date: this.createdPeople.birth_date,
           email: this.createdPeople.email,
           gender: this.createdPeople.gender,

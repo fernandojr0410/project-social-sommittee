@@ -130,7 +130,7 @@
             <v-col cols="6">
               <v-text-field
                 v-if="selectedProduct && selectedProduct.donor"
-                v-model="selectedProduct.donor.cpf"
+                v-model="selectedProduct.donor.identifier"
                 label="CPF"
                 v-mask="'###-###-###-##'"
                 class="mr-3"
@@ -151,7 +151,7 @@
             <v-col cols="6">
               <v-text-field
                 v-if="selectedProduct && selectedProduct.donor"
-                v-model="selectedProduct.donor.contact"
+                v-model="selectedProduct.donor.telephone"
                 label="Contato"
                 v-mask="'(##) #####-####'"
                 class="mr-3"

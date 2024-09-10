@@ -42,7 +42,7 @@ export default {
       formattedSearch: '',
       categories: [
         { value: 'name', text: 'Nome' },
-        { value: 'cpf', text: 'CPF' },
+        { value: 'identifier', text: 'CPF' },
         { value: 'e-mail', text: 'E-mail' },
       ],
     }
@@ -51,7 +51,7 @@ export default {
     query: {
       deep: true,
       handler(newQuery) {
-        if (this.query.searchField === 'cpf') {
+        if (this.query.searchField === 'identifier') {
           this.formattedSearch = this.formatCpf(newQuery.search)
         }
       },
@@ -63,12 +63,12 @@ export default {
     },
   },
   methods: {
-    formatCpf(cpf) {
-      cpf = cpf.replace(/\D/g, '')
-      return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
+    formatCpf(identifier) {
+      identifier = identifier.replace(/\D/g, '')
+      return identifier.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
     },
     async applyFilter() {
-      if (this.query.searchField === 'cpf') {
+      if (this.query.searchField === 'identifier') {
         this.query.search = this.formattedSearch.replace(/\D/g, '')
       } else {
         this.query.search = this.formattedSearch

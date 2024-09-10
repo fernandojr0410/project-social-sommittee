@@ -32,7 +32,7 @@
                     {{ product.name }} - {{ product.type }}
                   </v-list-item-title>
                   <v-list-item-subtitle>
-                    {{ product.description }}
+                    {{ product.description }} (Quantidade: {{ product.amount }})
                   </v-list-item-subtitle>
                 </v-list-item-content>
                 <v-list-item-action>
@@ -44,7 +44,7 @@
             </v-list-item-group>
           </v-list>
 
-          <!-- <v-row>
+          <v-row>
             <v-col style="padding-top: 50px">
               <span color="primary" style="font-weight: bold; font-size: 16px">
                 Informações do Estoque:
@@ -54,14 +54,13 @@
           <v-row>
             <v-col>
               <v-text-field
-                v-if="createdReceived"
-                v-model="createdReceived.stock.amount"
+                v-model="amount"
                 type="number"
                 label="Quantidade"
                 class="mr-3"
               />
             </v-col>
-          </v-row> -->
+          </v-row>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -97,10 +96,8 @@ export default {
       },
       createdReceived: {
         product: [],
-        stock: {
-          amount: '',
-        },
       },
+      amount: '',
     }
   },
   methods: {
@@ -108,6 +105,7 @@ export default {
       this.loading = true
       try {
         const response = await this.findAll(search, 'product')
+        console.log('fetchProduct', response)
         this.productList = response
       } catch (error) {
         this.$error('Erro ao carregar produto!')
@@ -122,6 +120,7 @@ export default {
         const responseProduct = await this.$store.dispatch('product/findAll', {
           search,
         })
+        console.log('responseProduct', responseProduct)
         return responseProduct
       }
     },
@@ -137,10 +136,19 @@ export default {
       this.createdReceived.product.splice(index, 1)
     },
     addProduct() {
-      if (this.selectedProduct) {
-        console.log('Produto selecionado para adicionar:', this.selectedProduct) // Debugging
-        this.$emit('add-product', this.selectedProduct)
+      if (this.selectedProduct && this.amount) {
+        console.log('createdReceived.product:', this.createdReceived.product)
+
+        this.createdReceived.product.push({
+          ...this.selectedProduct,
+          amount: Number(this.amount),
+        })
+        this.$emit('add-product', {
+          ...this.selectedProduct,
+          amount: Number(this.amount),
+        })
         this.selectedProduct = null
+        this.amount = ''
       }
       this.$emit('update:dialog', false)
     },

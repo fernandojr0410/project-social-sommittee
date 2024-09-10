@@ -29,7 +29,7 @@
         <v-row>
           <v-col cols="12" md="6">
             <v-text-field
-              v-model="updatedPeople.cpf"
+              v-model="updatedPeople.identifier"
               label="CPF"
               class="mr-3"
               disabled
@@ -213,7 +213,7 @@ export default {
       updatedPeople: {
         id: '',
         name: '',
-        cpf: '',
+        identifier: '',
         email: '',
         birth_date: '',
         gender: '',

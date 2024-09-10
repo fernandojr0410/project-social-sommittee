@@ -131,6 +131,8 @@
                   :rules="[rules.required]"
                   return-object
                   @update:search-input="searchDonor"
+                  outlined
+                  dense
                 />
               </v-col>
             </v-row>
@@ -141,16 +143,22 @@
                   v-model="createdReceived.donor.name"
                   label="Nome completo"
                   class="mr-3"
-                  disabled
+                  readonly
+                  outlined
+                  dense
+                  hide-details
                 />
               </v-col>
               <v-col>
                 <v-text-field
                   v-if="createdReceived && createdReceived.donor"
-                  :value="createdReceived.donor.cpf | cpf"
+                  :value="createdReceived.donor.identifier | cpf"
                   label="CPF"
                   class="mr-3"
-                  disabled
+                  readonly
+                  outlined
+                  dense
+                  hide-details
                 />
               </v-col>
             </v-row>
@@ -158,10 +166,13 @@
               <v-col>
                 <v-text-field
                   v-if="createdReceived && createdReceived.donor"
-                  :value="createdReceived.donor.contact | phone"
+                  :value="createdReceived.donor.telephone | phone"
                   label="Contato"
                   class="mr-3"
-                  disabled
+                  readonly
+                  outlined
+                  dense
+                  hide-details
                 />
               </v-col>
               <v-col>
@@ -175,7 +186,10 @@
                   item-value="value"
                   item-text="text"
                   label="Tipo"
-                  disabled
+                  readonly
+                  outlined
+                  dense
+                  hide-details
                 />
               </v-col>
             </v-row>
@@ -186,7 +200,10 @@
                   v-model="createdReceived.donor.email"
                   label="E-mail"
                   class="mr-3"
-                  disabled
+                  readonly
+                  outlined
+                  dense
+                  hide-details
                 />
               </v-col>
             </v-row>
@@ -221,7 +238,8 @@
                           {{ product.name }}
                         </v-list-item-title>
                         <v-list-item-subtitle>
-                          {{ product.description }}
+                          {{ product.description }} (Quantidade:
+                          {{ product.amount }})
                         </v-list-item-subtitle>
                       </v-list-item-content>
                       <v-list-item-action>
@@ -249,7 +267,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
-            @click="openProductDialog"
+            @click="closeProductDialog"
             color="primary"
             style="color: white; font-weight: bold"
           >
@@ -368,26 +386,27 @@ export default {
     getReceived() {
       return {
         date: '',
-        value: '',
+        condition_product: '',
         description: '',
         products: [],
-        user: {
-          name: '',
-        },
+        user: {},
         stock: {
           amount: '',
         },
         donor: {
           name: '',
-          cpf: '',
+          identifier: '',
           email: '',
-          contact: '',
+          telephone: '',
           type_donor: '',
         },
       }
     },
     openProductDialog() {
       this.productDialog = true
+    },
+    closeProductDialog() {
+      this.dialog = false
     },
     openDialog() {
       this.dialog = true
@@ -396,12 +415,14 @@ export default {
       this.dialog = false
     },
 
-    formatCPF(cpf) {
-      if (!cpf) return ''
-      return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
+    formatCPF(identifier) {
+      if (!identifier) return ''
+      return identifier.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
     },
 
     addProductToList(product) {
+      console.log('Product to add:', product)
+
       if (this.editingIndex !== null) {
         this.products.splice(this.editingIndex, 1, product)
         this.editingIndex = null
@@ -420,6 +441,7 @@ export default {
 
     addProduct() {
       if (this.selectedProduct) {
+        console.log('this.selectedProduct', this.selectedProduct)
         this.$emit('add-product', this.selectedProduct)
         this.selectedProduct = null
       }
@@ -478,29 +500,38 @@ export default {
 
     async createReceived() {
       const receivedData = {
-        date: this.createdReceived.date || '',
-        condition_product: this.createdReceived.condition_product || '',
-        description: this.createdReceived.description || '',
-        user_id: this.selectedUser ? this.selectedUser.id : '',
-        product_id: this.selectedProduct ? this.selectedProduct.id : '',
-
-        stock: {
-          amount: Number(this.createdReceived.stock.amount) || '',
+        date: this.date,
+        condition_product: this.createdReceived.condition_product,
+        description: this.createdReceived.description,
+        user_id: this.selectedUser?.id,
+        donor_id: this.selectedDonor?.id,
+        products: this.products.map((product) => ({
+          product_id: product.id,
+          type: product.type,
+          amount: product.amount,
+        })),
+        donor: {
+          name: this.createdReceived.donor.name,
+          identifier: this.createdReceived.donor.identifier,
+          email: this.createdReceived.donor.email,
+          telephone: this.createdReceived.donor.telephone,
+          type_donor: this.createdReceived.donor.type_donor,
         },
-        donor_id: this.selectedDonor ? this.selectedDonor.id : '',
       }
+
+      console.log('receivedData', receivedData)
+
       try {
         const response = await this.$store.dispatch(
           'received/create',
           receivedData
         )
-        console.log('response criado', response)
+
         if (response) {
           this.$success('Registro criado!')
           this.selectedProduct = ''
           this.selectedDonor = ''
           this.closeDialog()
-
           this.createdReceived = this.getReceived()
         } else {
           this.$error('Erro ao criar recebimento!')
@@ -510,7 +541,6 @@ export default {
         throw error
       }
     },
-
     async searchUser(search) {
       if (search && search.length > 2) {
         this.fetchUser(search)

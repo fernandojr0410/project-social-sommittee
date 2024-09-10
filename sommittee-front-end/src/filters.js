@@ -1,6 +1,21 @@
 import Vue from 'vue'
 import { format } from 'date-fns'
 
+export const conditionProduct = [
+  { value: 'NEW', text: 'Novo' },
+  { value: 'USED', text: 'Usado' },
+  { value: 'DAMAGED', text: 'Danificado' },
+]
+
+Vue.filter('conditionProduct', (value) => {
+  const conditionProductMap = {
+    NEW: 'Novo',
+    USED: 'Usado',
+    DAMAGED: 'Danificado',
+  }
+  return conditionProductMap[value]
+})
+
 export function currencyFilter(number) {
   if (number === undefined || number === null) return 'R$ 0,00'
   let formatted = parseFloat(number).toFixed(2).toString()

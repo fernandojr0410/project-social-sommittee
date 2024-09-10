@@ -24,11 +24,11 @@
           <template v-slot:[`item.name`]="{ item }">
             <span>{{ item.name }}</span>
           </template>
-          <template v-slot:[`item.cpf`]="{ item }">
-            <span>{{ item.cpf | cpf }}</span>
+          <template v-slot:[`item.identifier`]="{ item }">
+            <span>{{ item.identifier | cpf }}</span>
           </template>
-          <template v-slot:[`item.contact`]="{ item }">
-            <span>{{ item.contact | phone }}</span>
+          <template v-slot:[`item.telephone`]="{ item }">
+            <span>{{ item.telephone | phone }}</span>
           </template>
           <template v-slot:[`item.type_donor`]="{ item }">
             <span>{{ item.type_donor | typeDonor }}</span>
@@ -96,7 +96,7 @@
             <v-col cols="6">
               <v-text-field
                 v-if="selectedDonor"
-                v-model="selectedDonor.cpf"
+                v-model="selectedDonor.identifier"
                 label="CPF"
                 class="mr-3"
                 v-mask="'###.###.###.##'"
@@ -117,7 +117,7 @@
             <v-col cols="6">
               <v-text-field
                 v-if="selectedDonor"
-                v-model="selectedDonor.contact"
+                v-model="selectedDonor.telephone"
                 label="Contato"
                 class="mr-3"
                 v-mask="'(##) #####-####'"
@@ -183,8 +183,8 @@ export default {
       headers: [
         { text: 'Data criação', value: 'created_at' },
         { text: 'Nome completo', value: 'name' },
-        { text: 'CPF', value: 'cpf' },
-        { text: 'Contato', value: 'contact' },
+        { text: 'CPF', value: 'identifier' },
+        { text: 'Contato', value: 'telephone' },
         { text: 'Tipo doador', value: 'type_donor' },
         { text: 'Ações', value: 'actions' },
       ],
