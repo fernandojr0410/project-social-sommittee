@@ -67,7 +67,7 @@ model Address {
 model People {
   id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
   name          String
-  cpf           String          @unique @db.Char(14)
+  identifier    String          @unique @db.Char(14)
   email         String          @unique
   birth_date    String
   gender        Gender
@@ -118,9 +118,9 @@ model People_Family {
 model Donor {
   id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
   name       String
-  cpf        String     @unique @db.Char(14)
+  identifier String      @unique @db.Char(14)
   email      String     @unique
-  contact    String     @db.Char(15)
+  telephone    String     @db.Char(15)
   type_donor Type_donor
   created_at DateTime   @default(now())
   updated_at DateTime   @default(now()) @updatedAt
@@ -143,10 +143,44 @@ model Product {
   created_at  DateTime   @default(now())
   updated_at  DateTime   @default(now()) @updatedAt
   donations   Donation[]
-  receiveds   Received[]
   stocks      Stock[]
   donation_products DonationProducts[]
+  receivedsProducts ReceivedProduct[]
   @@map("products")
+}
+
+model Received {
+  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  date        String
+  condition_product Condition_product
+  description String?
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+  user        User       @relation(fields: [user_id], references: [id])
+  user_id     String     @db.Uuid()
+  donor       Donor      @relation(fields: [donor_id], references: [id])
+  donor_id    String     @db.Uuid()
+  products          ReceivedProduct[]
+
+  @@map("receiveds")
+}
+
+enum Condition_product {
+  NEW
+  USED
+  DAMAGED
+}
+
+
+model ReceivedProduct {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  received  Received @relation(fields: [received_id], references: [id])
+  received_id String @db.Uuid()
+  product    Product    @relation(fields: [product_id], references: [id])
+  product_id  String   @db.Uuid()
+  amount    Decimal
+
+  @@map("received_products")
 }
 
 model Stock {
@@ -156,9 +190,6 @@ model Stock {
   amount     Decimal @default(0)
   created_at DateTime   @default(now())
   updated_at DateTime   @default(now()) @updatedAt
-  receiveds  Received[]
-  purchases  Purchase[]
-  donations   Donation[]
 
   @@map("stocks")
 }
@@ -180,8 +211,6 @@ model Donation {
   donor                Donor        @relation(fields: [donor_id], references: [id])
   donor_id             String       @db.Uuid()
   products              Product[]      @relation()
-  stock                Stock        @relation(fields: [stock_id], references: [id])
-  stock_id             String       @db.Uuid()
   attachments          Attachment[]
   donation_products DonationProducts[]
 
@@ -225,47 +254,4 @@ model Attachment {
   donation_id String   @db.Uuid()
 
   @@map("attachments")
-}
-
-model Received {
-  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  date        String
-  condition_product Condition_product
-  description String?
-  created_at  DateTime   @default(now())
-  updated_at  DateTime   @updatedAt
-  user        User       @relation(fields: [user_id], references: [id])
-  user_id     String     @db.Uuid()
-  product     Product    @relation(fields: [product_id], references: [id])
-  product_id  String     @db.Uuid()
-  donor       Donor      @relation(fields: [donor_id], references: [id])
-  donor_id    String     @db.Uuid()
-  stock       Stock      @relation(fields: [stock_id], references: [id])
-  stock_id    String     @db.Uuid
-  purchases   Purchase[]
-
-  @@map("receiveds")
-}
-
-enum Condition_product {
-  NEW
-  USED
-  DAMAGED
-}
-
-model Purchase {
-  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  purchase_date String
-  supplier      String
-  amount     Decimal @default(0)
-  status        String
-  notes         String?
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
-  received      Received @relation(fields: [received_id], references: [id])
-  received_id   String   @db.Uuid()
-  stock         Stock    @relation(fields: [stock_id], references: [id])
-  stock_id      String   @db.Uuid()
-
-  @@map("purchases")
 }

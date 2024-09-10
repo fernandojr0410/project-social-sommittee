@@ -1,52 +1,12 @@
-// import { IsNotEmpty, IsString, IsEnum, IsOptional } from 'class-validator';
-// import { Condition_product } from '@prisma/client';
-
-// export class CreateReceivedDto {
-//   @IsString()
-//   @IsNotEmpty()
-//   date: string;
-
-//   @IsEnum(Condition_product)
-//   @IsNotEmpty()
-//   condition_product: Condition_product;
-
-//   @IsString()
-//   @IsOptional()
-//   description?: string;
-
-//   @IsString()
-//   @IsNotEmpty()
-//   product_id: string;
-
-//   @IsString()
-//   @IsNotEmpty()
-//   donor_id: string;
-
-//   @IsString()
-//   @IsNotEmpty()
-//   stock_id: string;
-
-//   @IsString()
-//   @IsNotEmpty()
-//   user_id: string;
-// }
-import { IsNotEmpty, IsString, IsEnum, IsOptional, IsArray, ValidateNested } from 'class-validator';
+import { IsNotEmpty, IsString, IsEnum, IsOptional, ValidateNested, IsArray, IsNumber } from 'class-validator';
 import { Type } from 'class-transformer';
 import { Condition_product } from '@prisma/client';
-
 class ProductDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  product_id: string;
 
-  @IsString()
-  @IsNotEmpty()
-  description: string;
-
-  @IsString()
-  @IsNotEmpty()
-  type: string;
-
+  @IsNumber()
   @IsNotEmpty()
   amount: number;
 }
@@ -58,7 +18,7 @@ class DonorDto {
 
   @IsString()
   @IsNotEmpty()
-  cpf: string;
+  identifier: string;
 
   @IsString()
   @IsNotEmpty()
@@ -66,7 +26,7 @@ class DonorDto {
 
   @IsString()
   @IsNotEmpty()
-  contact: string;
+  telephone: string;
 
   @IsString()
   @IsNotEmpty()
@@ -88,26 +48,19 @@ export class CreateReceivedDto {
 
   @IsString()
   @IsNotEmpty()
-  product_id: string;
+  user_id: string;
 
   @IsString()
   @IsNotEmpty()
   donor_id: string;
 
-  @IsString()
-  @IsNotEmpty()
-  stock_id: string;
-
-  @IsString()
-  @IsNotEmpty()
-  user_id: string;
-
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ProductDto)
-  product: ProductDto[];
+  products: ProductDto[];
 
+  @IsOptional()
   @ValidateNested()
   @Type(() => DonorDto)
-  donor: DonorDto;
+  donor?: DonorDto;
 }

@@ -45,8 +45,4 @@ export class CreateDonationDto {
   @IsNotEmpty()
   donor_id: string;
 
-  @IsString()
-  @IsNotEmpty()
-  stock_id: string;
-
 }

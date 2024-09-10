@@ -15,5 +15,4 @@ export class DonationEntity implements Donation {
   created_at: Date;
   updated_at: Date;
   donor_id: string;
-  stock_id: string;
 }

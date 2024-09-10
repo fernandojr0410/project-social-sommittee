@@ -2,8 +2,7 @@ import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, U
 import { ReceivedService } from "./received.service";
 import { AuthGuard } from "../auth/auth.guard";
 import { CreateReceivedDto } from "./dto/create-received.dto";
-
-
+import { UpdateReceivedDto } from "./dto/update-received.dto";
 
 @Controller('received')
 export class ReceivedController {
@@ -31,20 +30,18 @@ export class ReceivedController {
     return received
   }
 
-  // @UseGuards(AuthGuard)
-  // @Patch(':id')
-  // async updatedData(@Param('id') id: string, @Body() updateReceivedDto: UpdateReceivedDto) {
-  //   return await this.service.update(id, updateReceivedDto)
-  // }
+  @UseGuards(AuthGuard)
+  @Patch(':id')
+  async updatedData(@Param('id') id: string, @Body() updateReceivedDto: UpdateReceivedDto) {
+    return await this.service.update(id, updateReceivedDto);
+  }
+
+
 
   @UseGuards(AuthGuard)
   @Delete(':id')
   async deletedData(@Param('id') id: string) {
-    const received = await this.service.remove(id)
-    if (!received) {
-      throw new NotFoundException('Received not found')
-    }
-    return received
+    return await this.service.remove(id)
   }
 
 }

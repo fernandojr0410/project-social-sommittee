@@ -3,7 +3,7 @@ import { $Enums, People } from "@prisma/client";
 export class PeopleEntity implements People {
   id: string;
   name: string;
-  cpf: string;
+  identifier: string;
   email: string;
   birth_date: string;
   gender: $Enums.Gender;

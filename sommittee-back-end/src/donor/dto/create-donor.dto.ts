@@ -9,7 +9,7 @@ export class CreateDonorDto {
 
   @IsString()
   @IsNotEmpty()
-  cpf: string
+  identifier: string
 
   @IsString()
   @IsNotEmpty()
@@ -17,7 +17,7 @@ export class CreateDonorDto {
 
   @IsString()
   @IsNotEmpty()
-  contact: string
+  telephone: string
 
   @IsString()
   @IsNotEmpty()

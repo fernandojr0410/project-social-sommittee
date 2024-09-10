@@ -122,6 +122,7 @@ export default {
         if (response) {
           this.$success('Registro criado!')
           this.$store.dispatch('product/findAll')
+          this.createdProduct = ''
           this.closeDialog()
         } else {
           this.$error('Erro ao criar produto!')

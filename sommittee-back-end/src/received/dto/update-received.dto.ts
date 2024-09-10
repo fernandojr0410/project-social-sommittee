@@ -1,50 +1,64 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsString, IsEnum, IsOptional, ValidateNested, IsArray, IsNumber } from 'class-validator';
 import { Type } from 'class-transformer';
-
+import { Condition_product } from '@prisma/client';
 class ProductDto {
+  @IsString()
+  @IsNotEmpty()
+  product_id: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  amount: number;
+}
+class DonorDto {
   @IsString()
   @IsNotEmpty()
   name: string;
 
   @IsString()
   @IsNotEmpty()
-  description: string;
+  identifier: string;
 
   @IsString()
   @IsNotEmpty()
-  type: string;
+  email: string;
 
-  @IsNumber({}, { message: 'Amount must be a decimal number' })
+  @IsString()
   @IsNotEmpty()
-  amount: number;
+  telephone: string;
+
+  @IsString()
+  @IsNotEmpty()
+  type_donor: string;
 }
-
 export class UpdateReceivedDto {
-  @IsString()
-  @IsNotEmpty()
-  date: string;
-
-  @IsNumber({}, { message: 'Amount must be a decimal number' })
   @IsOptional()
-  amount?: number;
-
   @IsString()
+  date?: string;
+
   @IsOptional()
+  @IsEnum(Condition_product)
+  condition_product?: Condition_product;
+
+  @IsOptional()
+  @IsString()
   description?: string;
 
-  @IsUUID()
   @IsOptional()
-  product_id?: string;
+  @IsString()
+  user_id?: string;
 
-  @Type(() => ProductDto)
   @IsOptional()
-  product?: ProductDto[];
-
-  @IsUUID()
-  @IsOptional()
+  @IsString()
   donor_id?: string;
 
-  @IsUUID()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ProductDto)
+  products: ProductDto[];
+
   @IsOptional()
-  stock_id?: string;
+  @ValidateNested()
+  @Type(() => DonorDto)
+  donor?: DonorDto;
 }

@@ -9,7 +9,7 @@ export class CreatePeopleDto {
 
   @IsString()
   @IsNotEmpty()
-  cpf: string;
+  identifier: string;
 
   @IsString()
   @IsEmail()
