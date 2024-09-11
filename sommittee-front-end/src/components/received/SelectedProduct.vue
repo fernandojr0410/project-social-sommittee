@@ -1,87 +1,88 @@
 <template>
-  <v-container>
-    <v-dialog v-model="dialog" max-width="900px">
-      <v-card>
-        <v-card-title>Selecionar produto</v-card-title>
-        <v-card-text>
-          <!-- Seu conteúdo do diálogo -->
-          <v-row>
-            <v-col>
-              <v-autocomplete
-                v-model="selectedProduct"
-                :items="productList"
-                item-text="name"
-                item-value="id"
-                label="Buscar produto..."
-                :loading="loading"
-                :rules="[rules.required]"
-                return-object
-                @update:search-input="searchProduct"
-              />
-            </v-col>
-          </v-row>
+  <v-dialog
+    :value="value"
+    @input="(value) => $emit('input', value)"
+    max-width="900px"
+  >
+    <v-card>
+      <v-card-title>Selecionar produto</v-card-title>
+      <v-card-text>
+        <v-row>
+          <v-col>
+            <v-autocomplete
+              v-model="selectedProduct"
+              :items="productList"
+              item-text="name"
+              item-value="id"
+              label="Buscar produto..."
+              :loading="loading"
+              :rules="[rules.required]"
+              return-object
+              @update:search-input="searchProduct"
+            />
+          </v-col>
+        </v-row>
 
-          <v-list>
-            <v-list-item-group v-if="createdReceived.product.length > 0">
-              <v-list-item
-                v-for="(product, index) in createdReceived.product"
-                :key="index"
-              >
-                <v-list-item-content>
-                  <v-list-item-title>
-                    {{ product.name }} - {{ product.type }}
-                  </v-list-item-title>
-                  <v-list-item-subtitle>
-                    {{ product.description }} (Quantidade: {{ product.amount }})
-                  </v-list-item-subtitle>
-                </v-list-item-content>
-                <v-list-item-action>
-                  <v-btn @click="removeProduct(index)" icon>
-                    <v-icon>mdi-delete</v-icon>
-                  </v-btn>
-                </v-list-item-action>
-              </v-list-item>
-            </v-list-item-group>
-          </v-list>
+        <v-list>
+          <v-list-item-group v-if="createdReceived.product.length > 0">
+            <v-list-item
+              v-for="(product, index) in createdReceived.product"
+              :key="index"
+            >
+              <v-list-item-content>
+                <v-list-item-title>
+                  {{ product.name }} - {{ product.type }}
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ product.description }} (Quantidade: {{ product.amount }})
+                </v-list-item-subtitle>
+              </v-list-item-content>
+              <v-list-item-action>
+                <v-btn @click="removeProduct(index)" icon>
+                  <v-icon>mdi-delete</v-icon>
+                </v-btn>
+              </v-list-item-action>
+            </v-list-item>
+          </v-list-item-group>
+        </v-list>
 
-          <v-row>
-            <v-col style="padding-top: 50px">
-              <span color="primary" style="font-weight: bold; font-size: 16px">
-                Informações do Estoque:
-              </span>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <v-text-field
-                v-model="amount"
-                type="number"
-                label="Quantidade"
-                class="mr-3"
-              />
-            </v-col>
-          </v-row>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            @click="addProduct"
-            color="green"
-            style="font-weight: bold; color: white"
-          >
-            ADICIONAR
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </v-container>
+        <v-row>
+          <v-col style="padding-top: 50px">
+            <span color="primary" style="font-weight: bold; font-size: 16px">
+              Informações do Estoque:
+            </span>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-text-field
+              v-model="amount"
+              type="number"
+              label="Quantidade"
+              class="mr-3"
+            />
+          </v-col>
+        </v-row>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn
+          @click="addProduct"
+          color="green"
+          style="font-weight: bold; color: white"
+        >
+          ADICIONAR
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
 export default {
   name: 'SelectedProduct',
   props: {
-    dialog: {
+    value: {
       type: Boolean,
       required: true,
     },
@@ -105,7 +106,6 @@ export default {
       this.loading = true
       try {
         const response = await this.findAll(search, 'product')
-        console.log('fetchProduct', response)
         this.productList = response
       } catch (error) {
         this.$error('Erro ao carregar produto!')
@@ -117,11 +117,9 @@ export default {
 
     async findAll(search, type) {
       if (type === 'product') {
-        const responseProduct = await this.$store.dispatch('product/findAll', {
+        return await this.$store.dispatch('product/findAll', {
           search,
         })
-        console.log('responseProduct', responseProduct)
-        return responseProduct
       }
     },
 
@@ -137,14 +135,12 @@ export default {
     },
     addProduct() {
       if (this.selectedProduct && this.amount) {
-        console.log('createdReceived.product:', this.createdReceived.product)
-
         this.createdReceived.product.push({
-          ...this.selectedProduct,
+          product: this.selectedProduct,
           amount: Number(this.amount),
         })
         this.$emit('add-product', {
-          ...this.selectedProduct,
+          product: this.selectedProduct,
           amount: Number(this.amount),
         })
         this.selectedProduct = null

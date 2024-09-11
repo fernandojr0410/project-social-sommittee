@@ -10,7 +10,29 @@ export class ReceivedRepository {
   constructor(private readonly prisma: PrismaService) { }
 
   async create(createReceivedDto: CreateReceivedDto): Promise<ReceivedEntity> {
-    const { date, description, user_id, donor_id, condition_product, products } = createReceivedDto;
+    const { date, description, user_id, donor_id, donor, condition_product, products } = createReceivedDto;
+
+    let donorId = donor_id;
+    if (!donorId && donor) {
+      const existingDonor = await this.prisma.donor.findUnique({
+        where: { email: donor.email },
+      });
+
+      if (!existingDonor) {
+        const newDonor = await this.prisma.donor.create({
+          data: {
+            name: donor.name,
+            identifier: donor.identifier,
+            email: donor.email,
+            telephone: donor.telephone,
+            type_donor: donor.type_donor,
+          },
+        });
+        donorId = newDonor.id;
+      } else {
+        donorId = existingDonor.id;
+      }
+    }
 
     const received = await this.prisma.received.create({
       data: {
@@ -18,7 +40,7 @@ export class ReceivedRepository {
         description,
         condition_product,
         user_id,
-        donor_id,
+        donor_id: donorId,
         products: {
           create: products.map(product => ({
             product_id: product.product_id,
@@ -26,17 +48,22 @@ export class ReceivedRepository {
           })),
         },
       },
+      include: {
+        donor: true,
+        products: {
+          include: {
+            product: true,
+          },
+        },
+      },
     });
 
-
     for (const product of products) {
-
       const existingStock = await this.prisma.stock.findFirst({
         where: { product_id: product.product_id },
       });
 
       if (existingStock) {
-
         await this.prisma.stock.update({
           where: { id: existingStock.id },
           data: {
@@ -44,11 +71,10 @@ export class ReceivedRepository {
           },
         });
       } else {
-
         await this.prisma.stock.create({
           data: {
             product_id: product.product_id,
-            amount: Number(product.amount)
+            amount: Number(product.amount),
           },
         });
       }
@@ -56,6 +82,9 @@ export class ReceivedRepository {
 
     return received;
   }
+
+
+
 
   async findAll(): Promise<ReceivedEntity[]> {
     return await this.prisma.received.findMany({
@@ -66,11 +95,17 @@ export class ReceivedRepository {
           }
         },
         donor: true,
-        user: true,
+
+        user: {
+          select: {
+            name: true,
+            email: true,
+            telephone: true,
+          }
+        },
       },
     });
   }
-
 
   async findById(id: string): Promise<ReceivedEntity> {
     const received = await this.prisma.received.findFirst({
@@ -81,8 +116,15 @@ export class ReceivedRepository {
             product: true,
           }
         },
-        user: true,
         donor: true,
+
+        user: {
+          select: {
+            name: true,
+            email: true,
+            telephone: true,
+          }
+        },
       },
     });
 

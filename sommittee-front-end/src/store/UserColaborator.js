@@ -18,15 +18,9 @@ const getters = {
 
 const actions = {
   async findAll({ commit }, query) {
-    try {
-      const response = API.user.findAll(query)
-      console.log('findAll store', response)
-      commit('SET_USER_COLABORATOR', response)
-      return response
-    } catch (error) {
-      console.error('Erro findById store', error)
-      throw error
-    }
+    const response = API.user.findAll(query)
+    commit('SET_USER_COLABORATOR', response)
+    return response
   },
 }
 

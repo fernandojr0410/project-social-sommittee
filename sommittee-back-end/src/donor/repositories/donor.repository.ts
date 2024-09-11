@@ -27,6 +27,29 @@ export class DonorRepository {
     return await this.prisma.donor.findMany(_query)
   }
 
+  // async findAll(query: any): Promise<Omit<DonorEntity, 'identifier'>[]> {
+  //   const _query: any = {};
+
+  //   if (query.searchField && query.search) {
+  //     _query.where = {
+  //       [query.searchField]: {
+  //         contains: query.search,
+  //         mode: 'insensitive'
+  //       }
+  //     };
+  //   }
+
+  //   const donors = await this.prisma.donor.findMany(_query);
+
+  //   const sanitizedDonors = donors.map(donor => {
+  //     const { identifier, ...sanitizedDonor } = donor;
+  //     return sanitizedDonor;
+  //   });
+
+  //   return sanitizedDonors;
+  // }
+
+
   async findById(id: string): Promise<DonorEntity> {
     return await this.prisma.donor.findFirst({ where: { id } })
   }

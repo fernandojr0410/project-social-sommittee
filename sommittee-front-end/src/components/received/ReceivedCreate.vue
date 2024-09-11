@@ -61,7 +61,7 @@
                   :items="userListFormatted"
                   item-text="name"
                   item-value="id"
-                  label="Nome do responsável pela recepção..."
+                  label="Nome do responsável pela recepção"
                   :loading="loading"
                   :rules="[rules.required]"
                   return-object
@@ -421,8 +421,6 @@ export default {
     },
 
     addProductToList(product) {
-      console.log('Product to add:', product)
-
       if (this.editingIndex !== null) {
         this.products.splice(this.editingIndex, 1, product)
         this.editingIndex = null
@@ -441,7 +439,6 @@ export default {
 
     addProduct() {
       if (this.selectedProduct) {
-        console.log('this.selectedProduct', this.selectedProduct)
         this.$emit('add-product', this.selectedProduct)
         this.selectedProduct = null
       }
@@ -463,7 +460,6 @@ export default {
         const responseUser = await this.$store.dispatch('user/findAll', {
           search,
         })
-        console.log('responseUser', responseUser)
         return responseUser
       }
     },
@@ -503,13 +499,8 @@ export default {
         date: this.date,
         condition_product: this.createdReceived.condition_product,
         description: this.createdReceived.description,
-        user_id: this.selectedUser?.id,
-        donor_id: this.selectedDonor?.id,
-        products: this.products.map((product) => ({
-          product_id: product.id,
-          type: product.type,
-          amount: product.amount,
-        })),
+        user_id: this.selectedUser.id,
+        donor_id: this.selectedDonor.id,
         donor: {
           name: this.createdReceived.donor.name,
           identifier: this.createdReceived.donor.identifier,
@@ -517,9 +508,13 @@ export default {
           telephone: this.createdReceived.donor.telephone,
           type_donor: this.createdReceived.donor.type_donor,
         },
-      }
 
-      console.log('receivedData', receivedData)
+        products: this.products.map((product) => ({
+          product_id: product.id,
+          type: product.type,
+          amount: product.amount,
+        })),
+      }
 
       try {
         const response = await this.$store.dispatch(

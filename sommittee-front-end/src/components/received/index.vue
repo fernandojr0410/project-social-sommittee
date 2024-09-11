@@ -58,9 +58,8 @@
           </template>
         </v-data-table>
         <ReceivedEdit
-          :dialog="editDialog"
+          v-model="editDialog"
           :id="updatedReceivedId"
-          @close="editDialog = false"
           @save="saveUpdatedReceived"
         />
       </v-card-text>
@@ -76,18 +75,29 @@
         </v-card-title>
         <v-card-text>
           <v-card class="elevation-4" style="padding: 16px">
-            <v-card-title
-              color="primary"
-              style="font-weight: bold; font-size: 16px"
-            >
-              Informações do recebimento:
-            </v-card-title>
+            <div style="padding-bottom: 20px">
+              <span color="primary" style="font-weight: bold; font-size: 16px">
+                Informações do recebimento:
+              </span>
+            </div>
             <v-row>
               <v-col>
                 <v-text-field
                   v-if="selectedReceived"
                   :value="formatDate(selectedReceived.date)"
                   label="Data de recebimento"
+                  class="mr-3"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+              <v-col>
+                <v-text-field
+                  v-if="selectedReceived && selectedReceived.user"
+                  :value="selectedReceived.user.name"
+                  label="Nome do responsável pela recepção"
                   class="mr-3"
                   readonly
                   outlined
@@ -123,18 +133,17 @@
               </v-col>
             </v-row>
           </v-card>
-          <v-card class="elevation-4" style="padding: 16px; margin-top: 30px">
-            <v-card-title
-              color="primary"
-              style="font-weight: bold; font-size: 16px"
-            >
-              Informações do produto doado:
-            </v-card-title>
+          <!-- <v-card class="elevation-4" style="padding: 16px; margin-top: 30px">
+            <div style="padding-bottom: 20px">
+              <span color="primary" style="font-weight: bold; font-size: 16px">
+                Informações do produto doado:
+              </span>
+            </div>
             <v-row>
               <v-col>
                 <v-text-field
                   v-if="selectedReceived && selectedReceived.products"
-                  v-model="selectedReceived.products[0].product.name"
+                  v-model="selectedReceived.products.product.name"
                   label="Produto"
                   class="mr-3"
                   readonly
@@ -167,37 +176,56 @@
                 />
               </v-col>
             </v-row>
-          </v-card>
+          </v-card> -->
           <v-card class="elevation-4" style="padding: 16px; margin-top: 30px">
-            <v-card-title
-              color="primary"
-              style="font-weight: bold; font-size: 16px"
+            <div style="padding-bottom: 20px">
+              <span color="primary" style="font-weight: bold; font-size: 16px">
+                Informações dos produtos doados:
+              </span>
+            </div>
+
+            <v-list
+              v-if="selectedReceived && selectedReceived.products.length > 0"
             >
-              Informações do Estoque:
-            </v-card-title>
-            <v-row>
-              <v-col>
-                <v-text-field
-                  v-if="selectedReceived && selectedReceived.products"
-                  :value="selectedReceived.products[0].amount"
-                  label="Quantidade"
-                  class="mr-3"
-                  readonly
-                  outlined
-                  dense
-                  hide-details
-                />
-              </v-col>
-            </v-row>
+              <v-list-item-group
+                v-for="(item, index) in selectedReceived.products"
+                :key="index"
+              >
+                <v-list-item>
+                  <v-list-item-content style="gap: 6px">
+                    <v-list-item-title>
+                      <span style="font-weight: bold">Produto:</span>
+                      {{ item.product.name }}
+                    </v-list-item-title>
+
+                    <v-list-item-subtitle>
+                      <span style="font-weight: bold">Categoria:</span>
+                      {{ item.product.type }}
+                    </v-list-item-subtitle>
+
+                    <v-list-item-subtitle>
+                      <span style="font-weight: bold">Descrição:</span>
+                      {{ item.product.description }}
+                    </v-list-item-subtitle>
+
+                    <v-list-item-subtitle>
+                      <span style="font-weight: bold">Quantidade estoque:</span>
+                      {{ item.amount }}
+                    </v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list-item-group>
+            </v-list>
+
+            <v-alert v-else type="info">Nenhum produto encontrado.</v-alert>
           </v-card>
 
           <v-card class="elevation-4" style="padding: 16px; margin-top: 30px">
-            <v-card-title
-              color="primary"
-              style="font-weight: bold; font-size: 16px"
-            >
-              Informações do Doador:
-            </v-card-title>
+            <div style="padding-bottom: 20px">
+              <span color="primary" style="font-weight: bold; font-size: 16px">
+                Informações do doador:
+              </span>
+            </div>
 
             <v-row>
               <v-col>
@@ -326,7 +354,7 @@ export default {
       }
     },
     async findAll() {
-       await this.$store.dispatch('received/findAll')
+      await this.$store.dispatch('received/findAll')
     },
     showDetails(item) {
       this.selectedReceived = item

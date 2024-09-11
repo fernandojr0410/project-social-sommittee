@@ -31,13 +31,13 @@ const getters = {
 const actions = {
   async create({ commit }, payload) {
     const response = await API.received.create(payload)
-    console.log('create store', response)
     commit('CREATE_RECEIVED', response)
     return response
   },
 
   async findAll({ commit }, query) {
     const response = await API.received.findAll(query)
+    console.log('findAll store', response)
     commit('SET_RECEIVED', response)
     return response
   },
