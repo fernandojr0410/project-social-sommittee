@@ -17,81 +17,98 @@
 
     <v-dialog v-model="dialog" max-width="900px">
       <v-card>
-        <v-card-title>Criar doador</v-card-title>
+        <v-card-title>Cadastrar registro</v-card-title>
         <v-card-text>
-          <v-row>
-            <v-col cols="6">
-              <v-text-field
-                v-if="createdDonor"
-                v-model="createdDonor.name"
-                label="Nome completo"
-                class="mr-3"
-                :rules="[rules.required]"
-              />
-            </v-col>
-            <v-col cols="6">
-              <v-text-field
-                v-if="createdDonor"
-                v-model="createdDonor.identifier"
-                label="CPF"
-                class="mr-3"
-                v-mask="'###.###.###.##'"
-                :rules="[rules.required]"
-              />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols="6">
-              <v-text-field
-                v-if="createdDonor"
-                v-model="createdDonor.email"
-                label="E-mail"
-                class="mr-3"
-                :rules="[rules.required]"
-              />
-            </v-col>
-            <v-col cols="6">
-              <v-text-field
-                v-if="createdDonor"
-                v-model="createdDonor.telephone"
-                label="Contato"
-                class="mr-3"
-                v-mask="'(##) #####-####'"
-                :rules="[rules.required]"
-              />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <v-select
-                v-if="createdDonor"
-                v-model="createdDonor.type_donor"
-                :items="[
-                  { text: 'Interno', value: 'INTERNAL' },
-                  { text: 'Externo', value: 'EXTERNAL' },
-                ]"
-                item-value="value"
-                item-text="text"
-                label="Tipo"
-                class="mr-3"
-                :rules="[rules.required]"
-              />
-            </v-col>
-          </v-row>
+          <v-card class="elevation-4" style="padding: 16px">
+            <v-row>
+              <v-col>
+                <v-text-field
+                  v-if="createdDonor"
+                  v-model="createdDonor.name"
+                  label="Nome completo"
+                  class="mr-3"
+                  :rules="[rules.required]"
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+              <v-col>
+                <v-text-field
+                  v-if="createdDonor"
+                  v-model="createdDonor.identifier"
+                  label="CPF"
+                  class="mr-3"
+                  v-mask="'###.###.###.##'"
+                  :rules="[rules.required]"
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <v-text-field
+                  v-if="createdDonor"
+                  v-model="createdDonor.email"
+                  label="E-mail"
+                  class="mr-3"
+                  :rules="[rules.required]"
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+              <v-col>
+                <v-text-field
+                  v-if="createdDonor"
+                  v-model="createdDonor.telephone"
+                  label="Contato"
+                  class="mr-3"
+                  v-mask="'(##) #####-####'"
+                  :rules="[rules.required]"
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <v-select
+                  v-if="createdDonor"
+                  v-model="createdDonor.type_donor"
+                  :items="[
+                    { text: 'Interno', value: 'INTERNAL' },
+                    { text: 'Externo', value: 'EXTERNAL' },
+                  ]"
+                  item-value="value"
+                  item-text="text"
+                  label="Tipo"
+                  class="mr-3"
+                  :rules="[rules.required]"
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+            </v-row>
+          </v-card>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
             @click="closeDialog"
             color="primary"
-            style="color: white; font-weight: bold"
+            style="color: white; font-weight: bold; margin-right: 12px"
           >
             CANCELAR
           </v-btn>
           <v-btn
             color="green"
             @click="createDonor"
-            style="color: white; font-weight: bold"
+            style="color: white; font-weight: bold; margin-right: 12px"
           >
             CRIAR
           </v-btn>

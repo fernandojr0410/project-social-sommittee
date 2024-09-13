@@ -59,7 +59,7 @@ export class FamilyRepository {
         people: {
           select: {
             name: true,
-            cpf: true,
+            identifier: true,
             email: true,
             birth_date: true,
             gender: true,

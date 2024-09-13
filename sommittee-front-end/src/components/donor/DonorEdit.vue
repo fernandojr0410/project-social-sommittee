@@ -2,73 +2,95 @@
   <v-dialog v-model="dialog" max-width="900px">
     <v-card>
       <v-card-title class="flex justify-space-between items-center">
-        <span class="headline">Editar informações</span>
+        <span class="headline">Editar registro</span>
         <v-btn icon @click="closeDialog">
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-card-title>
       <v-card-text>
-        <v-row>
-          <v-col cols="6">
-            <v-text-field
-              v-if="updatedDonor"
-              v-model="updatedDonor.name"
-              label="Nome completo"
-              class="mr-3"
-            />
-          </v-col>
-          <v-col cols="6">
-            <v-text-field
-              v-if="updatedDonor"
-              v-model="updatedDonor.identifier"
-              label="CPF"
-              class="mr-3"
-              v-mask="'###.###.###.##'"
-            />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="6">
-            <v-text-field
-              v-if="updatedDonor"
-              v-model="updatedDonor.email"
-              label="E-mail"
-              class="mr-3"
-            />
-          </v-col>
-          <v-col cols="6">
-            <v-text-field
-              v-if="updatedDonor"
-              v-model="updatedDonor.telephone"
-              label="Contato"
-              class="mr-3"
-              v-mask="'(##) #####-####'"
-            />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <v-select
-              v-if="updatedDonor"
-              v-model="updatedDonor.type_donor"
-              :items="[
-                { text: 'Interno', value: 'INTERNAL' },
-                { text: 'Externo', value: 'EXTERNAL' },
-              ]"
-              item-value="value"
-              item-text="text"
-              label="Tipo"
-              class="mr-3"
-            />
-          </v-col>
-        </v-row>
+        <v-card class="elevation-4" style="padding: 16px">
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-if="updatedDonor"
+                v-model="updatedDonor.name"
+                label="Nome completo"
+                class="mr-3"
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-if="updatedDonor"
+                v-model="updatedDonor.identifier"
+                label="CPF"
+                class="mr-3"
+                v-mask="'###.###.###.##'"
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-if="updatedDonor"
+                v-model="updatedDonor.email"
+                label="E-mail"
+                class="mr-3"
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-if="updatedDonor"
+                v-model="updatedDonor.telephone"
+                label="Contato"
+                class="mr-3"
+                v-mask="'(##) #####-####'"
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-select
+                v-if="updatedDonor"
+                v-model="updatedDonor.type_donor"
+                :items="[
+                  { text: 'Interno', value: 'INTERNAL' },
+                  { text: 'Externo', value: 'EXTERNAL' },
+                ]"
+                item-value="value"
+                item-text="text"
+                label="Tipo"
+                class="mr-3"
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+          </v-row>
+        </v-card>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn
           text
           @click="saveChanges"
-          style="background-color: #007fff; color: white; font-weight: bold"
+          style="
+            background-color: #007fff;
+            color: white;
+            font-weight: bold;
+            margin-right: 12px;
+          "
         >
           SALVAR ALTERAÇÕES
         </v-btn>

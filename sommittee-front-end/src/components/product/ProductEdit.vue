@@ -1,52 +1,73 @@
 <template>
-  <v-dialog v-model="dialog" max-width="900px">
+  <v-dialog
+    :value="value"
+    @input="(value) => $emit('input', value)"
+    max-width="900px"
+  >
     <v-card>
       <v-card-title class="flex justify-space-between items-center">
-        <span class="headline">Editar informações</span>
+        <span class="headline">Editar registro</span>
         <v-btn icon @click="closeDialog">
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-card-title>
       <v-card-text>
-        <v-row>
-          <v-col cols="12">
+        <v-card class="elevation-4" style="padding: 16px">
+          <div style="padding-bottom: 16px">
             <span color="primary" style="font-weight: bold; font-size: 16px">
               Informações do produto:
             </span>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <v-text-field
-              v-model="updatedProduct.name"
-              label="Produto"
-              class="mr-3"
-            />
-          </v-col>
-          <v-col>
-            <v-text-field
-              v-model="updatedProduct.type"
-              label="Categoria"
-              class="mr-3"
-            />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <v-textarea
-              v-model="updatedProduct.description"
-              label="Descrição"
-              class="mr-3"
-            />
-          </v-col>
-        </v-row>
+          </div>
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-model="updatedProduct.name"
+                label="Produto"
+                class="mr-3"
+                readonly
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-model="updatedProduct.type"
+                label="Categoria"
+                class="mr-3"
+                readonly
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-textarea
+                v-model="updatedProduct.description"
+                label="Descrição"
+                class="mr-3"
+                readonly
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+          </v-row>
+        </v-card>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn
           text
           @click="saveChanges"
-          style="background-color: #007fff; color: white; font-weight: bold"
+          style="
+            background-color: #007fff;
+            color: white;
+            font-weight: bold;
+            margin-right: 12px;
+          "
         >
           SALVAR ALTERAÇÕES
         </v-btn>
@@ -59,7 +80,7 @@
 export default {
   name: 'ProductEdit',
   props: {
-    dialog: {
+    value: {
       type: Boolean,
       required: true,
     },
@@ -98,7 +119,7 @@ export default {
       }
     },
     closeDialog() {
-      this.$emit('close')
+      this.$emit('input', false)
     },
     async saveChanges() {
       try {

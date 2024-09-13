@@ -6,7 +6,7 @@
   >
     <v-card>
       <v-card-title class="d-flex justify-space-between items-center">
-        <span class="headline">Editar informações</span>
+        <span class="headline">Editar registro</span>
         <v-btn icon @click="$emit('input', false)">
           <v-icon>mdi-close</v-icon>
         </v-btn>
@@ -183,6 +183,7 @@
                 outlined
                 dense
                 hide-details
+                style="width: 96.5%"
               />
             </v-col>
           </v-row>
@@ -229,7 +230,7 @@
                       </v-list-item-title>
                       <v-list-item-subtitle>
                         {{ item.product.description }} (Quantidade:
-                        {{ item.product.amount }})
+                        {{ item.amount }})
                       </v-list-item-subtitle>
                     </v-list-item-content>
                     <v-list-item-action>
@@ -403,11 +404,13 @@ export default {
       } else {
         this.products.push(product)
       }
+      this.productDialog = false
     },
 
     editProduct(index) {
       if (this.products && this.products[index]) {
         this.selectedProduct = this.products[index]
+        console.log('selectedProduct', this.selectedProduct)
         this.productDialog = true
         this.editingIndex = index
       }
@@ -417,6 +420,7 @@ export default {
       if (this.selectedProduct) {
         this.$emit('add-product', this.selectedProduct)
         this.selectedProduct = null
+        this.dialog = false
       }
       this.$emit('update:dialog', false)
     },
@@ -471,54 +475,49 @@ export default {
     },
 
     async saveChanges() {
-      try {
-        const receivedId = this.id
-        const updateData = {
-          id: receivedId,
-          payload: {
-            date: this.updatedReceived.date,
-            value: this.updatedReceived.value,
-            description: this.updatedReceived.description,
-            product: {
-              name: this.updatedReceived.product.name,
-              description: this.updatedReceived.product.description,
-              type: this.updatedReceived.product.type,
-            },
-            stock: {
-              amount: Number(this.updatedReceived.stock.amount),
-            },
-            donor: {
-              // id: this.updatedReceived.donor.id,
-              name: this.updatedReceived.donor.name,
-              identifier: this.updatedReceived.donor.identifier
-                ? this.updatedReceived.donor.identifier.replace(/[^\d]/g, '')
-                : '',
+      const updateData = {
+        date: this.date,
+        condition_product: this.updatedReceived.condition_product,
+        description: this.updatedReceived.description,
+        user_id: this.selectedUser.id,
+        donor_id: this.selectedDonor.id,
+        donor: {
+          name: this.updatedReceived.donor.name,
+          identifier: this.updatedReceived.donor.identifier,
+          email: this.updatedReceived.donor.email,
+          telephone: this.updatedReceived.donor.telephone,
+          type_donor: this.updatedReceived.donor.type_donor,
+        },
+        products: this.products.map((item) => ({
+          product_id: item.product.id,
+          type: item.product.type,
+          amount: Number(item.amount),
+        })),
+      }
+      console.log('updateData', updateData)
 
-              email: this.updatedReceived.donor.email,
-              telephone: this.updatedReceived.donor.telephone,
-              type_donor: this.updatedReceived.donor.type_donor,
-            },
-          },
-        }
-        const response = await this.$store.dispatch(
-          'received/update',
-          updateData
-        )
-        console.log('registro atualizado!', response)
+      try {
+        const response = await this.$store.dispatch('received/update', {
+          id: this.id,
+          payload: updateData,
+        })
+
+        console.log('response update', response)
         if (response) {
-          this.$success('Registro atualizado!')
-          this.selectedProduct = null
-          this.selectedDonor = null
+          this.$success('Registro atualizado com sucesso!')
+          this.selectedProduct = ''
+          this.selectedDonor = ''
           this.closeDialog()
-          this.updatedReceived = this.getReceived()
-          return response
+          this.createdReceived = this.getReceived()
+        } else {
+          this.$error('Erro ao atualizar recebimento!')
         }
       } catch (error) {
-        console.error('Erro saveChances', error)
+        this.$error('Erro ao atualizar registro!')
+        console.error('Erro ao atualizar', error)
         throw error
       }
     },
-
     async searchUser(search) {
       if (search && search.length > 2) {
         this.fetchUser(search)

@@ -17,13 +17,13 @@
 
     <v-dialog v-model="dialog" max-width="900px">
       <v-card>
-        <v-card-title>Criar recebimento</v-card-title>
+        <v-card-title>Cadastrar registro</v-card-title>
         <v-card-text>
           <v-card style="padding: 16px">
             <v-row>
               <v-col>
                 <span color="primary" style="font-weight: 500; font-size: 16px">
-                  Recebimento
+                  Informações recebimento:
                 </span>
               </v-col>
             </v-row>
@@ -115,7 +115,7 @@
             <v-row>
               <v-col>
                 <span color="primary" style="font-weight: 500; font-size: 16px">
-                  Doador
+                  Informações de doador:
                 </span>
               </v-col>
             </v-row>
@@ -269,14 +269,14 @@
           <v-btn
             @click="closeProductDialog"
             color="primary"
-            style="color: white; font-weight: bold"
+            style="color: white; font-weight: bold; margin-right: 12px"
           >
             CANCELAR
           </v-btn>
           <v-btn
             color="green"
             @click="createReceived"
-            style="color: white; font-weight: bold"
+            style="color: white; font-weight: bold; margin-right: 12px"
           >
             CRIAR
           </v-btn>

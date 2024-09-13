@@ -133,50 +133,6 @@
               </v-col>
             </v-row>
           </v-card>
-          <!-- <v-card class="elevation-4" style="padding: 16px; margin-top: 30px">
-            <div style="padding-bottom: 20px">
-              <span color="primary" style="font-weight: bold; font-size: 16px">
-                Informações do produto doado:
-              </span>
-            </div>
-            <v-row>
-              <v-col>
-                <v-text-field
-                  v-if="selectedReceived && selectedReceived.products"
-                  v-model="selectedReceived.products.product.name"
-                  label="Produto"
-                  class="mr-3"
-                  readonly
-                  outlined
-                  dense
-                  hide-details
-                />
-              </v-col>
-              <v-col>
-                <v-text-field
-                  v-if="selectedReceived && selectedReceived.products"
-                  :value="selectedReceived.products[0].product.type"
-                  label="Categoria"
-                  class="mr-3"
-                  readonly
-                  outlined
-                  dense
-                  hide-details
-                />
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col>
-                <v-textarea
-                  v-if="selectedReceived && selectedReceived.products.product"
-                  v-model="selectedReceived.products[0].product.description"
-                  label="Descrição"
-                  class="mr-3"
-                  disabled
-                />
-              </v-col>
-            </v-row>
-          </v-card> -->
           <v-card class="elevation-4" style="padding: 16px; margin-top: 30px">
             <div style="padding-bottom: 20px">
               <span color="primary" style="font-weight: bold; font-size: 16px">

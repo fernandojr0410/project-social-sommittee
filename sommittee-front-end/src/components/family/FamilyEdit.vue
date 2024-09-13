@@ -2,234 +2,306 @@
   <v-dialog v-model="dialog" max-width="900px">
     <v-card>
       <v-card-title class="flex justify-space-between items-center">
-        <span class="headline">Editar informações</span>
+        <span class="headline">Editar registro</span>
         <v-btn icon @click="closeDialog">
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-card-title>
       <v-card-text>
-        <v-row>
-          <v-col>
-            <v-autocomplete
-              v-model="updatedFamily"
-              :items="peopleList"
-              item-text="name"
-              item-value="id"
-              label="Buscar pessoa..."
-              :loading="loading"
-              :rules="[rules.required]"
-              return-object
-              @update:search-input="searchPeople"
-            />
-          </v-col>
+        <v-card class="elevation-4" style="padding: 16px">
+          <v-row>
+            <v-col>
+              <v-autocomplete
+                v-model="updatedFamily"
+                :items="peopleList"
+                item-text="name"
+                item-value="id"
+                label="Buscar pessoa..."
+                :loading="loading"
+                :rules="[rules.required]"
+                return-object
+                @update:search-input="searchPeople"
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
 
-          <v-col>
-            <v-select
-              v-if="updatedFamily"
-              v-model="selectedFunction"
-              :rules="[rules.required]"
-              :items="[
-                { text: 'Mãe', value: 'mother' },
-                { text: 'Pai', value: 'father' },
-                { text: 'Filho(a)', value: 'child' },
-                { text: 'Vó', value: 'grandMother' },
-                { text: 'Vô', value: 'grandFather' },
-                { text: 'Tio', value: 'uncle' },
-                { text: 'Tio', value: 'aunt' },
-              ]"
-              item-value="value"
-              item-text="text"
-              label="Função - Mãe, Pai, Filho(a), Vó..."
-            />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="12">
+            <v-col>
+              <v-select
+                v-if="updatedFamily"
+                v-model="selectedFunction"
+                :rules="[rules.required]"
+                :items="[
+                  { text: 'Mãe', value: 'mother' },
+                  { text: 'Pai', value: 'father' },
+                  { text: 'Filho(a)', value: 'child' },
+                  { text: 'Vó', value: 'grandMother' },
+                  { text: 'Vô', value: 'grandFather' },
+                  { text: 'Tio', value: 'uncle' },
+                  { text: 'Tia', value: 'aunt' },
+                ]"
+                item-value="value"
+                item-text="text"
+                label="Função - Mãe, Pai, Filho(a), Vó..."
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+          </v-row>
+        </v-card>
+        <v-card class="elevation-4" style="padding: 16px; margin-top: 30px">
+          <div style="padding-bottom: 16px">
             <span color="primary" style="font-weight: bold; font-size: 16px">
               Informações da pessoa:
             </span>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="6">
-            <v-text-field
-              v-model="updatedFamily.name"
-              label="Nome completo"
-              class="mr-3"
-              disabled
-            />
-          </v-col>
-          <v-col cols="6">
-            <v-text-field
-              v-model="updatedFamily.cpf"
-              label="CPF"
-              class="mr-3"
-              v-mask="'###.###.###-##'"
-              disabled
-            />
-          </v-col>
-        </v-row>
+          </div>
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-model="updatedFamily.name"
+                label="Nome completo"
+                class="mr-3"
+                readonly
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-model="updatedFamily.identifier"
+                label="CPF"
+                class="mr-3"
+                v-mask="'###.###.###-##'"
+                readonly
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+          </v-row>
 
-        <v-row>
-          <v-col cols="6">
-            <v-text-field
-              v-model="updatedFamily.birth_date"
-              type="date"
-              label="Data de nascimento"
-              class="mr-3"
-              disabled
-            />
-          </v-col>
-          <v-col cols="6">
-            <v-text-field
-              v-model="updatedFamily.email"
-              label="E-mail"
-              class="mr-3"
-              disabled
-            />
-          </v-col>
-        </v-row>
+          <v-row>
+            <v-col>
+              <v-menu
+                v-model="menu2"
+                :close-on-content-click="false"
+                :nudge-right="40"
+                transition="scale-transition"
+                offset-y
+                min-width="auto"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-text-field
+                    :value="formattedDate"
+                    label="Data de nascimento"
+                    prepend-icon="mdi-calendar"
+                    readonly
+                    v-bind="attrs"
+                    v-on="on"
+                    outlined
+                    dense
+                    hide-details
+                    style="width: 97%"
+                  ></v-text-field>
+                </template>
+                <v-date-picker
+                  color="secondary"
+                  v-model="birthDate"
+                  locale="pt"
+                  @input="updateDate"
+                ></v-date-picker>
+              </v-menu>
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-model="updatedFamily.email"
+                label="E-mail"
+                class="mr-3"
+                readonly
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+          </v-row>
 
-        <v-row>
-          <v-col cols="6">
-            <v-text-field
-              v-model="updatedFamily.telephone"
-              label="Telefone"
-              class="mr-3"
-              v-mask="'(##) #####-####'"
-              disabled
-            />
-          </v-col>
-          <v-col cols="6">
-            <v-select
-              v-model="updatedFamily.gender"
-              :items="[
-                { text: 'Masculino', value: 'MALE' },
-                { text: 'Feminino', value: 'FEMALE' },
-              ]"
-              item-value="value"
-              item-text="text"
-              class="mr-3"
-              label="Sexo"
-              disabled
-            />
-          </v-col>
-        </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-model="updatedFamily.telephone"
+                label="Telefone"
+                class="mr-3"
+                v-mask="'(##) #####-####'"
+                readonly
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+            <v-col>
+              <v-select
+                v-model="updatedFamily.gender"
+                :items="[
+                  { text: 'Masculino', value: 'MALE' },
+                  { text: 'Feminino', value: 'FEMALE' },
+                ]"
+                item-value="value"
+                item-text="text"
+                class="mr-3"
+                label="Sexo"
+                readonly
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+          </v-row>
 
-        <v-row>
-          <v-col cols="6">
-            <v-select
-              v-model="updatedFamily.work"
-              :items="[
-                { text: 'Sim', value: true },
-                { text: 'Não', value: false },
-              ]"
-              item-value="value"
-              item-text="text"
-              class="mr-3"
-              label="Trabalha?"
-              disabled
-            />
-          </v-col>
-          <v-col>
-            <v-text-field
-              v-model="updatedFamily.education"
-              label="Educação"
-              class="mr-3"
-              disabled
-            />
-          </v-col>
-        </v-row>
+          <v-row>
+            <v-col>
+              <v-select
+                v-model="updatedFamily.work"
+                :items="[
+                  { text: 'Sim', value: true },
+                  { text: 'Não', value: false },
+                ]"
+                item-value="value"
+                item-text="text"
+                class="mr-3"
+                label="Trabalha?"
+                readonly
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-model="updatedFamily.education"
+                label="Educação"
+                class="mr-3"
+                readonly
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+          </v-row>
+        </v-card>
 
-        <v-row>
-          <v-col cols="12">
+        <v-card class="elevation-4" style="padding: 16px; margin-top: 30px">
+          <div style="padding-bottom: 16px">
             <span color="primary" style="font-weight: bold; font-size: 16px">
               Informações do endereço:
             </span>
-          </v-col>
-        </v-row>
+          </div>
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-if="updatedFamily && updatedFamily.address"
+                v-model="updatedFamily.address.zip_code"
+                class="mr-3"
+                label="CEP"
+                v-mask="'#####-###'"
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-if="updatedFamily && updatedFamily.address"
+                v-model="updatedFamily.address.street"
+                label="Rua"
+                class="mr-3"
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-if="updatedFamily && updatedFamily.address"
+                v-model="updatedFamily.address.number"
+                label="Número"
+                class="mr-3"
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-if="updatedFamily && updatedFamily.address"
+                v-model="updatedFamily.address.neighborhood"
+                label="Bairro"
+                class="mr-3"
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+          </v-row>
 
-        <v-row>
-          <v-col cols="6">
-            <v-text-field
-              v-if="updatedFamily && updatedFamily.address"
-              v-model="updatedFamily.address.zip_code"
-              class="mr-3"
-              label="CEP"
-              v-mask="'#####-###'"
-              disabled
-            />
-          </v-col>
-          <v-col cols="6">
-            <v-text-field
-              v-if="updatedFamily && updatedFamily.address"
-              v-model="updatedFamily.address.street"
-              label="Rua"
-              class="mr-3"
-              disabled
-            />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="6">
-            <v-text-field
-              v-if="updatedFamily && updatedFamily.address"
-              v-model="updatedFamily.address.number"
-              label="Número"
-              class="mr-3"
-              disabled
-            />
-          </v-col>
-          <v-col cols="6">
-            <v-text-field
-              v-if="updatedFamily && updatedFamily.address"
-              v-model="updatedFamily.address.complement"
-              label="Complemento"
-              class="mr-3"
-              disabled
-            />
-          </v-col>
-        </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-if="updatedFamily && updatedFamily.address"
+                v-model="updatedFamily.address.complement"
+                label="Complemento"
+                class="mr-3"
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+          </v-row>
 
-        <v-row>
-          <v-col cols="12" md="4">
-            <v-text-field
-              v-if="updatedFamily && updatedFamily.address"
-              v-model="updatedFamily.address.neighborhood"
-              label="Bairro"
-              class="mr-3"
-              disabled
-            />
-          </v-col>
-          <v-col cols="12" md="4">
-            <v-text-field
-              v-if="updatedFamily && updatedFamily.address"
-              v-model="updatedFamily.address.city"
-              label="Cidade"
-              class="mr-3"
-              disabled
-            />
-          </v-col>
-          <v-col cols="12" md="4">
-            <v-select
-              v-if="updatedFamily && updatedFamily.address"
-              v-model="updatedFamily.address.state"
-              :items="states"
-              item-value="acronym"
-              item-text="name"
-              class="mr-3"
-              label="Estado"
-              disabled
-            />
-          </v-col>
-        </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-if="updatedFamily && updatedFamily.address"
+                v-model="updatedFamily.address.city"
+                label="Cidade"
+                class="mr-3"
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+            <v-col>
+              <v-select
+                v-if="updatedFamily && updatedFamily.address"
+                v-model="updatedFamily.address.state"
+                :items="states"
+                item-value="acronym"
+                item-text="name"
+                class="mr-3"
+                label="Estado"
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+          </v-row>
+        </v-card>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn
           text
           @click="saveChanges"
-          style="background-color: #007fff; color: white; font-weight: bold"
+          style="
+            background-color: #007fff;
+            color: white;
+            font-weight: bold;
+            margin-right: 12px;
+          "
         >
           SALVAR ALTERAÇÕES
         </v-btn>
@@ -240,6 +312,8 @@
 
 <script>
 import { states } from '@/assets/state'
+import { format, parseISO } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
 
 export default {
   name: 'FamilyEdit',
@@ -258,6 +332,7 @@ export default {
       peopleList: [],
       selectedFunction: '',
       loading: false,
+      menu2: false,
       rules: {
         required: (value) => !!value || 'Campo obrigatório.',
       },
@@ -270,7 +345,25 @@ export default {
       handler: async function (id) {
         if (id) {
           this.updatedFamily = await this.$store.dispatch('family/findById', id)
+          this.selectedFunction = this.updatedFamily.function || ''
         }
+      },
+    },
+  },
+  computed: {
+    formattedDate() {
+      return this.updatedFamily.birth_date
+        ? format(parseISO(this.updatedFamily.birth_date), 'eeee, dd MMM', {
+            locale: ptBR,
+          })
+        : ''
+    },
+    birthDate: {
+      get() {
+        return this.updatedFamily.birth_date
+      },
+      set(value) {
+        this.updatedFamily.birth_date = value
       },
     },
   },
@@ -279,9 +372,9 @@ export default {
       return {
         id: '',
         name: '',
-        cpf: '',
+        identifier: '',
         email: '',
-        birth_date: '',
+        birth_date: new Date().toISOString().substr(0, 10),
         gender: '',
         telephone: '',
         work: '',
@@ -316,7 +409,6 @@ export default {
     async findAll(search) {
       return await this.$store.dispatch('people/findAll', { search })
     },
-
     async saveChanges() {
       try {
         const familyId = this.id
@@ -339,13 +431,16 @@ export default {
         throw error
       }
     },
-
     searchPeople(search) {
       if (search && search.length > 2) {
         this.fetchPeople(search)
       } else {
         this.peopleList = []
       }
+    },
+    updateDate(date) {
+      this.updatedFamily.birth_date = date
+      this.menu2 = false
     },
   },
 }

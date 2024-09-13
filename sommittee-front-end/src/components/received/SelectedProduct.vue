@@ -23,29 +23,6 @@
           </v-col>
         </v-row>
 
-        <v-list>
-          <v-list-item-group v-if="createdReceived.product.length > 0">
-            <v-list-item
-              v-for="(product, index) in createdReceived.product"
-              :key="index"
-            >
-              <v-list-item-content>
-                <v-list-item-title>
-                  {{ product.name }} - {{ product.type }}
-                </v-list-item-title>
-                <v-list-item-subtitle>
-                  {{ product.description }} (Quantidade: {{ product.amount }})
-                </v-list-item-subtitle>
-              </v-list-item-content>
-              <v-list-item-action>
-                <v-btn @click="removeProduct(index)" icon>
-                  <v-icon>mdi-delete</v-icon>
-                </v-btn>
-              </v-list-item-action>
-            </v-list-item>
-          </v-list-item-group>
-        </v-list>
-
         <v-row>
           <v-col style="padding-top: 50px">
             <span color="primary" style="font-weight: bold; font-size: 16px">
@@ -130,9 +107,7 @@ export default {
         this.productList = []
       }
     },
-    removeProduct(index) {
-      this.createdReceived.product.splice(index, 1)
-    },
+
     addProduct() {
       if (this.selectedProduct && this.amount) {
         this.createdReceived.product.push({
@@ -143,10 +118,10 @@ export default {
           product: this.selectedProduct,
           amount: Number(this.amount),
         })
+        this.$emit('update:dialog', false)
         this.selectedProduct = null
         this.amount = ''
       }
-      this.$emit('update:dialog', false)
     },
   },
 }

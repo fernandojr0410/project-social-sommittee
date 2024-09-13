@@ -70,78 +70,93 @@
     <v-dialog v-model="dialog" max-width="900px">
       <v-card>
         <v-card-title class="flex justify-space-between items-center">
-          <span class="headline">Detalhes do doador</span>
+          <span class="headline">Detalhes do registro</span>
           <v-btn icon @click="closeDialog">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </v-card-title>
         <v-card-text>
-          <v-row>
-            <v-col cols="12">
+          <v-card class="elevation-4" style="padding: 16px">
+            <div style="padding-bottom: 16px">
               <span color="primary" style="font-weight: bold; font-size: 16px">
                 Informações do doador:
               </span>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols="6">
-              <v-text-field
-                v-if="selectedDonor"
-                v-model="selectedDonor.name"
-                label="Nome completo"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-            <v-col cols="6">
-              <v-text-field
-                v-if="selectedDonor"
-                v-model="selectedDonor.identifier"
-                label="CPF"
-                class="mr-3"
-                v-mask="'###.###.###.##'"
-                disabled
-              />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols="6">
-              <v-text-field
-                v-if="selectedDonor"
-                v-model="selectedDonor.email"
-                label="E-mail"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-            <v-col cols="6">
-              <v-text-field
-                v-if="selectedDonor"
-                v-model="selectedDonor.telephone"
-                label="Contato"
-                class="mr-3"
-                v-mask="'(##) #####-####'"
-                disabled
-              />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <v-select
-                v-if="selectedDonor"
-                v-model="selectedDonor.type_donor"
-                :items="[
-                  { text: 'Interno', value: 'INTERNAL' },
-                  { text: 'Externo', value: 'EXTERNAL' },
-                ]"
-                item-value="value"
-                item-text="text"
-                label="Tipo"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-          </v-row>
+            </div>
+            <v-row>
+              <v-col>
+                <v-text-field
+                  v-if="selectedDonor"
+                  v-model="selectedDonor.name"
+                  label="Nome completo"
+                  class="mr-3"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+              <v-col>
+                <v-text-field
+                  v-if="selectedDonor"
+                  v-model="selectedDonor.identifier"
+                  label="CPF"
+                  class="mr-3"
+                  v-mask="'###.###.###.##'"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <v-text-field
+                  v-if="selectedDonor"
+                  v-model="selectedDonor.email"
+                  label="E-mail"
+                  class="mr-3"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+              <v-col>
+                <v-text-field
+                  v-if="selectedDonor"
+                  v-model="selectedDonor.telephone"
+                  label="Contato"
+                  class="mr-3"
+                  v-mask="'(##) #####-####'"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <v-select
+                  v-if="selectedDonor"
+                  v-model="selectedDonor.type_donor"
+                  :items="[
+                    { text: 'Interno', value: 'INTERNAL' },
+                    { text: 'Externo', value: 'EXTERNAL' },
+                  ]"
+                  item-value="value"
+                  item-text="text"
+                  label="Tipo"
+                  class="mr-3"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+            </v-row>
+          </v-card>
         </v-card-text>
       </v-card>
     </v-dialog>

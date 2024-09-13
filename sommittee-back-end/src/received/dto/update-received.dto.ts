@@ -1,6 +1,7 @@
 import { IsNotEmpty, IsString, IsEnum, IsOptional, ValidateNested, IsArray, IsNumber } from 'class-validator';
 import { Type } from 'class-transformer';
 import { Condition_product } from '@prisma/client';
+import { Type_donor } from '@prisma/client';
 class ProductDto {
   @IsString()
   @IsNotEmpty()
@@ -31,9 +32,13 @@ class DonorDto {
   @IsNotEmpty()
   telephone: string;
 
-  @IsString()
+  //   @IsString()
+  //   @IsNotEmpty()
+  //   type_donor: string;
+  // }
+  @IsEnum(Type_donor)
   @IsNotEmpty()
-  type_donor: string;
+  type_donor: Type_donor;
 }
 export class UpdateReceivedDto {
   @IsOptional()

@@ -2,188 +2,262 @@
   <v-dialog v-model="dialog" max-width="900px">
     <v-card>
       <v-card-title class="flex justify-space-between items-center">
-        <span class="headline">Editar informações</span>
+        <span class="headline">Editar registro</span>
         <v-btn icon @click="closeDialog">
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-card-title>
       <v-card-text>
-        <v-row>
-          <v-col cols="16" md="10">
+        <v-card class="elevation-4" style="padding: 16px">
+          <div style="padding-bottom: 20px">
             <span color="primary" style="font-weight: bold; font-size: 16px">
               Informações da pessoa:
             </span>
-          </v-col>
-        </v-row>
+          </div>
 
-        <v-row>
-          <v-col cols="12">
-            <v-text-field
-              v-model="updatedPeople.name"
-              label="Nome completo"
-              class="mr-3"
-            />
-          </v-col>
-        </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-model="updatedPeople.name"
+                label="Nome completo"
+                class="mr-3"
+                outlined
+                dense
+                hide-details
+                style="width: 100%"
+              />
+            </v-col>
+          </v-row>
 
-        <v-row>
-          <v-col cols="12" md="6">
-            <v-text-field
-              v-model="updatedPeople.identifier"
-              label="CPF"
-              class="mr-3"
-              disabled
-              v-mask="'###.###.###-##'"
-            />
-          </v-col>
-          <v-col cols="12" md="6">
-            <v-text-field
-              v-model="updatedPeople.birth_date"
-              type="date"
-              label="Data de nascimento"
-              :max="today"
-            />
-          </v-col>
-        </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-model="updatedPeople.identifier"
+                label="CPF"
+                class="mr-3"
+                v-mask="'###.###.###-##'"
+                readonly
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+            <v-col cols="6">
+              <v-menu
+                v-model="menu2"
+                :close-on-content-click="false"
+                :nudge-right="40"
+                transition="scale-transition"
+                offset-y
+                min-width="auto"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-text-field
+                    v-model="date"
+                    label="Data recebimento"
+                    prepend-icon="mdi-calendar"
+                    readonly
+                    v-bind="attrs"
+                    v-on="on"
+                    outlined
+                    dense
+                    hide-details
+                    style="width: 100%"
+                  ></v-text-field>
+                </template>
+                <v-date-picker
+                  color="secondary"
+                  v-model="date"
+                  locale="pt"
+                  @input="menu2 = false"
+                ></v-date-picker>
+              </v-menu>
+            </v-col>
+          </v-row>
 
-        <v-row>
-          <v-col cols="12" md="6">
-            <v-text-field
-              v-model="updatedPeople.email"
-              label="E-mail"
-              class="mr-3"
-              disabled
-            />
-          </v-col>
-          <v-col cols="12" md="6">
-            <v-text-field
-              v-model="updatedPeople.telephone"
-              label="Telefone"
-              v-mask="'(##) #####-####'"
-            />
-          </v-col>
-        </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-model="updatedPeople.email"
+                label="E-mail"
+                class="mr-3"
+                readonly
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-model="updatedPeople.telephone"
+                label="Telefone"
+                v-mask="'(##) #####-####'"
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+          </v-row>
 
-        <v-row>
-          <v-col cols="12" md="6">
-            <v-select
-              v-model="updatedPeople.gender"
-              :items="[
-                { text: 'Masculino', value: 'MALE' },
-                { text: 'Feminino', value: 'FEMALE' },
-              ]"
-              item-value="value"
-              item-text="text"
-              label="Sexo"
-            />
-          </v-col>
-          <v-col cols="12" md="6">
-            <v-select
-              v-model="updatedPeople.work"
-              :items="[
-                { text: 'Sim', value: true },
-                { text: 'Não', value: false },
-              ]"
-              item-value="value"
-              item-text="text"
-              label="Trabalha?"
-            />
-          </v-col>
-        </v-row>
+          <v-row>
+            <v-col>
+              <v-select
+                v-model="updatedPeople.gender"
+                :items="[
+                  { text: 'Masculino', value: 'MALE' },
+                  { text: 'Feminino', value: 'FEMALE' },
+                ]"
+                item-value="value"
+                item-text="text"
+                label="Sexo"
+                outlined
+                dense
+                hide-details
+                style="width: 96.5%"
+              />
+            </v-col>
+            <v-col>
+              <v-select
+                v-model="updatedPeople.work"
+                :items="[
+                  { text: 'Sim', value: true },
+                  { text: 'Não', value: false },
+                ]"
+                item-value="value"
+                item-text="text"
+                label="Trabalha?"
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+          </v-row>
 
-        <v-row>
-          <v-col cols="12">
-            <v-text-field
-              v-model="updatedPeople.education"
-              label="Educação"
-              class="mr-3"
-            />
-          </v-col>
-        </v-row>
+          <v-row>
+            <v-col cols="12">
+              <v-text-field
+                v-model="updatedPeople.education"
+                label="Educação"
+                class="mr-3"
+                outlined
+                dense
+                hide-details
+                style="width: 100%"
+              />
+            </v-col>
+          </v-row>
+        </v-card>
 
-        <v-row>
-          <v-col cols="16" md="10">
+        <v-card class="elevation-4" style="padding: 16px; margin-top: 30px">
+          <div style="padding-bottom: 16px">
             <span color="primary" style="font-weight: bold; font-size: 16px">
               Informações do endereço:
             </span>
-          </v-col>
-        </v-row>
+          </div>
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-if="updatedPeople && updatedPeople.address"
+                v-model="updatedPeople.address.zip_code"
+                label="CEP"
+                class="mr-3"
+                @blur="fetchAddress"
+                v-mask="'#####-###'"
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-if="updatedPeople && updatedPeople.address"
+                v-model="updatedPeople.address.street"
+                label="Rua"
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+          </v-row>
 
-        <v-row>
-          <v-col cols="12" md="6">
-            <v-text-field
-              v-if="updatedPeople && updatedPeople.address"
-              v-model="updatedPeople.address.zip_code"
-              label="CEP"
-              class="mr-3"
-              @blur="fetchAddress"
-              v-mask="'#####-###'"
-            />
-          </v-col>
-          <v-col cols="12" md="6">
-            <v-text-field
-              v-if="updatedPeople && updatedPeople.address"
-              v-model="updatedPeople.address.street"
-              label="Rua"
-            />
-          </v-col>
-        </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-if="updatedPeople && updatedPeople.address"
+                v-model="updatedPeople.address.number"
+                label="Número"
+                class="mr-3"
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+            <v-col>
+              <v-text-field
+                v-if="updatedPeople && updatedPeople.address"
+                v-model="updatedPeople.address.neighborhood"
+                label="Bairro"
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+          </v-row>
 
-        <v-row>
-          <v-col cols="12" md="6">
-            <v-text-field
-              v-if="updatedPeople && updatedPeople.address"
-              v-model="updatedPeople.address.number"
-              label="Número"
-              class="mr-3"
-            />
-          </v-col>
-          <v-col cols="12" md="6">
-            <v-text-field
-              v-if="updatedPeople && updatedPeople.address"
-              v-model="updatedPeople.address.neighborhood"
-              label="Bairro"
-            />
-          </v-col>
-        </v-row>
+          <v-row>
+            <v-col cols="12">
+              <v-text-field
+                v-if="updatedPeople && updatedPeople.address"
+                v-model="updatedPeople.address.complement"
+                label="Complemento"
+                class="mr-3"
+                outlined
+                dense
+                hide-details
+                style="width: 100%"
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-if="updatedPeople && updatedPeople.address"
+                v-model="updatedPeople.address.city"
+                label="Cidade"
+                outlined
+                dense
+                hide-details
+                style="width: 96.2%"
+              />
+            </v-col>
 
-        <v-row>
-          <v-col cols="12">
-            <v-text-field
-              v-if="updatedPeople && updatedPeople.address"
-              v-model="updatedPeople.address.complement"
-              label="Complemento"
-              class="mr-3"
-            />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="12" md="6">
-            <v-text-field
-              v-if="updatedPeople && updatedPeople.address"
-              v-model="updatedPeople.address.city"
-              label="Cidade"
-            />
-          </v-col>
-
-          <v-col cols="12" md="6">
-            <v-select
-              v-if="updatedPeople && updatedPeople.address"
-              v-model="updatedPeople.address.state"
-              :items="states"
-              item-value="acronym"
-              item-text="name"
-              label="Selecione o estado"
-            />
-          </v-col>
-        </v-row>
+            <v-col>
+              <v-select
+                v-if="updatedPeople && updatedPeople.address"
+                v-model="updatedPeople.address.state"
+                :items="states"
+                item-value="acronym"
+                item-text="name"
+                label="Selecione o estado"
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+          </v-row>
+        </v-card>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn
           text
           @click="saveChanges"
-          style="background-color: #007fff; color: white; font-weight: bold"
+          style="
+            background-color: #007fff;
+            color: white;
+            font-weight: bold;
+            margin-right: 12px;
+          "
         >
           SALVAR ALTERAÇÕES
         </v-btn>
@@ -231,7 +305,12 @@ export default {
         },
       },
       states,
-      today: new Date().toISOString().substr(0, 10),
+      date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+        .toISOString()
+        .substr(0, 10),
+      menu: false,
+      modal: false,
+      menu2: false,
     }
   },
   watch: {

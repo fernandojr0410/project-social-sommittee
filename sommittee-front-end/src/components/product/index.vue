@@ -48,9 +48,8 @@
           </template>
         </v-data-table>
         <ProductEdit
-          :dialog="editDialog"
+          v-model="editDialog"
           :id="updatedProductId"
-          @close="editDialog = false"
           @save="saveUpdatedProduct"
         />
 
@@ -65,116 +64,59 @@
     <v-dialog v-model="dialog" max-width="900px">
       <v-card>
         <v-card-title class="flex justify-space-between items-center">
-          <span class="headline">Detalhes do produto</span>
+          <span class="headline">Detalhes do registro</span>
           <v-btn icon @click="closeDialog">
             <v-icon>mdi-close</v-icon>
-          </v-btn> 
+          </v-btn>
         </v-card-title>
         <v-card-text>
-          <v-row>
-            <v-col cols="12">
+          <v-card class="elevation-4" style="padding: 16px">
+            <div style="padding-bottom: 16px">
               <span color="primary" style="font-weight: bold; font-size: 16px">
                 Informações do produto:
               </span>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols="6">
-              <v-text-field
-                v-if="selectedProduct"
-                v-model="selectedProduct.name"
-                label="Produto"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-            <v-col cols="6">
-              <v-text-field
-                v-if="selectedProduct"
-                v-model="selectedProduct.description"
-                label="Descrição"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <v-text-field
-                v-if="selectedProduct"
-                v-model="selectedProduct.type"
-                label="Categoria"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-          </v-row>
-
-          <v-row>
-            <v-col cols="16">
-              <span color="primary" style="font-weight: bold; font-size: 16px">
-                Informações do doador:
-              </span>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols="6">
-              <v-text-field
-                v-if="selectedProduct && selectedProduct.donor"
-                v-model="selectedProduct.donor.name"
-                label="Nome completo"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-            <v-col cols="6">
-              <v-text-field
-                v-if="selectedProduct && selectedProduct.donor"
-                v-model="selectedProduct.donor.identifier"
-                label="CPF"
-                v-mask="'###-###-###-##'"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols="6">
-              <v-text-field
-                v-if="selectedProduct && selectedProduct.donor"
-                v-model="selectedProduct.donor.email"
-                label="E-mail"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-            <v-col cols="6">
-              <v-text-field
-                v-if="selectedProduct && selectedProduct.donor"
-                v-model="selectedProduct.donor.telephone"
-                label="Contato"
-                v-mask="'(##) #####-####'"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <v-select
-                v-if="selectedProduct && selectedProduct.donor"
-                v-model="selectedProduct.donor.type_donor"
-                :items="[
-                  { value: 'INTERNAL', text: 'Interno' },
-                  { value: 'EXTERNAL', text: 'Externo' },
-                ]"
-                item-value="value"
-                item-text="text"
-                label="Tipo"
-                disabled
-              />
-            </v-col>
-          </v-row>
+            </div>
+            <v-row>
+              <v-col>
+                <v-text-field
+                  v-if="selectedProduct"
+                  v-model="selectedProduct.name"
+                  label="Produto"
+                  class="mr-3"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+              <v-col>
+                <v-text-field
+                  v-if="selectedProduct"
+                  v-model="selectedProduct.description"
+                  label="Descrição"
+                  class="mr-3"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <v-text-field
+                  v-if="selectedProduct"
+                  v-model="selectedProduct.type"
+                  label="Categoria"
+                  class="mr-3"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+            </v-row>
+          </v-card>
         </v-card-text>
       </v-card>
     </v-dialog>

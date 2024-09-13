@@ -17,57 +17,66 @@
 
     <v-dialog v-model="dialog" max-width="900px">
       <v-card>
-        <v-card-title>Criar produto</v-card-title>
+        <v-card-title>Cadastrar registro</v-card-title>
         <v-card-text>
-          <v-row>
-            <v-col>
+          <v-card class="elevation-4" style="padding: 16px">
+            <div style="padding-bottom: 16px">
               <span color="primary" style="font-weight: bold; font-size: 16px">
                 Informações do produto:
               </span>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <v-text-field
-                v-model="createdProduct.name"
-                label="Produto"
-                class="mr-3"
-                :rules="[rules.required]"
-              />
-            </v-col>
-            <v-col>
-              <v-text-field
-                v-model="createdProduct.type"
-                label="Categoria"
-                class="mr-3"
-                :rules="[rules.required]"
-              />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <v-textarea
-                v-model="createdProduct.description"
-                label="Descrição"
-                class="mr-3"
-                :rules="[rules.required]"
-              />
-            </v-col>
-          </v-row>
+            </div>
+            <v-row>
+              <v-col>
+                <v-text-field
+                  v-model="createdProduct.name"
+                  label="Produto"
+                  class="mr-3"
+                  :rules="[rules.required]"
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+              <v-col>
+                <v-text-field
+                  v-model="createdProduct.type"
+                  label="Categoria"
+                  class="mr-3"
+                  :rules="[rules.required]"
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <v-textarea
+                  v-model="createdProduct.description"
+                  label="Descrição"
+                  class="mr-3"
+                  :rules="[rules.required]"
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+            </v-row>
+          </v-card>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
             @click="closeDialog"
             color="primary"
-            style="color: white; font-weight: bold"
+            style="color: white; font-weight: bold; margin-right: 12px"
           >
             CANCELAR
           </v-btn>
           <v-btn
             color="green"
             @click="createProduct"
-            style="color: white; font-weight: bold"
+            style="color: white; font-weight: bold; margin-right: 12px"
           >
             CRIAR
           </v-btn>

@@ -93,231 +93,306 @@
     <v-dialog v-model="dialog" max-width="900px">
       <v-card>
         <v-card-title class="flex justify-space-between items-center">
-          <span class="headline">Detalhes da família</span>
+          <span class="headline">Detalhes do registro</span>
           <v-btn icon @click="closeDialog">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </v-card-title>
         <v-card-text>
-          <v-row>
-            <v-col cols="12">
+          <v-card class="elevation-4" style="padding: 16px">
+            <div style="padding-bottom: 16px">
               <span color="primary" style="font-weight: bold; font-size: 16px">
                 Informações da pessoa:
               </span>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <v-text-field
-                v-if="selectedPeopleFamily?.people"
-                v-model="selectedPeopleFamily.people.name"
-                label="Nome completo"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-            <v-col cols="6">
-              <v-text-field
-                v-if="selectedPeopleFamily?.people"
-                v-model="selectedPeopleFamily.people.identifier"
-                label="CPF"
-                class="mr-3"
-                v-mask="'###.###.###-##'"
-                disabled
-              />
-            </v-col>
-          </v-row>
+            </div>
 
-          <v-row>
-            <v-col cols="6">
-              <v-text-field
-                v-if="selectedPeopleFamily?.people"
-                v-model="selectedPeopleFamily.people.birth_date"
-                type="date"
-                label="Data de nascimento"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-            <v-col cols="6">
-              <v-text-field
-                v-if="selectedPeopleFamily?.people"
-                v-model="selectedPeopleFamily.people.email"
-                label="E-mail"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-          </v-row>
+            <v-row>
+              <v-col>
+                <v-text-field
+                  v-if="selectedPeopleFamily?.people"
+                  v-model="selectedPeopleFamily.people.name"
+                  label="Nome completo"
+                  class="mr-3"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+              <v-col>
+                <v-text-field
+                  v-if="selectedPeopleFamily?.people"
+                  v-model="selectedPeopleFamily.people.identifier"
+                  label="CPF"
+                  class="mr-3"
+                  v-mask="'###.###.###-##'"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+            </v-row>
 
-          <v-row>
-            <v-col cols="6">
-              <v-text-field
-                v-if="selectedPeopleFamily?.people"
-                v-model="selectedPeopleFamily.people.telephone"
-                label="Telefone"
-                class="mr-3"
-                v-mask="'(##) #####-####'"
-                disabled
-              />
-            </v-col>
-            <v-col cols="6">
-              <v-select
-                v-if="selectedPeopleFamily?.people"
-                v-model="selectedPeopleFamily.people.gender"
-                :items="[
-                  { text: 'Masculino', value: 'MALE' },
-                  { text: 'Feminino', value: 'FEMALE' },
-                ]"
-                item-value="value"
-                item-text="text"
-                class="mr-3"
-                label="Sexo"
-                disabled
-              />
-            </v-col>
-          </v-row>
+            <v-row>
+              <v-col>
+                <v-menu
+                  v-model="menu2"
+                  :close-on-content-click="false"
+                  :nudge-right="40"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                  readonly
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      v-if="selectedPeopleFamily?.people"
+                      v-model="selectedPeopleFamily.people.birth_date"
+                      label="Data de nascimento"
+                      prepend-icon="mdi-calendar"
+                      v-bind="attrs"
+                      v-on="on"
+                      readonly
+                      outlined
+                      dense
+                      hide-details
+                      style="width: 96%"
+                    ></v-text-field>
+                  </template>
+                  <v-date-picker
+                    color="secondary"
+                    v-model="selectedPeopleFamily.people.birth_date"
+                    locale="pt"
+                    @input="menu2 = false"
+                  ></v-date-picker>
+                </v-menu>
+              </v-col>
+              <v-col>
+                <v-text-field
+                  v-if="selectedPeopleFamily?.people"
+                  v-model="selectedPeopleFamily.people.email"
+                  label="E-mail"
+                  class="mr-3"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+            </v-row>
 
-          <v-row>
-            <v-col cols="6">
-              <v-select
-                v-if="selectedPeopleFamily?.people"
-                v-model="selectedPeopleFamily.people.work"
-                :items="[
-                  { text: 'Sim', value: true },
-                  { text: 'Não', value: false },
-                ]"
-                item-value="value"
-                item-text="text"
-                class="mr-3"
-                label="Trabalha?"
-                disabled
-              />
-            </v-col>
-            <v-col>
-              <v-text-field
-                v-if="selectedPeopleFamily?.people"
-                v-model="selectedPeopleFamily.people.education"
-                label="Educação"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-          </v-row>
+            <v-row>
+              <v-col>
+                <v-text-field
+                  v-if="selectedPeopleFamily?.people"
+                  v-model="selectedPeopleFamily.people.telephone"
+                  label="Telefone"
+                  class="mr-3"
+                  v-mask="'(##) #####-####'"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+              <v-col>
+                <v-select
+                  v-if="selectedPeopleFamily?.people"
+                  v-model="selectedPeopleFamily.people.gender"
+                  :items="[
+                    { text: 'Masculino', value: 'MALE' },
+                    { text: 'Feminino', value: 'FEMALE' },
+                  ]"
+                  item-value="value"
+                  item-text="text"
+                  class="mr-3"
+                  label="Sexo"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+            </v-row>
 
-          <v-row>
-            <v-col cols="12">
+            <v-row>
+              <v-col>
+                <v-select
+                  v-if="selectedPeopleFamily?.people"
+                  v-model="selectedPeopleFamily.people.work"
+                  :items="[
+                    { text: 'Sim', value: true },
+                    { text: 'Não', value: false },
+                  ]"
+                  item-value="value"
+                  item-text="text"
+                  class="mr-3"
+                  label="Trabalha?"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+              <v-col>
+                <v-text-field
+                  v-if="selectedPeopleFamily?.people"
+                  v-model="selectedPeopleFamily.people.education"
+                  label="Educação"
+                  class="mr-3"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+            </v-row>
+          </v-card>
+
+          <v-card class="elevation-4" style="padding: 16px; margin-top: 30px">
+            <div style="padding-bottom: 16px">
               <span color="primary" style="font-weight: bold; font-size: 16px">
                 Informações do endereço:
               </span>
-            </v-col>
-          </v-row>
+            </div>
 
-          <v-row>
-            <v-col cols="6">
-              <v-text-field
-                v-if="selectedPeopleFamily && selectedPeopleFamily.address"
-                v-model="selectedPeopleFamily.address.zip_code"
-                class="mr-3"
-                label="CEP"
-                v-mask="'#####-###'"
-                disabled
-              />
-            </v-col>
-            <v-col cols="6">
-              <v-text-field
-                v-if="selectedPeopleFamily && selectedPeopleFamily.address"
-                v-model="selectedPeopleFamily.address.street"
-                label="Rua"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols="6">
-              <v-text-field
-                v-if="selectedPeopleFamily && selectedPeopleFamily.address"
-                v-model="selectedPeopleFamily.address.number"
-                label="Número"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-            <v-col cols="6">
-              <v-text-field
-                v-if="selectedPeopleFamily && selectedPeopleFamily.address"
-                v-model="selectedPeopleFamily.address.neighborhood"
-                label="Bairro"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-          </v-row>
+            <v-row>
+              <v-col>
+                <v-text-field
+                  v-if="selectedPeopleFamily && selectedPeopleFamily.address"
+                  v-model="selectedPeopleFamily.address.zip_code"
+                  class="mr-3"
+                  label="CEP"
+                  v-mask="'#####-###'"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+              <v-col>
+                <v-text-field
+                  v-if="selectedPeopleFamily && selectedPeopleFamily.address"
+                  v-model="selectedPeopleFamily.address.street"
+                  label="Rua"
+                  class="mr-3"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <v-text-field
+                  v-if="selectedPeopleFamily && selectedPeopleFamily.address"
+                  v-model="selectedPeopleFamily.address.number"
+                  label="Número"
+                  class="mr-3"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+              <v-col>
+                <v-text-field
+                  v-if="selectedPeopleFamily && selectedPeopleFamily.address"
+                  v-model="selectedPeopleFamily.address.neighborhood"
+                  label="Bairro"
+                  class="mr-3"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+            </v-row>
 
-          <v-row>
-            <v-col cols="12" sm="6" md="4">
-              <v-text-field
-                v-if="selectedPeopleFamily && selectedPeopleFamily.address"
-                v-model="selectedPeopleFamily.address.complement"
-                label="Complemento"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-            <v-col cols="12" sm="6" md="4">
-              <v-text-field
-                v-if="selectedPeopleFamily && selectedPeopleFamily.address"
-                v-model="selectedPeopleFamily.address.city"
-                label="Cidade"
-                class="mr-3"
-                disabled
-              />
-            </v-col>
-            <v-col cols="12" sm="6" md="4">
-              <v-select
-                v-if="selectedPeopleFamily && selectedPeopleFamily.address"
-                v-model="selectedPeopleFamily.address.state"
-                :items="states"
-                item-value="acronym"
-                item-text="name"
-                class="mr-3"
-                label="Estado"
-                disabled
-              />
-            </v-col>
-          </v-row>
+            <v-row>
+              <v-col>
+                <v-text-field
+                  v-if="selectedPeopleFamily && selectedPeopleFamily.address"
+                  v-model="selectedPeopleFamily.address.complement"
+                  label="Complemento"
+                  class="mr-3"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+            </v-row>
 
-          <v-row>
-            <v-col cols="16" md="10">
+            <v-row>
+              <v-col>
+                <v-text-field
+                  v-if="selectedPeopleFamily && selectedPeopleFamily.address"
+                  v-model="selectedPeopleFamily.address.city"
+                  label="Cidade"
+                  class="mr-3"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                  style="width: 96%"
+                />
+              </v-col>
+              <v-col>
+                <v-select
+                  v-if="selectedPeopleFamily && selectedPeopleFamily.address"
+                  v-model="selectedPeopleFamily.address.state"
+                  :items="states"
+                  item-value="acronym"
+                  item-text="name"
+                  class="mr-3"
+                  label="Estado"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+            </v-row>
+          </v-card>
+
+          <v-card class="elevation-4" style="padding: 16px; margin-top: 30px">
+            <div style="padding-bottom: 16px">
               <span color="primary" style="font-weight: bold; font-size: 16px">
                 Função da pessoa na família:
               </span>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <v-select
-                v-if="
-                  selectedPeopleFamily && selectedPeopleFamily.people_family
-                "
-                v-model="selectedPeopleFamily.people_family[0].function"
-                :items="[
-                  { text: 'Mãe', value: 'mother' },
-                  { text: 'Pai', value: 'father' },
-                  { text: 'Filho(a)', value: 'child' },
-                  { text: 'Vó', value: 'grandMother' },
-                  { text: 'Vô', value: 'grandFather' },
-                  { text: 'Tio', value: 'uncle' },
-                  { text: 'Tio', value: 'aunt' },
-                ]"
-                item-value="value"
-                item-text="text"
-                label="Função"
-                disabled
-              />
-            </v-col>
-          </v-row>
+            </div>
+
+            <v-row>
+              <v-col>
+                <v-select
+                  v-if="
+                    selectedPeopleFamily && selectedPeopleFamily.people_family
+                  "
+                  v-model="selectedPeopleFamily.people_family[0].function"
+                  :items="[
+                    { text: 'Mãe', value: 'mother' },
+                    { text: 'Pai', value: 'father' },
+                    { text: 'Filho(a)', value: 'child' },
+                    { text: 'Vó', value: 'grandMother' },
+                    { text: 'Vô', value: 'grandFather' },
+                    { text: 'Tio', value: 'uncle' },
+                    { text: 'Tio', value: 'aunt' },
+                  ]"
+                  item-value="value"
+                  item-text="text"
+                  label="Função"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                  style="width: 98.5%;"
+                />
+              </v-col>
+            </v-row>
+          </v-card>
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -370,6 +445,12 @@ export default {
         { text: 'Ações', value: 'actions' },
       ],
       formatDate,
+      menu2: false,
+      selectedPeopleFamily: {
+        people: {
+          birth_date: new Date().toISOString().substr(0, 10), // Data inicial no formato YYYY-MM-DD
+        },
+      },
       states,
     }
   },

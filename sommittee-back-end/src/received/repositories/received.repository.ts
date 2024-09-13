@@ -128,10 +128,6 @@ export class ReceivedRepository {
       },
     });
 
-    if (!received) {
-      throw new NotFoundException(`Received record with ID ${id} not found`);
-    }
-
     return received;
   }
 
@@ -202,7 +198,6 @@ export class ReceivedRepository {
 
     return updatedReceived;
   }
-
 
   async remove(id: string): Promise<ReceivedEntity> {
     const receivedItem = await this.prisma.received.findUnique({
