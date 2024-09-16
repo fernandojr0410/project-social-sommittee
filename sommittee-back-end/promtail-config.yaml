@@ -1,0 +1,18 @@
+server:
+  http_listen_port: 9081
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://localhost:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: combined_log
+    static_configs:
+      - targets:
+          - localhost:80
+        labels:
+          job: combined_logs
+          __path__: /Users/fernandojunior/Desktop/project-social-sommittee/sommittee-back-end/combined.log

@@ -1,0 +1,28 @@
+module.exports = {
+  moduleFileExtensions: ['js', 'json', 'ts'],
+  rootDir: '.',
+  testMatch: [
+    '**/src/global.e2e-spec.ts',
+    '**/auth/tests/*.e2e-spec.ts',
+    '**/user/tests/*.e2e-spec.ts',
+    '**/email/tests/*.e2e-spec.ts',
+    '**/password/tests/*.e2e-spec.ts',
+    '**/address/tests/*.e2e-spec.ts',
+    '**/people/tests/*.e2e-spec.ts',
+    '**/family/tests/*.e2e-spec.ts',
+    '**/peopleFamily/tests/*.e2e-spec.ts',
+    '**/donor/tests/*.e2e-spec.ts',
+    '**/donation/tests/*.e2e-spec.ts',
+    '**/product/tests/*.e2e-spec.ts',
+    '**/stock/tests/*.e2e-spec.ts',
+    '**/attachment/tests/*e2e-spec.ts',
+    '**/received/tests/*e2e-spec.ts',
+    '**/purchase/tests/*e2e-spec.ts',
+  ],
+  transform: {
+    '^.+\\.(t|j)s$': 'ts-jest',
+  },
+  collectCoverageFrom: ['**/*.(t|j)s'],
+  coverageDirectory: './coverage',
+  testEnvironment: 'node',
+};

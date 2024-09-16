@@ -1,0 +1,257 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  name        String
+  identifier  String @unique
+  email       String       @unique
+  telephone   String       @db.Char(15)
+  password    String
+  role        Role
+  avatar      String?
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @default(now()) @updatedAt
+  last_action String?
+  tokens      Token[]
+  loggers     Logger[]
+  attachments Attachment[]
+  receiveds Received[]
+
+  @@map("users")
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  OPERATOR
+}
+
+model Token {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  created_at   DateTime @default(now())
+  updated_at   DateTime @default(now()) @updatedAt
+  access_token String
+  is_revoked   Boolean  @default(false)
+  user         User     @relation(fields: [user_id], references: [id])
+  user_id      String   @db.Uuid()
+  type         String   @default("login")
+
+  @@map("tokens")
+}
+
+model Address {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  zip_code     String
+  street       String
+  number       String
+  complement   String?
+  neighborhood String
+  city         String
+  state        String
+  created_at   DateTime @default(now())
+  updated_at   DateTime @default(now()) @updatedAt
+  people       People[]
+  families     Family[]
+
+  @@map("address")
+}
+
+model People {
+  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  name          String
+  identifier    String          @unique @db.Char(14)
+  email         String          @unique
+  birth_date    String
+  gender        Gender
+  telephone     String
+  work          Boolean
+  education     String
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @default(now()) @updatedAt
+  address       Address         @relation(fields: [address_id], references: [id])
+  address_id    String          @db.Uuid()
+  families      Family[]
+  People_Family People_Family[]
+
+  @@map("people")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+model Family {
+  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @default(now()) @updatedAt
+  people        People          @relation(fields: [people_id], references: [id])
+  people_id     String          @db.Uuid()
+  address       Address         @relation(fields: [address_id], references: [id])
+  address_id    String          @db.Uuid()
+  people_family People_Family[]
+
+  @@map("families")
+}
+
+model People_Family {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  function   String
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+  people     People   @relation(fields: [people_id], references: [id])
+  people_id  String   @db.Uuid()
+  family     Family   @relation(fields: [family_id], references: [id])
+  family_id  String   @db.Uuid()
+
+  @@map("people_family")
+}
+
+model Donor {
+  id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  name       String
+  identifier String      @unique @db.Char(14)
+  email      String     @unique
+  telephone    String     @db.Char(15)
+  type_donor Type_donor
+  created_at DateTime   @default(now())
+  updated_at DateTime   @default(now()) @updatedAt
+  donations  Donation[]
+  receiveds  Received[]
+
+  @@map("donors")
+}
+
+enum Type_donor {
+  INTERNAL
+  EXTERNAL
+}
+
+model Product {
+  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  name        String
+  description String
+  type        String
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @default(now()) @updatedAt
+  donations   Donation[]
+  stocks      Stock[]
+  donation_products DonationProducts[]
+  receivedsProducts ReceivedProduct[]
+  @@map("products")
+}
+
+model Received {
+  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  date        String
+  condition_product Condition_product
+  description String?
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+  user        User       @relation(fields: [user_id], references: [id])
+  user_id     String     @db.Uuid()
+  donor       Donor      @relation(fields: [donor_id], references: [id])
+  donor_id    String     @db.Uuid()
+  products          ReceivedProduct[]
+
+  @@map("receiveds")
+}
+
+enum Condition_product {
+  NEW
+  USED
+  DAMAGED
+}
+
+
+model ReceivedProduct {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  received  Received @relation(fields: [received_id], references: [id])
+  received_id String @db.Uuid()
+  product    Product    @relation(fields: [product_id], references: [id])
+  product_id  String   @db.Uuid()
+  amount    Decimal
+
+  @@map("received_products")
+}
+
+model Stock {
+  id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  product    Product  @relation(fields: [product_id], references: [id])
+  product_id String   @db.Uuid()
+  amount     Decimal @default(0)
+  created_at DateTime   @default(now())
+  updated_at DateTime   @default(now()) @updatedAt
+
+  @@map("stocks")
+}
+
+model Donation {
+  id                   String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  description          String
+  state                String
+  date_delivery        String
+  observation          String?
+  address_zip_code     String
+  address_street       String
+  address_complement   String?
+  address_neighborhood String
+  address_city         String
+  address_state        String       @db.Char(2)
+  created_at           DateTime     @default(now())
+  updated_at           DateTime     @default(now()) @updatedAt
+  donor                Donor        @relation(fields: [donor_id], references: [id])
+  donor_id             String       @db.Uuid()
+  products              Product[]      @relation()
+  attachments          Attachment[]
+  donation_products DonationProducts[]
+
+  @@map("donations")
+}
+model DonationProducts {
+  id                   String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  created_at           DateTime     @default(now())
+  updated_at           DateTime     @default(now()) @updatedAt
+  product              Product     @relation(fields: [product_id], references: [id])
+  product_id           String       @db.Uuid()
+  donation              Donation      @relation(fields: [donation_id], references: [id])
+  donation_id           String       @db.Uuid()
+  amount Decimal @default(0)
+
+  @@map("donation_products")
+}
+
+model Logger {
+  id         Int      @id @default(autoincrement())
+  path       String?
+  data       Json?
+  status     Int      @default(0)
+  method     String?
+  user       User?    @relation(fields: [user_id], references: [id])
+  user_id    String?  @db.Uuid()
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  @@map("loggers")
+}
+
+model Attachment {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  file_path   String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  user        User     @relation(fields: [user_id], references: [id])
+  user_id     String   @db.Uuid()
+  donation    Donation @relation(fields: [donation_id], references: [id])
+  donation_id String   @db.Uuid()
+
+  @@map("attachments")
+}
