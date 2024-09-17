@@ -58,6 +58,9 @@
                 :loading="loading"
                 :rules="[rules.required]"
                 return-object
+                outlined
+                dense
+                hide-details
                 @update:search-input="searchUser"
               >
                 <template v-slot:item="{ item }">
@@ -126,6 +129,7 @@
                 @update:search-input="searchDonor"
                 outlined
                 dense
+                hide-details
               />
             </v-col>
           </v-row>

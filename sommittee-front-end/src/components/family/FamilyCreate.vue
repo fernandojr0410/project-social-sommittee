@@ -34,6 +34,9 @@
                     :loading="loading"
                     :rules="[rules.required]"
                     return-object
+                    outlined
+                    dense
+                    hide-details
                     @update:search-input="searchPeople"
                   />
                 </v-col>
@@ -332,69 +335,69 @@
 </template>
 
 <script>
-import { states } from '@/assets/state'
+import { states } from "@/assets/state";
 
 export default {
-  name: 'FamilyCreate',
+  name: "FamilyCreate",
   data() {
     return {
       dialog: false,
       selectedPeople: this.getPeople(),
-      selectedFunction: '',
+      selectedFunction: "",
       peopleList: [],
       loading: false,
       valid: false,
       menu2: false,
       rules: {
-        required: (value) => !!value || 'Campo obrigatório.',
+        required: (value) => !!value || "Campo obrigatório.",
       },
       states,
-    }
+    };
   },
   methods: {
     getPeople() {
       return {
-        name: '',
-        identifier: '',
+        name: "",
+        identifier: "",
         birth_date: new Date().toISOString().substr(0, 10),
-        email: '',
-        telephone: '',
-        gender: '',
-        work: '',
-        education: '',
+        email: "",
+        telephone: "",
+        gender: "",
+        work: "",
+        education: "",
         address: {
-          zip_code: '',
-          street: '',
-          number: '',
-          complement: '',
-          neighborhood: '',
-          city: '',
-          state: '',
+          zip_code: "",
+          street: "",
+          number: "",
+          complement: "",
+          neighborhood: "",
+          city: "",
+          state: "",
         },
         people_family: [],
-      }
+      };
     },
     openDialog() {
-      this.dialog = true
+      this.dialog = true;
     },
     closeDialog() {
-      this.dialog = false
+      this.dialog = false;
     },
-    async fetchPeople(search = '') {
-      this.loading = true
+    async fetchPeople(search = "") {
+      this.loading = true;
       try {
-        const response = await this.findAll(search)
+        const response = await this.findAll(search);
 
-        this.peopleList = response
+        this.peopleList = response;
       } catch (error) {
-        this.$error('Erro ao carregar dados!')
-        throw error
+        this.$error("Erro ao carregar dados!");
+        throw error;
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
     async findAll(search) {
-      return await this.$store.dispatch('people/findAll', { search })
+      return await this.$store.dispatch("people/findAll", { search });
     },
 
     async createFamily() {
@@ -403,31 +406,34 @@ export default {
         people_id: this.selectedPeople?.id,
         people_family: this.selectedPeople.people_family,
         function: this.selectedFunction,
-      }
+      };
 
       try {
-        const response = await this.$store.dispatch('family/create', familyData)
+        const response = await this.$store.dispatch(
+          "family/create",
+          familyData
+        );
         if (response) {
-          this.$success('Registro criado!')
-          this.$store.dispatch('family/findAll')
-          this.selectedFunction = ''
-          this.closeDialog()
-          this.selectedPeople = this.getPeople()
+          this.$success("Registro criado!");
+          this.$store.dispatch("family/findAll");
+          this.selectedFunction = "";
+          this.closeDialog();
+          this.selectedPeople = this.getPeople();
         } else {
-          this.$error('Erro ao criar a família!')
+          this.$error("Erro ao criar a família!");
         }
       } catch (error) {
-        this.$error('Erro ao criar registro!')
-        throw error
+        this.$error("Erro ao criar registro!");
+        throw error;
       }
     },
     searchPeople(search) {
       if (search && search.length > 2) {
-        this.fetchPeople(search)
+        this.fetchPeople(search);
       } else {
-        this.peopleList = []
+        this.peopleList = [];
       }
     },
   },
-}
+};
 </script>

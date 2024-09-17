@@ -1,4 +1,4 @@
-import { Donation } from "@prisma/client";
+import { Donation } from '@prisma/client';
 
 export class DonationEntity implements Donation {
   id: string;
@@ -6,13 +6,9 @@ export class DonationEntity implements Donation {
   state: string;
   date_delivery: string;
   observation: string;
-  address_zip_code: string;
-  address_street: string;
-  address_complement: string;
-  address_neighborhood: string;
-  address_city: string;
-  address_state: string;
+  donor_id: string;
+  people_id: string;
+  family_id: string;
   created_at: Date;
   updated_at: Date;
-  donor_id: string;
 }

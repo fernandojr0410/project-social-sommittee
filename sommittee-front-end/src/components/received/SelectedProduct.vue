@@ -18,6 +18,9 @@
               :loading="loading"
               :rules="[rules.required]"
               return-object
+              outlined
+              dense
+              hide-details
               @update:search-input="searchProduct"
             />
           </v-col>
@@ -57,7 +60,7 @@
 
 <script>
 export default {
-  name: 'SelectedProduct',
+  name: "SelectedProduct",
   props: {
     value: {
       type: Boolean,
@@ -70,41 +73,41 @@ export default {
       productList: [],
       loading: false,
       rules: {
-        required: (value) => !!value || 'Campo obrigatório.',
+        required: (value) => !!value || "Campo obrigatório.",
       },
       createdReceived: {
         product: [],
       },
-      amount: '',
-    }
+      amount: "",
+    };
   },
   methods: {
-    async fetchProduct(search = '') {
-      this.loading = true
+    async fetchProduct(search = "") {
+      this.loading = true;
       try {
-        const response = await this.findAll(search, 'product')
-        this.productList = response
+        const response = await this.findAll(search, "product");
+        this.productList = response;
       } catch (error) {
-        this.$error('Erro ao carregar produto!')
-        throw error
+        this.$error("Erro ao carregar produto!");
+        throw error;
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
 
     async findAll(search, type) {
-      if (type === 'product') {
-        return await this.$store.dispatch('product/findAll', {
+      if (type === "product") {
+        return await this.$store.dispatch("product/findAll", {
           search,
-        })
+        });
       }
     },
 
     async searchProduct(search) {
       if (search && search.length > 2) {
-        this.fetchProduct(search)
+        this.fetchProduct(search);
       } else {
-        this.productList = []
+        this.productList = [];
       }
     },
 
@@ -113,16 +116,16 @@ export default {
         this.createdReceived.product.push({
           product: this.selectedProduct,
           amount: Number(this.amount),
-        })
-        this.$emit('add-product', {
+        });
+        this.$emit("add-product", {
           product: this.selectedProduct,
           amount: Number(this.amount),
-        })
-        this.$emit('update:dialog', false)
-        this.selectedProduct = null
-        this.amount = ''
+        });
+        this.$emit("update:dialog", false);
+        this.selectedProduct = null;
+        this.amount = "";
       }
     },
   },
-}
+};
 </script>

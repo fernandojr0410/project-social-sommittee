@@ -1,4 +1,6 @@
-import { IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsNotEmpty, IsOptional, IsString, IsArray } from 'class-validator';
+import { Type } from 'class-transformer';
+import { Condition_product } from '@prisma/client';
 
 export class CreateDonationDto {
   @IsString()
@@ -19,30 +21,22 @@ export class CreateDonationDto {
 
   @IsString()
   @IsNotEmpty()
-  address_zip_code: string;
-
-  @IsString()
-  @IsNotEmpty()
-  address_street: string;
-
-  @IsString()
-  @IsOptional()
-  address_complement?: string;
-
-  @IsString()
-  @IsNotEmpty()
-  address_neighborhood: string;
-
-  @IsString()
-  @IsNotEmpty()
-  address_city: string;
-
-  @IsString()
-  @IsNotEmpty()
-  address_state: string;
-
-  @IsString()
-  @IsNotEmpty()
   donor_id: string;
 
+  @IsArray()
+  @IsNotEmpty({ each: true })
+  @Type(() => Object)
+  products: {
+    product_id: string;
+    amount: number;
+    condition_product: Condition_product;
+  }[];
+
+  @IsNotEmpty()
+  @IsString()
+  people_id: string;
+
+  @IsNotEmpty()
+  @IsString()
+  family_id: string;
 }

@@ -80,6 +80,7 @@ model People {
   address_id    String          @db.Uuid()
   families      Family[]
   People_Family People_Family[]
+  donations Donation[]
 
   @@map("people")
 }
@@ -98,7 +99,7 @@ model Family {
   address       Address         @relation(fields: [address_id], references: [id])
   address_id    String          @db.Uuid()
   people_family People_Family[]
-
+  donations Donation[]
   @@map("families")
 }
 
@@ -200,17 +201,15 @@ model Donation {
   state                String
   date_delivery        String
   observation          String?
-  address_zip_code     String
-  address_street       String
-  address_complement   String?
-  address_neighborhood String
-  address_city         String
-  address_state        String       @db.Char(2)
   created_at           DateTime     @default(now())
   updated_at           DateTime     @default(now()) @updatedAt
   donor                Donor        @relation(fields: [donor_id], references: [id])
   donor_id             String       @db.Uuid()
-  products              Product[]      @relation()
+  people               People      @relation(fields: [people_id], references: [id])
+  people_id            String      @db.Uuid()
+  family               Family      @relation(fields: [family_id], references: [id])
+  family_id            String       @db.Uuid()
+  products             Product[]     @relation()
   attachments          Attachment[]
   donation_products DonationProducts[]
 
