@@ -2,6 +2,10 @@
   <v-container>
     <v-card>
       <v-card-text>
+        <div class="d-flex items-center">
+          <ReceivedSearch @search="handleSearch" />
+          <ReceivedRefresh />
+        </div>
         <v-data-table
           :loading="loading"
           :headers="headers"
@@ -31,7 +35,7 @@
 
           <template v-slot:[`item.type`]="{ item }">
             <span>
-              {{ item.products[0].product.type }}
+              {{ getProductType(item) }}
             </span>
           </template>
 
@@ -61,6 +65,12 @@
           v-model="editDialog"
           :id="updatedReceivedId"
           @save="saveUpdatedReceived"
+        />
+
+        <ReceivedDelete
+          :dialog="deleteDialog"
+          :id="itemToDelete"
+          @close="handleDeleteClose"
         />
       </v-card-text>
     </v-card>
@@ -262,13 +272,22 @@
 </template>
 
 <script>
-import { formatDate } from '@/filters'
-import ReceivedCreate from './ReceivedCreate.vue'
-import ReceivedEdit from './ReceivedEdit.vue'
+import { formatDate } from "@/filters";
+import ReceivedCreate from "./ReceivedCreate.vue";
+import ReceivedEdit from "./ReceivedEdit.vue";
+import ReceivedDelete from "./ReceivedDelete.vue";
+import ReceivedSearch from "./ReceivedSearch.vue";
+import ReceivedRefresh from "./ReceivedRefresh.vue";
 
 export default {
-  name: 'index',
-  components: { ReceivedCreate, ReceivedEdit },
+  name: "index",
+  components: {
+    ReceivedCreate,
+    ReceivedEdit,
+    ReceivedDelete,
+    ReceivedSearch,
+    ReceivedRefresh,
+  },
   data() {
     return {
       loading: false,
@@ -277,83 +296,106 @@ export default {
       createDialog: false,
       editDialog: false,
       updatedReceivedId: null,
+      deleteDialog: false,
+      itemToDelete: null,
       headers: [
-        { text: 'Data criação', value: 'created_at' },
-        { text: 'Nome doador', value: 'name' },
-        { text: 'Contato doador', value: 'telephone' },
-        { text: 'Tipo doador', value: 'type_donor' },
-        { text: 'Tipo doação', value: 'type' },
-        { text: 'Condição', value: 'condition_product' },
-        { text: 'Ações', value: 'actions' },
+        { text: "Data criação", value: "created_at" },
+        { text: "Nome doador", value: "name" },
+        { text: "Contato doador", value: "telephone" },
+        { text: "Tipo doador", value: "type_donor" },
+        { text: "Tipo doação", value: "type" },
+        { text: "Condição", value: "condition_product" },
+        { text: "Ações", value: "actions" },
       ],
       formatDate,
-    }
+    };
   },
   computed: {
     received() {
-      return this.$store.state.received.received
+      return this.$store.state.received.received;
     },
   },
   created() {
-    this.loadData()
+    this.loadData();
   },
   methods: {
+    getProductType(item) {
+      if (
+        item.products &&
+        item.products.length > 0 &&
+        item.products[0].product &&
+        item.products[0].product.type
+      ) {
+        return item.products[0].product.type;
+      }
+    },
     async loadData() {
-      this.loading = true
+      this.loading = true;
       try {
-        await this.findAll()
+        await this.findAll();
       } catch (error) {
-        this.$error('Erro ao carregar dados!')
-        throw error
+        this.$error("Erro ao carregar dados!");
+        throw error;
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
     async findAll() {
-      await this.$store.dispatch('received/findAll')
+      await this.$store.dispatch("received/findAll");
+    },
+    async handleSearch(search) {
+      this.search = search;
     },
     showDetails(item) {
-      this.selectedReceived = item
-      this.dialog = true
+      this.selectedReceived = item;
+      this.dialog = true;
     },
     editItem(item) {
-      this.updatedReceivedId = item.id
-      this.editDialog = true
+      this.updatedReceivedId = item.id;
+      this.editDialog = true;
     },
 
     async saveUpdatedReceived(updatedReceived) {
       try {
         const response = await this.$store.dispatch(
-          'received/update',
+          "received/update",
           updatedReceived
-        )
-        console.log('updatedReceived', response)
-        this.loadData()
-        this.editDialog = false
-        return response
+        );
+        console.log("updatedReceived", response);
+        this.loadData();
+        this.editDialog = false;
+        return response;
       } catch (error) {
-        this.$error('Erro ao atualizar registro!')
-        throw error
+        this.$error("Erro ao atualizar registro!");
+        throw error;
       }
     },
 
     async createdReceived(newReceived) {
       try {
-        await this.$store.dispatch('received/create', newReceived)
-        this.$success('Registro criado!')
-        this.loadData()
-        this.createDialog = false
+        await this.$store.dispatch("received/create", newReceived);
+        this.$success("Registro criado!");
+        this.loadData();
+        this.createDialog = false;
       } catch (error) {
-        this.$error('Erro ao criar registro!')
-        throw error
+        this.$error("Erro ao criar registro!");
+        throw error;
       }
     },
     closeDialog() {
-      this.dialog = false
+      this.dialog = false;
     },
     isSelected(item) {
-      return this.updatedReceivedId === item.id
+      return this.updatedReceivedId === item.id;
+    },
+    confirmDelete(item) {
+      this.itemToDelete = item.id;
+      this.deleteDialog = true;
+    },
+    handleDeleteClose() {
+      this.deleteDialog = false;
+      this.itemToDelete = null;
     },
   },
-}
+};
 </script>

@@ -27,7 +27,7 @@
                 ? $options.filters.functionFamily(
                     item.people_family[0].function
                   )
-                : 'N/A'
+                : "N/A"
             }}
           </template>
 
@@ -388,7 +388,7 @@
                   outlined
                   dense
                   hide-details
-                  style="width: 98.5%;"
+                  style="width: 98.5%"
                 />
               </v-col>
             </v-row>
@@ -405,16 +405,16 @@
 </template>
 
 <script>
-import { formatDate } from '@/filters'
-import { states } from '@/assets/state'
-import FamilyCreate from './FamilyCreate.vue'
-import FamilyEdit from './FamilyEdit.vue'
-import FamilyDelete from './FamilyDelete.vue'
-import FamilySearch from './FamilySearch.vue'
-import FamilyRefresh from './FamilyRefresh.vue'
+import { formatDate } from "@/filters";
+import { states } from "@/assets/state";
+import FamilyCreate from "./FamilyCreate.vue";
+import FamilyEdit from "./FamilyEdit.vue";
+import FamilyDelete from "./FamilyDelete.vue";
+import FamilySearch from "./FamilySearch.vue";
+import FamilyRefresh from "./FamilyRefresh.vue";
 
 export default {
-  name: 'index',
+  name: "index",
   components: {
     FamilyCreate,
     FamilyEdit,
@@ -432,99 +432,99 @@ export default {
       updatedFamilyId: null,
       deleteDialog: false,
       itemToDelete: null,
-      search: '',
+      search: "",
       headers: [
-        { text: 'Data criação', value: 'created_at' },
-        { text: 'Nome', value: 'name' },
-        { text: 'CPF', value: 'identifier' },
-        { text: 'Função', value: 'function' },
-        { text: 'CEP', value: 'zip_code' },
-        { text: 'Rua', value: 'street' },
-        { text: 'Número', value: 'number' },
-        { text: 'Bairro', value: 'neighborhood' },
-        { text: 'Ações', value: 'actions' },
+        { text: "Data criação", value: "created_at" },
+        { text: "Nome", value: "name" },
+        { text: "CPF", value: "identifier" },
+        { text: "Função", value: "function" },
+        { text: "CEP", value: "zip_code" },
+        { text: "Rua", value: "street" },
+        { text: "Número", value: "number" },
+        { text: "Bairro", value: "neighborhood" },
+        { text: "Ações", value: "actions" },
       ],
       formatDate,
       menu2: false,
       selectedPeopleFamily: {
         people: {
-          birth_date: new Date().toISOString().substr(0, 10), // Data inicial no formato YYYY-MM-DD
+          birth_date: new Date().toISOString().substr(0, 10),
         },
       },
       states,
-    }
+    };
   },
   computed: {
     family() {
-      return this.$store.state.family.family
+      return this.$store.state.family.family;
     },
   },
   created() {
-    this.loadData()
+    this.loadData();
   },
   methods: {
     async loadData() {
-      this.loading = true
+      this.loading = true;
       try {
-        await this.findAll()
+        await this.findAll();
       } catch (error) {
-        this.$error('Erro ao carregar dados!')
-        throw error
+        this.$error("Erro ao carregar dados!");
+        throw error;
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
 
     async findAll() {
-      await this.$store.dispatch('family/findAll')
+      await this.$store.dispatch("family/findAll");
     },
     async handleSearch(search) {
-      this.search = search
+      this.search = search;
     },
     showDetails(item) {
-      this.selectedPeopleFamily = item
-      this.dialog = true
+      this.selectedPeopleFamily = item;
+      this.dialog = true;
     },
     editItem(item) {
-      this.updatedFamilyId = item.id
-      this.editDialog = true
+      this.updatedFamilyId = item.id;
+      this.editDialog = true;
     },
     async saveUpdatedFamily(updatedFamily) {
       try {
-        await this.$store.dispatch('family/update', updatedFamily)
-        this.loadData()
-        this.editDialog = false
+        await this.$store.dispatch("family/update", updatedFamily);
+        this.loadData();
+        this.editDialog = false;
       } catch (error) {
-        this.$error('Erro ao atualizar registro!')
-        throw error
+        this.$error("Erro ao atualizar registro!");
+        throw error;
       }
     },
 
     async createdFamily(newFamily) {
       try {
-        await this.$store.dispatch('family/create', newFamily)
-        this.$success('Registro criado!')
-        this.loadData()
-        this.createDialog = false
+        await this.$store.dispatch("family/create", newFamily);
+        this.$success("Registro criado!");
+        this.loadData();
+        this.createDialog = false;
       } catch (error) {
-        this.$error('Erro ao criar registro!')
-        throw error
+        this.$error("Erro ao criar registro!");
+        throw error;
       }
     },
     isSelected(item) {
-      return this.updatedFamilyId === item.id
+      return this.updatedFamilyId === item.id;
     },
     closeDialog() {
-      this.dialog = false
+      this.dialog = false;
     },
     confirmDelete(item) {
-      this.itemToDelete = item.id
-      this.deleteDialog = true
+      this.itemToDelete = item.id;
+      this.deleteDialog = true;
     },
     handleDeleteClose() {
-      this.deleteDialog = false
-      this.itemToDelete = null
+      this.deleteDialog = false;
+      this.itemToDelete = null;
     },
   },
-}
+};
 </script>

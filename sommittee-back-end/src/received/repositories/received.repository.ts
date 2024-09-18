@@ -1,16 +1,25 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { PrismaService } from "../../prisma/prisma.service";
-import { CreateReceivedDto } from "../dto/create-received.dto";
-import { ReceivedEntity } from "../entities/received.entity";
-import { Prisma, Type_donor } from "@prisma/client";
-import { UpdateReceivedDto } from "../dto/update-received.dto";
-import { Decimal } from "@prisma/client/runtime/library";
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
+import { CreateReceivedDto } from '../dto/create-received.dto';
+import { ReceivedEntity } from '../entities/received.entity';
+import { Prisma, Type_donor } from '@prisma/client';
+import { UpdateReceivedDto } from '../dto/update-received.dto';
+import { Decimal } from '@prisma/client/runtime/library';
+
 @Injectable()
 export class ReceivedRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(createReceivedDto: CreateReceivedDto): Promise<ReceivedEntity> {
-    const { date, description, user_id, donor_id, donor, condition_product, products } = createReceivedDto;
+    const {
+      date,
+      description,
+      user_id,
+      donor_id,
+      donor,
+      condition_product,
+      products,
+    } = createReceivedDto;
 
     let donorId = donor_id;
     if (!donorId && donor) {
@@ -42,7 +51,7 @@ export class ReceivedRepository {
         user_id,
         donor_id: donorId,
         products: {
-          create: products.map(product => ({
+          create: products.map((product) => ({
             product_id: product.product_id,
             amount: Number(product.amount),
           })),
@@ -83,28 +92,59 @@ export class ReceivedRepository {
     return received;
   }
 
-
-
-
-  async findAll(): Promise<ReceivedEntity[]> {
-    return await this.prisma.received.findMany({
+  async findAll(query: any): Promise<ReceivedEntity[]> {
+    const _query: any = {
       include: {
         products: {
           include: {
             product: true,
-          }
+          },
         },
         donor: true,
-
         user: {
           select: {
             name: true,
             email: true,
             telephone: true,
-          }
+          },
         },
       },
-    });
+    };
+
+    if (query.searchField && query.search) {
+      if (query.searchField === 'name') {
+        _query.where = {
+          donor: {
+            name: {
+              contains: query.search,
+              mode: 'insensitive',
+            },
+          },
+        };
+      } else if (query.searchField === 'telephone') {
+        _query.where = {
+          donor: {
+            telephone: {
+              contains: query.search,
+              mode: 'insensitive',
+            },
+          },
+        };
+      } else if (query.searchField === 'condition_product') {
+        _query.where = {
+          condition_product: query.search,
+        };
+      } else {
+        _query.where = {
+          [query.searchField]: {
+            contains: query.search,
+            mode: 'insensitive',
+          },
+        };
+      }
+    }
+
+    return await this.prisma.received.findMany(_query);
   }
 
   async findById(id: string): Promise<ReceivedEntity> {
@@ -114,7 +154,7 @@ export class ReceivedRepository {
         products: {
           include: {
             product: true,
-          }
+          },
         },
         donor: true,
 
@@ -123,7 +163,7 @@ export class ReceivedRepository {
             name: true,
             email: true,
             telephone: true,
-          }
+          },
         },
       },
     });
@@ -131,22 +171,28 @@ export class ReceivedRepository {
     return received;
   }
 
-  async update(id: string, updateReceivedDto: UpdateReceivedDto): Promise<ReceivedEntity> {
-    const { date, description, condition_product, donor, products } = updateReceivedDto;
+  async update(
+    id: string,
+    updateReceivedDto: UpdateReceivedDto,
+  ): Promise<ReceivedEntity> {
+    const { date, description, condition_product, donor, products } =
+      updateReceivedDto;
 
     const updateData: Prisma.ReceivedUpdateInput = {
       date: date ? new Date(date).toISOString() : undefined,
       description,
       condition_product,
-      donor: donor ? {
-        update: {
-          name: donor.name,
-          identifier: donor.identifier,
-          email: donor.email,
-          telephone: donor.telephone,
-          type_donor: donor.type_donor as Type_donor,
-        },
-      } : undefined,
+      donor: donor
+        ? {
+            update: {
+              name: donor.name,
+              identifier: donor.identifier,
+              email: donor.email,
+              telephone: donor.telephone,
+              type_donor: donor.type_donor as Type_donor,
+            },
+          }
+        : undefined,
     };
 
     const updatedReceived = await this.prisma.received.update({
@@ -158,7 +204,6 @@ export class ReceivedRepository {
         user: true,
       },
     });
-
 
     if (products) {
       await this.prisma.receivedProduct.deleteMany({
@@ -200,6 +245,7 @@ export class ReceivedRepository {
   }
 
   async remove(id: string): Promise<ReceivedEntity> {
+    // Busca o recebimento e inclui os produtos relacionados
     const receivedItem = await this.prisma.received.findUnique({
       where: { id },
       include: {
@@ -212,7 +258,7 @@ export class ReceivedRepository {
     });
 
     if (!receivedItem) {
-      throw new Error('Item not found');
+      throw new Error('Received item not found');
     }
 
     await Promise.all(
@@ -229,12 +275,18 @@ export class ReceivedRepository {
           await this.prisma.stock.update({
             where: { id: existingStock.id },
             data: {
-              amount: newAmount.greaterThan(new Decimal(0)) ? newAmount : new Decimal(0),
+              amount: newAmount.greaterThan(new Decimal(0))
+                ? newAmount
+                : new Decimal(0),
             },
           });
         }
-      })
+      }),
     );
+
+    await this.prisma.receivedProduct.deleteMany({
+      where: { received_id: id },
+    });
 
     return await this.prisma.received.delete({ where: { id } });
   }

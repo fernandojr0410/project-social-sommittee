@@ -58,6 +58,9 @@
                 :loading="loading"
                 :rules="[rules.required]"
                 return-object
+                outlined
+                dense
+                hide-details
                 @update:search-input="searchUser"
               >
                 <template v-slot:item="{ item }">
@@ -126,6 +129,7 @@
                 @update:search-input="searchDonor"
                 outlined
                 dense
+                hide-details
               />
             </v-col>
           </v-row>
@@ -275,10 +279,10 @@
 </template>
 
 <script>
-import SelectedProduct from './SelectedProduct.vue'
+import SelectedProduct from "./SelectedProduct.vue";
 
 export default {
-  name: 'ReceivedEdit',
+  name: "ReceivedEdit",
   components: { SelectedProduct },
   props: {
     value: {
@@ -302,11 +306,11 @@ export default {
       donorList: [],
       editingIndex: null,
       conditionProduct: [
-        { text: 'Novo', value: 'NEW' },
-        { text: 'Usado', value: 'USED' },
-        { text: 'Danificado', value: 'DAMAGED' },
+        { text: "Novo", value: "NEW" },
+        { text: "Usado", value: "USED" },
+        { text: "Danificado", value: "DAMAGED" },
       ],
-      search: '',
+      search: "",
       items: [],
       loading: false,
       date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
@@ -316,9 +320,9 @@ export default {
       modal: false,
       menu2: false,
       rules: {
-        required: (value) => !!value || 'Campo obrigatório.',
+        required: (value) => !!value || "Campo obrigatório.",
       },
-    }
+    };
   },
 
   computed: {
@@ -327,7 +331,7 @@ export default {
         ...user,
         name: `${user.name}`,
         identifier: user.identifier,
-      }))
+      }));
     },
   },
 
@@ -337,140 +341,137 @@ export default {
       handler: async function (id) {
         if (id) {
           this.updatedReceived = await this.$store.dispatch(
-            'received/findById',
+            "received/findById",
             id
-          )
+          );
 
           if (this.updatedReceived.user) {
-            this.selectedUser = this.updatedReceived.user
+            this.selectedUser = this.updatedReceived.user;
           }
 
           if (this.updatedReceived.products) {
-            this.products = this.updatedReceived.products
+            this.products = this.updatedReceived.products;
           }
         }
       },
     },
     selectedUser(newValue) {
       if (newValue) {
-        this.updatedReceived.user = { ...newValue }
+        this.updatedReceived.user = { ...newValue };
       } else {
-        this.updatedReceived.user = this.getReceived().user
+        this.updatedReceived.user = this.getReceived().user;
       }
     },
 
     selectedDonor(newValue) {
       if (newValue) {
-        this.updatedReceived.donor = { ...newValue }
+        this.updatedReceived.donor = { ...newValue };
       } else {
-        this.updatedReceived.donor = this.getReceived().donor
+        this.updatedReceived.donor = this.getReceived().donor;
       }
     },
   },
   methods: {
     getReceived() {
       return {
-        date: '',
-        condition_product: '',
-        description: '',
+        date: "",
+        condition_product: "",
+        description: "",
         products: [],
         user: {},
         stock: {
-          amount: '',
+          amount: "",
         },
         donor: {
-          name: '',
-          identifier: '',
-          email: '',
-          telephone: '',
-          type_donor: '',
+          name: "",
+          identifier: "",
+          email: "",
+          telephone: "",
+          type_donor: "",
         },
-      }
+      };
     },
     openProductDialog() {
-      this.productDialog = true
+      this.productDialog = true;
     },
     formatCPF(identifier) {
-      if (!identifier) return ''
-      return identifier.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
+      if (!identifier) return "";
+      return identifier.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
     },
 
     addProductToList(product) {
-      console.log('Produto adicionado:', product)
-
       if (this.editingIndex !== null) {
-        this.products.splice(this.editingIndex, 1, product)
-        this.editingIndex = null
+        this.products.splice(this.editingIndex, 1, product);
+        this.editingIndex = null;
       } else {
-        this.products.push(product)
+        this.products.push(product);
       }
-      this.productDialog = false
+      this.productDialog = false;
     },
 
     editProduct(index) {
       if (this.products && this.products[index]) {
-        this.selectedProduct = this.products[index]
-        console.log('selectedProduct', this.selectedProduct)
-        this.productDialog = true
-        this.editingIndex = index
+        this.selectedProduct = this.products[index];
+        this.productDialog = true;
+        this.editingIndex = index;
       }
     },
 
     addProduct() {
       if (this.selectedProduct) {
-        this.$emit('add-product', this.selectedProduct)
-        this.selectedProduct = null
-        this.dialog = false
+        this.$emit("add-product", this.selectedProduct);
+        this.selectedProduct = null;
+        this.dialog = false;
       }
-      this.$emit('update:dialog', false)
+      this.$emit("update:dialog", false);
     },
 
     removeProduct(index) {
-      this.products.splice(index, 1)
-      this.$success('Produto removido!')
+      this.products.splice(index, 1);
+      this.$success("Produto removido!");
     },
 
     async findAll(search, type) {
-      if (type === 'donor') {
-        const responseDonor = await this.$store.dispatch('donor/findAll', {
+      if (type === "donor") {
+        const responseDonor = await this.$store.dispatch("donor/findAll", {
           search,
-        })
-        return responseDonor
-      } else if (type === 'user') {
-        const responseUser = await this.$store.dispatch('user/findAll', {
+        });
+        return responseDonor;
+      } else if (type === "user") {
+        const responseUser = await this.$store.dispatch("user/findAll", {
           search,
-        })
-        return responseUser
+        });
+        return responseUser;
       }
     },
 
-    async fetchUser(search = '') {
-      this.userList = []
+    async fetchUser(search = "") {
+      this.userList = [];
       try {
-        const response = await this.findAll(search, 'user')
+        const response = await this.findAll(search, "user");
         if (
           response &&
           response.dataUsers &&
           Array.isArray(response.dataUsers)
         ) {
-          this.userList = response.dataUsers
+          this.userList = response.dataUsers;
         }
       } catch (error) {
-        this.error('Erro ao selecionar doador!')
-        throw error
+        this.error("Erro ao selecionar doador!");
+        throw error;
       }
     },
 
-    async fetchDonor(search = '') {
-      this.loading = true
+    async fetchDonor(search = "") {
+      this.loading = true;
       try {
-        const response = await this.findAll(search, 'donor')
-        this.donorList = response
+        const response = await this.findAll(search, "donor");
+        this.donorList = response;
       } catch (error) {
-        this.$error('Erro ao carregar doador!')
-        throw error
+        this.$error("Erro ao carregar doador!");
+        throw error;
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
 
@@ -493,45 +494,43 @@ export default {
           type: item.product.type,
           amount: Number(item.amount),
         })),
-      }
-      console.log('updateData', updateData)
+      };
 
       try {
-        const response = await this.$store.dispatch('received/update', {
+        const response = await this.$store.dispatch("received/update", {
           id: this.id,
           payload: updateData,
-        })
+        });
 
-        console.log('response update', response)
         if (response) {
-          this.$success('Registro atualizado com sucesso!')
-          this.selectedProduct = ''
-          this.selectedDonor = ''
-          this.closeDialog()
-          this.createdReceived = this.getReceived()
+          this.$success("Registro atualizado com sucesso!");
+          this.selectedProduct = "";
+          this.selectedDonor = "";
+          this.$emit("input", false);
+          this.createdReceived = this.getReceived();
         } else {
-          this.$error('Erro ao atualizar recebimento!')
+          this.$error("Erro ao atualizar recebimento!");
         }
       } catch (error) {
-        this.$error('Erro ao atualizar registro!')
-        console.error('Erro ao atualizar', error)
-        throw error
+        this.$error("Erro ao atualizar registro!");
+        console.error("Erro ao atualizar", error);
+        throw error;
       }
     },
     async searchUser(search) {
       if (search && search.length > 2) {
-        this.fetchUser(search)
+        this.fetchUser(search);
       } else {
-        this.userList = []
+        this.userList = [];
       }
     },
     async searchDonor(search) {
       if (search && search.length > 2) {
-        this.fetchDonor(search)
+        this.fetchDonor(search);
       } else {
-        this.donorList = []
+        this.donorList = [];
       }
     },
   },
-}
+};
 </script>
