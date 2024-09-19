@@ -11,7 +11,7 @@ class Donation extends Http {
 
   async create(data) {
     try {
-      const response = await this.post(data);
+      const response = await this.post("register", data);
       console.log("create service", response);
       return response;
     } catch (error) {

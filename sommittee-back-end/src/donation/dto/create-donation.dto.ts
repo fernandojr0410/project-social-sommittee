@@ -5,7 +5,7 @@ import { Condition_product } from '@prisma/client';
 export class CreateDonationDto {
   @IsString()
   @IsNotEmpty()
-  description: string;
+  date_delivery: string;
 
   @IsString()
   @IsNotEmpty()
@@ -14,10 +14,6 @@ export class CreateDonationDto {
   @IsString()
   @IsOptional()
   observation?: string;
-
-  @IsString()
-  @IsNotEmpty()
-  date_delivery: string;
 
   @IsString()
   @IsNotEmpty()

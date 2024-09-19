@@ -197,7 +197,6 @@ model Stock {
 
 model Donation {
   id                   String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  description          String
   state                String
   date_delivery        String
   observation          String?

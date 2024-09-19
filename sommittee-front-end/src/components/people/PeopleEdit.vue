@@ -267,11 +267,11 @@
 </template>
 
 <script>
-import API from '@/services/module/API'
-import { states } from '@/assets/state'
+import API from "@/services/module/API";
+import { states } from "@/assets/state";
 
 export default {
-  name: 'PeopleEdit',
+  name: "PeopleEdit",
   props: {
     dialog: {
       type: Boolean,
@@ -285,23 +285,23 @@ export default {
   data() {
     return {
       updatedPeople: {
-        id: '',
-        name: '',
-        identifier: '',
-        email: '',
-        birth_date: '',
-        gender: '',
-        telephone: '',
-        work: '',
-        education: '',
+        id: "",
+        name: "",
+        identifier: "",
+        email: "",
+        birth_date: "",
+        gender: "",
+        telephone: "",
+        work: "",
+        education: "",
         address: {
-          zip_code: '',
-          street: '',
-          number: '',
-          complement: '',
-          neighborhood: '',
-          city: '',
-          state: '',
+          zip_code: "",
+          street: "",
+          number: "",
+          complement: "",
+          neighborhood: "",
+          city: "",
+          state: "",
         },
       },
       states,
@@ -311,37 +311,40 @@ export default {
       menu: false,
       modal: false,
       menu2: false,
-    }
+    };
   },
   watch: {
     id: {
       immediate: true,
       handler: async function (id) {
         if (id) {
-          this.updatedPeople = await this.$store.dispatch('people/findById', id)
+          this.updatedPeople = await this.$store.dispatch(
+            "people/findById",
+            id
+          );
         }
       },
     },
   },
   methods: {
     closeDialog() {
-      this.$emit('close')
+      this.$emit("close");
     },
     async fetchAddress() {
       try {
         const address = await API.cep.getAddressByZipcode(
           this.updatedPeople.address.zip_code
-        )
+        );
         if (address) {
           this.updatedPeople.address = {
             ...this.updatedPeople.address,
             ...address,
-          }
+          };
         } else {
-          console.error('Endereço não encontrado')
+          console.error("Endereço não encontrado");
         }
       } catch (error) {
-        console.error('Erro ao buscar endereço pelo CEP:', error)
+        console.error("Erro ao buscar endereço pelo CEP:", error);
       }
     },
     async saveChanges() {
@@ -351,11 +354,15 @@ export default {
           name: this.updatedPeople.name,
           birth_date: this.updatedPeople.birth_date,
           gender: this.updatedPeople.gender,
-          telephone: this.updatedPeople.telephone.replace(/[^0-9]/g, ''),
+          telephone: this.updatedPeople.telephone.replace(/[^0-9]/g, ""),
           work: this.updatedPeople.work,
           education: this.updatedPeople.education,
           address: {
-            zip_code: this.updatedPeople.address.zip_code.replace(/[ˆ0-9]/g),
+            zip_code: this.updatedPeople.address.zip_code.replace(
+              /[^0-9]/g,
+              ""
+            ),
+
             street: this.updatedPeople.address.street,
             number: this.updatedPeople.address.number,
             complement: this.updatedPeople.address.complement,
@@ -364,19 +371,19 @@ export default {
             state: this.updatedPeople.address.state,
           },
         },
-      }
+      };
 
-      this.$loading('Carregando...')
+      this.$loading("Carregando...");
       try {
-        await this.$store.dispatch('people/update', updateData)
-        this.$success('Registro atualizado!')
-        this.$emit('close')
-        return updateData
+        await this.$store.dispatch("people/update", updateData);
+        this.$success("Registro atualizado!");
+        this.$emit("close");
+        return updateData;
       } catch (error) {
-        this.$error('Erro ao atualizar!')
-        throw error
+        this.$error("Erro ao atualizar!");
+        throw error;
       }
     },
   },
-}
+};
 </script>

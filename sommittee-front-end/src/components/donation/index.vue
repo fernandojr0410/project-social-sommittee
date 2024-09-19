@@ -168,7 +168,7 @@
                   ]"
                   item-value="value"
                   item-text="text"
-                  label="Data de nascimento"
+                  label="Gênero"
                   class="mr-3"
                   readonly
                   outlined
