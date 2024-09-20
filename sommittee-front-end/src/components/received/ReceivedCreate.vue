@@ -33,7 +33,8 @@
             <v-row>
               <v-col>
                 <v-menu
-                  v-model="menu2"
+                  ref="menu1"
+                  v-model="menu1"
                   :close-on-content-click="false"
                   :nudge-right="40"
                   transition="scale-transition"
@@ -42,19 +43,23 @@
                 >
                   <template v-slot:activator="{ on, attrs }">
                     <v-text-field
-                      v-model="date"
-                      label="Data recebimento"
+                      v-model="dateFormatted"
+                      label="Data de entrega"
                       prepend-icon="mdi-calendar"
-                      readonly
                       v-bind="attrs"
+                      @blur="updateBirthDate"
                       v-on="on"
+                      outlined
+                      dense
+                      hide-details
                     ></v-text-field>
                   </template>
                   <v-date-picker
                     color="secondary"
-                    v-model="date"
+                    v-model="createdReceived.date"
                     locale="pt"
-                    @input="menu2 = false"
+                    @input="updateFormattedDate"
+                    :title="formattedDateTitle"
                   ></v-date-picker>
                 </v-menu>
               </v-col>
@@ -64,7 +69,7 @@
                   :items="userListFormatted"
                   item-text="name"
                   item-value="id"
-                  label="Nome do responsável pela recepção"
+                  label="Nome do responsável pelo recebimento"
                   :loading="loading"
                   :rules="[rules.required]"
                   return-object
@@ -101,6 +106,9 @@
                   label="Condição do produto"
                   class="mr-3"
                   :rules="[rules.required]"
+                  outlined
+                  dense
+                  hide-details
                 />
               </v-col>
             </v-row>
@@ -109,9 +117,12 @@
                 <v-textarea
                   v-if="createdReceived"
                   v-model="createdReceived.description"
-                  label="Descrição"
+                  label="Descrição (opcional)"
                   class="mr-3"
                   :rules="[rules.required]"
+                  outlined
+                  dense
+                  hide-details
                 />
               </v-col>
             </v-row>
@@ -143,6 +154,7 @@
                   outlined
                   dense
                   hide-details
+                  style="width: 97.6%"
                 />
               </v-col>
             </v-row>
@@ -169,6 +181,7 @@
                   outlined
                   dense
                   hide-details
+                  style="width: 95%"
                 />
               </v-col>
             </v-row>
@@ -200,6 +213,7 @@
                   outlined
                   dense
                   hide-details
+                  style="width: 95%"
                 />
               </v-col>
             </v-row>
@@ -214,6 +228,7 @@
                   outlined
                   dense
                   hide-details
+                  style="width: 97.6%"
                 />
               </v-col>
             </v-row>
@@ -243,16 +258,16 @@
                 <v-list>
                   <v-list-item-group>
                     <v-list-item
-                      v-for="(product, index) in products"
-                      :key="product.id"
+                      v-for="(item, index) in products"
+                      :key="item.id"
                     >
                       <v-list-item-content>
                         <v-list-item-title>
-                          {{ product.name }}
+                          {{ item.product.name }}
                         </v-list-item-title>
                         <v-list-item-subtitle>
-                          {{ product.description }} (Quantidade:
-                          {{ product.amount }})
+                          {{ item.product.description }} (Quantidade:
+                          {{ item.amount }})
                         </v-list-item-subtitle>
                       </v-list-item-content>
                       <v-list-item-action>
@@ -295,7 +310,7 @@
           </v-btn>
 
           <SelectedProduct
-            :dialog.sync="productDialog"
+            :value="productDialog"
             @add-product="addProductToList"
           />
         </v-card-actions>
@@ -309,13 +324,34 @@ import SelectedProduct from "./SelectedProduct.vue";
 
 export default {
   name: "ReceivedCreate",
-  props: ["value", "label"],
+  props: {
+    value: {
+      typ: Boolean,
+      required: true,
+    },
+  },
   components: { SelectedProduct },
   data() {
     return {
       dialog: false,
       productDialog: false,
-      createdReceived: this.getReceived(),
+      createdReceived: {
+        date: new Date().toISOString().split("T")[0],
+        condition_product: "",
+        description: "",
+        products: [],
+        user: {},
+        stock: {
+          amount: "",
+        },
+        donor: {
+          name: "",
+          identifier: "",
+          email: "",
+          telephone: "",
+          type_donor: "",
+        },
+      },
       selectedProduct: null,
       selectedDonor: null,
       selectedUser: null,
@@ -333,17 +369,14 @@ export default {
       items: [],
       id: null,
       loading: false,
-      date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
-        .toISOString()
-        .substr(0, 10),
-      menu: false,
-      modal: false,
-      menu2: false,
+      dateFormatted: "",
+      menu1: false,
       rules: {
         required: (value) => !!value || "Campo obrigatório.",
       },
     };
   },
+
   computed: {
     userListFormatted() {
       return this.userList.map((user) => ({
@@ -351,6 +384,12 @@ export default {
         name: `${user.name}`,
         identifier: user.identifier,
       }));
+    },
+    formattedDateTitle() {
+      const date = new Date(this.createdReceived.date);
+      if (isNaN(date.getTime())) return "";
+      const options = { day: "numeric", weekday: "short", month: "long" };
+      return date.toLocaleDateString("pt-BR", options);
     },
   },
 
@@ -396,25 +435,6 @@ export default {
   },
 
   methods: {
-    getReceived() {
-      return {
-        date: "",
-        condition_product: "",
-        description: "",
-        products: [],
-        user: {},
-        stock: {
-          amount: "",
-        },
-        donor: {
-          name: "",
-          identifier: "",
-          email: "",
-          telephone: "",
-          type_donor: "",
-        },
-      };
-    },
     openProductDialog() {
       this.productDialog = true;
     },
@@ -423,9 +443,36 @@ export default {
     },
     openDialog() {
       this.dialog = true;
+      this.resetForm();
+      this.dateFormatted = this.formatDate(this.createdReceived.date);
     },
     closeDialog() {
       this.dialog = false;
+    },
+    updateFormattedDate(date) {
+      if (date) {
+        const adjustedDate = new Date(date);
+        adjustedDate.setHours(
+          adjustedDate.getHours() + adjustedDate.getTimezoneOffset() / 60
+        );
+        this.createdReceived.date = adjustedDate.toISOString().split("T")[0];
+        this.dateFormatted = this.formatDate(adjustedDate);
+      }
+      this.menu1 = false;
+    },
+    updateBirthDate() {
+      this.createdReceived.date = this.parseDate(this.dateFormatted);
+    },
+    formatDate(date) {
+      const d = new Date(date);
+      if (isNaN(d.getTime())) return "";
+      const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+      return new Intl.DateTimeFormat("pt-BR", options).format(d);
+    },
+    parseDate(date) {
+      if (!date) return null;
+      const [day, month, year] = date.split("/");
+      return new Date(year, month - 1, day).toISOString().split("T")[0];
     },
 
     formatCPF(identifier) {
@@ -440,6 +487,7 @@ export default {
       } else {
         this.products.push(product);
       }
+      this.productDialog = false;
     },
 
     editProduct(index) {
@@ -459,7 +507,7 @@ export default {
     },
 
     removeProduct(index) {
-      this.products.splice(index, 1);
+      this.donation_products.splice(index, 1);
       this.$success("Produto removido!");
     },
 
@@ -540,7 +588,9 @@ export default {
           this.selectedProduct = "";
           this.selectedDonor = "";
           this.closeDialog();
-          this.createdReceived = this.getReceived();
+          this.$emit("close");
+          this.resetForm();
+          return response;
         } else {
           this.$error("Erro ao criar recebimento!");
         }
@@ -548,6 +598,27 @@ export default {
         this.$error("Erro ao criar registro!");
         throw error;
       }
+    },
+    resetForm() {
+      this.createdPeople = {
+        name: "",
+        gender: "",
+        work: "",
+        identifier: "",
+        email: "",
+        birth_date: new Date().toISOString().split("T")[0],
+        telephone: "",
+        education: "",
+        address: {
+          zip_code: "",
+          street: "",
+          number: "",
+          complement: "",
+          neighborhood: "",
+          city: "",
+          state: "",
+        },
+      };
     },
     async searchUser(search) {
       if (search && search.length > 2) {
@@ -563,6 +634,9 @@ export default {
       } else {
         this.donorList = [];
       }
+    },
+    mounted() {
+      this.formattedDate = this.formatDate(this.createdReceived.date);
     },
   },
 };

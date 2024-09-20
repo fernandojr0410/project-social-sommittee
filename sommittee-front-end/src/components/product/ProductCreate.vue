@@ -38,7 +38,7 @@
                 />
               </v-col>
               <v-col>
-                <v-text-field
+                <v-select
                   v-model="createdProduct.type"
                   label="Categoria"
                   class="mr-3"
@@ -46,6 +46,20 @@
                   outlined
                   dense
                   hide-details
+                  :items="[
+                    { text: 'Roupas', value: 'clothes' },
+                    { text: 'Calçados', value: 'shoes' },
+                    { text: 'Acessórios', value: 'accessories' },
+                    { text: 'Beleza e Cuidados Pessoais', value: 'beauty' },
+                    { text: 'Alimentos e Bebidas', value: 'food' },
+                    { text: 'Eletrônicos', value: 'electronics' },
+                    { text: 'Casa e Decoração', value: 'home' },
+                    { text: 'Esportes e Lazer', value: 'sports' },
+                    { text: 'Brinquedos e Jogos', value: 'toys' },
+                    { text: 'Saúde e Bem-estar', value: 'health' },
+                  ]"
+                  item-value="value"
+                  item-text="text"
                 />
               </v-col>
             </v-row>
@@ -88,30 +102,30 @@
 
 <script>
 export default {
-  name: 'ProductCreate',
+  name: "ProductCreate",
   data() {
     return {
       dialog: false,
       createdProduct: this.getProduct(),
       loading: false,
       rules: {
-        required: (value) => !!value || 'Campo obrigatório.',
+        required: (value) => !!value || "Campo obrigatório.",
       },
-    }
+    };
   },
   methods: {
     getProduct() {
       return {
-        name: '',
-        type: '',
-        description: '',
-      }
+        name: "",
+        type: "",
+        description: "",
+      };
     },
     openDialog() {
-      this.dialog = true
+      this.dialog = true;
     },
     closeDialog() {
-      this.dialog = false
+      this.dialog = false;
     },
 
     async createProduct() {
@@ -119,28 +133,28 @@ export default {
         name: this.createdProduct.name,
         type: this.createdProduct.type,
         description: this.createdProduct.description,
-      }
-      console.log('Product Data:', productData)
+      };
+      console.log("Product Data:", productData);
 
       try {
         const response = await this.$store.dispatch(
-          'product/create',
+          "product/create",
           productData
-        )
-        console.log('Response:', response)
+        );
+        console.log("Response:", response);
         if (response) {
-          this.$success('Registro criado!')
-          this.$store.dispatch('product/findAll')
-          this.createdProduct = ''
-          this.closeDialog()
+          this.$success("Registro criado!");
+          this.$store.dispatch("product/findAll");
+          this.createdProduct = "";
+          this.closeDialog();
         } else {
-          this.$error('Erro ao criar produto!')
+          this.$error("Erro ao criar produto!");
         }
       } catch (error) {
-        this.$error('Erro ao criar registro!')
-        throw error
+        this.$error("Erro ao criar registro!");
+        throw error;
       }
     },
   },
-}
+};
 </script>

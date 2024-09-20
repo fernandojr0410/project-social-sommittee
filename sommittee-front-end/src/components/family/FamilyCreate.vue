@@ -58,6 +58,9 @@
                     item-value="value"
                     item-text="text"
                     label="Função - Mãe, Pai, Filho(a), Vó..."
+                    outlined
+                    dense
+                    hide-details
                   />
                 </v-col>
               </v-row>

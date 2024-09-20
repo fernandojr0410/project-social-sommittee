@@ -177,7 +177,7 @@
                   ]"
                   item-value="value"
                   item-text="text"
-                  label="Data de nascimento"
+                  label="Gênero"
                   class="mr-3"
                   readonly
                   outlined
@@ -269,7 +269,7 @@
               </v-col>
               <v-col>
                 <v-text-field
-                  v-if="createdDonation"
+                  v-if="createdDonation && createdDonation.people.address"
                   v-model="createdDonation.people.address.street"
                   label="Rua"
                   class="mr-3"
@@ -283,7 +283,7 @@
             <v-row>
               <v-col>
                 <v-text-field
-                  v-if="createdDonation"
+                  v-if="createdDonation && createdDonation.people.address"
                   v-model="createdDonation.people.address.number"
                   label="Número"
                   class="mr-3"
@@ -295,7 +295,7 @@
               </v-col>
               <v-col>
                 <v-text-field
-                  v-if="createdDonation"
+                  v-if="createdDonation && createdDonation.people.address"
                   v-model="createdDonation.people.address.neighborhood"
                   label="Bairro"
                   class="mr-3"
@@ -310,7 +310,7 @@
             <v-row>
               <v-col>
                 <v-text-field
-                  v-if="createdDonation"
+                  v-if="createdDonation && createdDonation.people.address"
                   v-model="createdDonation.people.address.complement"
                   label="Complemento"
                   class="mr-3"
@@ -325,7 +325,7 @@
             <v-row>
               <v-col>
                 <v-text-field
-                  v-if="createdDonation"
+                  v-if="createdDonation && createdDonation.people.address"
                   v-model="cityAndState"
                   label="Cidade"
                   class="mr-3"
@@ -429,7 +429,7 @@
             <v-row>
               <v-col>
                 <v-text-field
-                  v-if="createdDonation"
+                  v-if="createdDonation && createdDonation.donor"
                   v-model="createdDonation.donor.name"
                   label="Nome completo"
                   class="mr-3"
@@ -441,7 +441,7 @@
               </v-col>
               <v-col>
                 <v-text-field
-                  v-if="createdDonation"
+                  v-if="createdDonation && createdDonation.donor"
                   :value="createdDonation.donor.identifier | cpf"
                   label="CPF"
                   class="mr-3"
@@ -456,7 +456,7 @@
             <v-row>
               <v-col>
                 <v-text-field
-                  v-if="createdDonation"
+                  v-if="createdDonation && createdDonation.donor"
                   :value="createdDonation.donor.telephone | phone"
                   label="Telefone"
                   class="mr-3"
@@ -468,7 +468,7 @@
               </v-col>
               <v-col>
                 <v-text-field
-                  v-if="createdDonation"
+                  v-if="createdDonation && createdDonation.donor"
                   :value="createdDonation.donor.type_donor | typeDonor"
                   label="Tipo doador"
                   class="mr-3"
@@ -482,7 +482,7 @@
             <v-row>
               <v-col>
                 <v-text-field
-                  v-if="createdDonation"
+                  v-if="createdDonation && createdDonation.donor"
                   :value="createdDonation.donor.email"
                   label="E-mail"
                   class="mr-3"
@@ -706,7 +706,7 @@ export default {
     async fetchPeople(search = "") {
       this.loading = true;
       try {
-        const response = await this.findAll2(search);
+        const response = await this.findAll(search, "people");
         this.peopleList = response;
       } catch (error) {
         this.$error("Erro ao carregar dados!");
@@ -741,9 +741,6 @@ export default {
       }
     },
 
-    async findAll2(search) {
-      return await this.$store.dispatch("people/findAll", { search });
-    },
     async findAll(search, type) {
       if (type === "people") {
         return await this.$store.dispatch("people/findAll", {
@@ -765,19 +762,22 @@ export default {
     async createDonation() {
       console.log(this.createdDonation);
 
+      const productsArray = Array.isArray(this.donation_products)
+        ? this.donation_products
+        : [];
+
       const donationData = {
-        description: this.createdDonation.description,
-        state: this.createdDonation.state,
-        observation: this.createdDonation.observation,
         date_delivery: this.createdDonation.date_delivery,
+        state: this.createdDonation.state,
+        observation: this.createdDonation.observation || "",
         donor_id: this.selectedDonor?.id,
         people_id: this.selectedPeople?.id,
-        family_id: this.selectedFamily?.id,
-        products: this.createdDonation.donation_products.map((item) => ({
-          product_id: item.product?.id,
-          amount: Number(item.amount),
+        products: productsArray.map((product) => ({
+          product_id: product.product.id,
+          amount: Number(product.amount),
         })),
       };
+      console.log(donationData);
 
       console.log("donationData", donationData);
       try {

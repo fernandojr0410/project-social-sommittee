@@ -264,7 +264,7 @@
       </v-card>
     </v-dialog>
     <ReceivedCreate
-      :dialog="createDialog"
+      :value="createDialog"
       @close="createDialog = false"
       @save="createdReceived"
     />

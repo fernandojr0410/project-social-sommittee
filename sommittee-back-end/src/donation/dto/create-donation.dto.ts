@@ -1,7 +1,6 @@
 import { IsNotEmpty, IsOptional, IsString, IsArray } from 'class-validator';
 import { Type } from 'class-transformer';
 import { Condition_product } from '@prisma/client';
-
 export class CreateDonationDto {
   @IsString()
   @IsNotEmpty()
@@ -31,8 +30,4 @@ export class CreateDonationDto {
   @IsNotEmpty()
   @IsString()
   people_id: string;
-
-  @IsNotEmpty()
-  @IsString()
-  family_id: string;
 }

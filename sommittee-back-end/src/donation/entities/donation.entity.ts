@@ -1,5 +1,4 @@
 import { Donation } from '@prisma/client';
-
 export class DonationEntity implements Donation {
   id: string;
   state: string;
