@@ -34,9 +34,7 @@
           </template>
 
           <template v-slot:[`item.type`]="{ item }">
-            <span>
-              {{ getProductType(item) }}
-            </span>
+            <span>{{ item.products[0].product.type | productCategory }}</span>
           </template>
 
           <template v-slot:[`item.condition_product`]="{ item }">
@@ -150,14 +148,25 @@
               </span>
             </div>
 
-            <v-list
+            <div
               v-if="selectedReceived && selectedReceived.products.length > 0"
+              class="d-flex flex-column"
+              style="gap: 16px"
             >
               <v-list-item-group
                 v-for="(item, index) in selectedReceived.products"
                 :key="index"
+                class="d-flex flex-column"
+                style="gap: 16px"
               >
-                <v-list-item>
+                <div
+                  class="d-flex"
+                  style="
+                    padding: 6px;
+                    border-radius: 2px;
+                    border: 1px gray solid;
+                  "
+                >
                   <v-list-item-content style="gap: 6px">
                     <v-list-item-title>
                       <span style="font-weight: bold">Produto:</span>
@@ -166,7 +175,7 @@
 
                     <v-list-item-subtitle>
                       <span style="font-weight: bold">Categoria:</span>
-                      {{ item.product.type }}
+                      {{ item.product.type | productCategory }}
                     </v-list-item-subtitle>
 
                     <v-list-item-subtitle>
@@ -179,9 +188,9 @@
                       {{ item.amount }}
                     </v-list-item-subtitle>
                   </v-list-item-content>
-                </v-list-item>
+                </div>
               </v-list-item-group>
-            </v-list>
+            </div>
 
             <v-alert v-else type="info">Nenhum produto encontrado.</v-alert>
           </v-card>
@@ -319,16 +328,6 @@ export default {
     this.loadData();
   },
   methods: {
-    getProductType(item) {
-      if (
-        item.products &&
-        item.products.length > 0 &&
-        item.products[0].product &&
-        item.products[0].product.type
-      ) {
-        return item.products[0].product.type;
-      }
-    },
     async loadData() {
       this.loading = true;
       try {

@@ -76,9 +76,8 @@
           </template>
         </v-data-table>
         <FamilyEdit
-          :dialog="editDialog"
+          v-model="editDialog"
           :id="updatedFamilyId"
-          @close="editDialog = false"
           @save="saveUpdatedFamily"
         />
 

@@ -42,9 +42,10 @@
                 hide-details
               />
             </v-col>
-            <v-col cols="6">
+            <v-col>
               <v-menu
-                v-model="menu2"
+                ref="menu1"
+                v-model="menu1"
                 :close-on-content-click="false"
                 :nudge-right="40"
                 transition="scale-transition"
@@ -53,23 +54,23 @@
               >
                 <template v-slot:activator="{ on, attrs }">
                   <v-text-field
-                    v-model="date"
-                    label="Data recebimento"
+                    v-model="dateFormatted"
+                    label="Data de nascimento"
                     prepend-icon="mdi-calendar"
-                    readonly
                     v-bind="attrs"
+                    @blur="updateBirthDate"
                     v-on="on"
                     outlined
                     dense
                     hide-details
-                    style="width: 100%"
                   ></v-text-field>
                 </template>
                 <v-date-picker
                   color="secondary"
-                  v-model="date"
+                  v-model="updatedPeople.birth_date"
                   locale="pt"
-                  @input="menu2 = false"
+                  @input="updateFormattedDate"
+                  :title="formattedDateTitle"
                 ></v-date-picker>
               </v-menu>
             </v-col>
@@ -284,34 +285,19 @@ export default {
 
   data() {
     return {
-      updatedPeople: {
-        id: "",
-        name: "",
-        identifier: "",
-        email: "",
-        birth_date: "",
-        gender: "",
-        telephone: "",
-        work: "",
-        education: "",
-        address: {
-          zip_code: "",
-          street: "",
-          number: "",
-          complement: "",
-          neighborhood: "",
-          city: "",
-          state: "",
-        },
-      },
+      updatedPeople: {},
       states,
-      date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
-        .toISOString()
-        .substr(0, 10),
-      menu: false,
-      modal: false,
-      menu2: false,
+      dateFormatted: "",
+      menu1: false,
     };
+  },
+  computed: {
+    formattedDateTitle() {
+      const date = new Date(this.updatedPeople.birth_date);
+      if (isNaN(date.getTime())) return "";
+      const options = { day: "numeric", weekday: "short", month: "long" };
+      return date.toLocaleDateString("pt-BR", options);
+    },
   },
   watch: {
     id: {
@@ -327,8 +313,60 @@ export default {
     },
   },
   methods: {
+    getPeople() {
+      return {
+        id: "",
+        name: "",
+        identifier: "",
+        email: "",
+        birth_date: new Date().toISOString().split("T")[0],
+        gender: "",
+        telephone: "",
+        work: "",
+        education: "",
+        address: {
+          zip_code: "",
+          street: "",
+          number: "",
+          complement: "",
+          neighborhood: "",
+          city: "",
+          state: "",
+        },
+      };
+    },
     closeDialog() {
       this.$emit("close");
+    },
+    updateFormattedDate(date) {
+      if (date) {
+        const adjustedDate = new Date(date);
+        adjustedDate.setHours(
+          adjustedDate.getHours() + adjustedDate.getTimezoneOffset() / 60
+        );
+        this.updatedPeople.birth_date = adjustedDate
+          .toISOString()
+          .split("T")[0];
+        this.dateFormatted = this.formatDate(adjustedDate);
+      }
+      this.menu1 = false;
+    },
+
+    updateBirthDate() {
+      this.updatedPeople.birth_date = this.parseDate(this.dateFormatted);
+    },
+
+    formatDate(date) {
+      const d = new Date(date);
+      if (isNaN(d.getTime())) return "";
+      const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+      return new Intl.DateTimeFormat("pt-BR", options).format(d);
+    },
+
+    parseDate(date) {
+      if (!date) return null;
+      const [day, month, year] = date.split("/");
+      return new Date(year, month - 1, day).toISOString().split("T")[0];
     },
     async fetchAddress() {
       try {
@@ -384,6 +422,10 @@ export default {
         throw error;
       }
     },
+  },
+  mounted() {
+    const today = new Date();
+    this.dateFormatted = this.formatDate(today);
   },
 };
 </script>

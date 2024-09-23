@@ -44,7 +44,7 @@
                   <template v-slot:activator="{ on, attrs }">
                     <v-text-field
                       v-model="dateFormatted"
-                      label="Data de entrega"
+                      label="Data recebimento"
                       prepend-icon="mdi-calendar"
                       v-bind="attrs"
                       @blur="updateBirthDate"
@@ -119,7 +119,6 @@
                   v-model="createdReceived.description"
                   label="Descrição (opcional)"
                   class="mr-3"
-                  :rules="[rules.required]"
                   outlined
                   dense
                   hide-details
@@ -256,10 +255,19 @@
                   </v-col>
                 </v-row>
                 <v-list>
-                  <v-list-item-group>
-                    <v-list-item
+                  <v-list-item-group
+                    class="d-flex flex-column"
+                    style="gap: 16px"
+                  >
+                    <div
                       v-for="(item, index) in products"
                       :key="item.id"
+                      class="d-flex"
+                      style="
+                        padding: 6px;
+                        border-radius: 2px;
+                        border: 1px gray solid;
+                      "
                     >
                       <v-list-item-content>
                         <v-list-item-title>
@@ -270,15 +278,23 @@
                           {{ item.amount }})
                         </v-list-item-subtitle>
                       </v-list-item-content>
-                      <v-list-item-action>
-                        <v-btn icon @click="editProduct(index)">
+                      <v-list-item-action :disabled="false">
+                        <v-btn
+                          icon
+                          color="blue"
+                          @click.stop="editProduct(index)"
+                        >
                           <v-icon>mdi-pencil</v-icon>
                         </v-btn>
-                        <v-btn icon @click="removeProduct(index)">
+                        <v-btn
+                          icon
+                          color="red"
+                          @click.stop="removeProduct(index)"
+                        >
                           <v-icon>mdi-delete</v-icon>
                         </v-btn>
                       </v-list-item-action>
-                    </v-list-item>
+                    </div>
                   </v-list-item-group>
                 </v-list>
               </v-container>
@@ -335,23 +351,7 @@ export default {
     return {
       dialog: false,
       productDialog: false,
-      createdReceived: {
-        date: new Date().toISOString().split("T")[0],
-        condition_product: "",
-        description: "",
-        products: [],
-        user: {},
-        stock: {
-          amount: "",
-        },
-        donor: {
-          name: "",
-          identifier: "",
-          email: "",
-          telephone: "",
-          type_donor: "",
-        },
-      },
+      createdReceived: {},
       selectedProduct: null,
       selectedDonor: null,
       selectedUser: null,
@@ -435,6 +435,25 @@ export default {
   },
 
   methods: {
+    getReceived() {
+      return {
+        date: new Date().toISOString().split("T")[0],
+        condition_product: "",
+        description: "",
+        products: [],
+        user: {},
+        stock: {
+          amount: "",
+        },
+        donor: {
+          name: "",
+          identifier: "",
+          email: "",
+          telephone: "",
+          type_donor: "",
+        },
+      };
+    },
     openProductDialog() {
       this.productDialog = true;
     },
@@ -443,8 +462,7 @@ export default {
     },
     openDialog() {
       this.dialog = true;
-      this.resetForm();
-      this.dateFormatted = this.formatDate(this.createdReceived.date);
+      this.createdReceived = this.getReceived();
     },
     closeDialog() {
       this.dialog = false;
@@ -460,15 +478,18 @@ export default {
       }
       this.menu1 = false;
     },
+
     updateBirthDate() {
       this.createdReceived.date = this.parseDate(this.dateFormatted);
     },
+
     formatDate(date) {
       const d = new Date(date);
       if (isNaN(d.getTime())) return "";
       const options = { year: "numeric", month: "2-digit", day: "2-digit" };
       return new Intl.DateTimeFormat("pt-BR", options).format(d);
     },
+
     parseDate(date) {
       if (!date) return null;
       const [day, month, year] = date.split("/");
@@ -589,7 +610,7 @@ export default {
           this.selectedDonor = "";
           this.closeDialog();
           this.$emit("close");
-          this.resetForm();
+          this.createdReceived = response;
           return response;
         } else {
           this.$error("Erro ao criar recebimento!");
@@ -598,27 +619,6 @@ export default {
         this.$error("Erro ao criar registro!");
         throw error;
       }
-    },
-    resetForm() {
-      this.createdPeople = {
-        name: "",
-        gender: "",
-        work: "",
-        identifier: "",
-        email: "",
-        birth_date: new Date().toISOString().split("T")[0],
-        telephone: "",
-        education: "",
-        address: {
-          zip_code: "",
-          street: "",
-          number: "",
-          complement: "",
-          neighborhood: "",
-          city: "",
-          state: "",
-        },
-      };
     },
     async searchUser(search) {
       if (search && search.length > 2) {
@@ -635,9 +635,10 @@ export default {
         this.donorList = [];
       }
     },
-    mounted() {
-      this.formattedDate = this.formatDate(this.createdReceived.date);
-    },
+  },
+  mounted() {
+    const today = new Date();
+    this.dateFormatted = this.formatDate(today);
   },
 };
 </script>

@@ -267,25 +267,7 @@ export default {
   data() {
     return {
       dialog: false,
-      createdPeople: {
-        name: "",
-        gender: "",
-        work: "",
-        identifier: "",
-        email: "",
-        birth_date: new Date().toISOString().split("T")[0],
-        telephone: "",
-        education: "",
-        address: {
-          zip_code: "",
-          street: "",
-          number: "",
-          complement: "",
-          neighborhood: "",
-          city: "",
-          state: "",
-        },
-      },
+      createdPeople: {},
       dateFormatted: "",
       menu1: false,
       states,
@@ -305,10 +287,30 @@ export default {
     },
   },
   methods: {
+    getPeople() {
+      return {
+        name: "",
+        identifier: "",
+        birth_date: new Date().toISOString().split("T")[0],
+        email: "",
+        telephone: "",
+        gender: "",
+        work: "",
+        education: "",
+        address: {
+          zip_code: "",
+          street: "",
+          number: "",
+          complement: "",
+          neighborhood: "",
+          city: "",
+          state: "",
+        },
+      };
+    },
     openDialog() {
       this.dialog = true;
-      this.resetForm();
-      this.dateFormatted = this.formatDate(this.createdPeople.birth_date);
+      this.createdPeople = this.getPeople();
     },
     closeDialog() {
       this.dialog = false;
@@ -316,11 +318,18 @@ export default {
     },
     updateFormattedDate(date) {
       if (date) {
-        this.createdPeople.birth_date = date.toISOString().split("T")[0];
-        this.dateFormatted = this.formatDate(date);
+        const adjustedDate = new Date(date);
+        adjustedDate.setHours(
+          adjustedDate.getHours() + adjustedDate.getTimezoneOffset() / 60
+        );
+        this.createdPeople.birth_date = adjustedDate
+          .toISOString()
+          .split("T")[0];
+        this.dateFormatted = this.formatDate(adjustedDate);
       }
       this.menu1 = false;
     },
+
     updateBirthDate() {
       this.createdPeople.birth_date = this.parseDate(this.dateFormatted);
     },
@@ -328,13 +337,14 @@ export default {
     formatDate(date) {
       const d = new Date(date);
       if (isNaN(d.getTime())) return "";
-      return new Intl.DateTimeFormat("pt-BR").format(d);
+      const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+      return new Intl.DateTimeFormat("pt-BR", options).format(d);
     },
 
     parseDate(date) {
       if (!date) return null;
       const [day, month, year] = date.split("/");
-      return new Date(year, month - 1, day);
+      return new Date(year, month - 1, day).toISOString().split("T")[0];
     },
     async fetchAddress() {
       try {
@@ -379,8 +389,7 @@ export default {
         await this.$store.dispatch("people/create", newAddress);
         this.$success("Registro criado!");
         this.closeDialog();
-        this.$emit("close");
-        this.resetForm();
+        this.createdPeople = newAddress;
         return newAddress;
       } catch (error) {
         this.$error("Erro ao criar a pessoa!");
@@ -388,30 +397,10 @@ export default {
         throw error;
       }
     },
-    resetForm() {
-      this.createdPeople = {
-        name: "",
-        gender: "",
-        work: "",
-        identifier: "",
-        email: "",
-        birth_date: new Date().toISOString().split("T")[0],
-        telephone: "",
-        education: "",
-        address: {
-          zip_code: "",
-          street: "",
-          number: "",
-          complement: "",
-          neighborhood: "",
-          city: "",
-          state: "",
-        },
-      };
-    },
-    mounted() {
-      this.formattedDate = this.formatDate(this.createdPeople.birth_date);
-    },
+  },
+  mounted() {
+    const today = new Date();
+    this.dateFormatted = this.formatDate(today);
   },
 };
 </script>

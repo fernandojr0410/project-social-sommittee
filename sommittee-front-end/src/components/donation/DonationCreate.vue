@@ -26,9 +26,10 @@
               >
             </div>
             <v-row>
-              <v-col cols="12" sm="6" md="4">
+              <v-col>
                 <v-menu
-                  v-model="menu2"
+                  ref="menu1"
+                  v-model="menu1"
                   :close-on-content-click="false"
                   :nudge-right="40"
                   transition="scale-transition"
@@ -37,11 +38,11 @@
                 >
                   <template v-slot:activator="{ on, attrs }">
                     <v-text-field
-                      v-model="formattedDate"
-                      label="Data entrega"
+                      v-model="dateFormatted"
+                      label="Data de entrega"
                       prepend-icon="mdi-calendar"
-                      readonly
                       v-bind="attrs"
+                      @blur="updateBirthDate"
                       v-on="on"
                       outlined
                       dense
@@ -52,11 +53,11 @@
                     color="secondary"
                     v-model="createdDonation.date_delivery"
                     locale="pt"
-                    @input="updateDate"
+                    @input="updateFormattedDate"
+                    :title="formattedDateTitle"
                   ></v-date-picker>
                 </v-menu>
               </v-col>
-
               <v-col>
                 <v-select
                   v-if="createdDonation"
@@ -129,7 +130,7 @@
             <v-row>
               <v-col>
                 <v-text-field
-                  v-if="createdDonation"
+                  v-if="createdDonation && createdDonation.people"
                   v-model="createdDonation.people.name"
                   label="Nome completo"
                   class="mr-3"
@@ -141,7 +142,7 @@
               </v-col>
               <v-col>
                 <v-text-field
-                  v-if="createdDonation"
+                  v-if="createdDonation && createdDonation.people"
                   :value="createdDonation.people.identifier | cpf"
                   label="CPF"
                   class="mr-3"
@@ -155,7 +156,7 @@
             <v-row>
               <v-col>
                 <v-text-field
-                  v-if="createdDonation"
+                  v-if="createdDonation && createdDonation.people"
                   :value="createdDonation.people.birth_date"
                   type="date"
                   label="Data de nascimento"
@@ -169,7 +170,7 @@
 
               <v-col>
                 <v-select
-                  v-if="createdDonation"
+                  v-if="createdDonation && createdDonation.people"
                   v-model="createdDonation.people.gender"
                   :items="[
                     { text: 'Masculino', value: 'MALE' },
@@ -189,7 +190,7 @@
             <v-row>
               <v-col>
                 <v-text-field
-                  v-if="createdDonation"
+                  v-if="createdDonation && createdDonation.people"
                   :value="createdDonation.people.telephone | phone"
                   label="Telefone"
                   class="mr-3"
@@ -201,7 +202,7 @@
               </v-col>
               <v-col>
                 <v-select
-                  v-if="createdDonation"
+                  v-if="createdDonation && createdDonation.people"
                   v-model="createdDonation.people.work"
                   :items="[
                     { text: 'Sim', value: true },
@@ -221,7 +222,7 @@
             <v-row>
               <v-col>
                 <v-text-field
-                  v-if="createdDonation"
+                  v-if="createdDonation && createdDonation.people"
                   v-model="createdDonation.people.email"
                   label="E-mail"
                   class="mr-3"
@@ -235,7 +236,7 @@
             <v-row>
               <v-col>
                 <v-text-field
-                  v-if="createdDonation"
+                  v-if="createdDonation && createdDonation.people"
                   v-model="createdDonation.people.education"
                   label="Educação"
                   class="mr-3"
@@ -257,7 +258,7 @@
             <v-row>
               <v-col>
                 <v-text-field
-                  v-if="createdDonation && createdDonation.people.address"
+                  v-if="createdDonation?.people?.address"
                   :value="createdDonation.people.address.zip_code | cep"
                   label="CEP"
                   class="mr-3"
@@ -269,7 +270,7 @@
               </v-col>
               <v-col>
                 <v-text-field
-                  v-if="createdDonation && createdDonation.people.address"
+                  v-if="createdDonation?.people?.address"
                   v-model="createdDonation.people.address.street"
                   label="Rua"
                   class="mr-3"
@@ -283,7 +284,7 @@
             <v-row>
               <v-col>
                 <v-text-field
-                  v-if="createdDonation && createdDonation.people.address"
+                  v-if="createdDonation?.people?.address"
                   v-model="createdDonation.people.address.number"
                   label="Número"
                   class="mr-3"
@@ -295,7 +296,7 @@
               </v-col>
               <v-col>
                 <v-text-field
-                  v-if="createdDonation && createdDonation.people.address"
+                  v-if="createdDonation?.people?.address"
                   v-model="createdDonation.people.address.neighborhood"
                   label="Bairro"
                   class="mr-3"
@@ -310,7 +311,7 @@
             <v-row>
               <v-col>
                 <v-text-field
-                  v-if="createdDonation && createdDonation.people.address"
+                  v-if="createdDonation?.people?.address"
                   v-model="createdDonation.people.address.complement"
                   label="Complemento"
                   class="mr-3"
@@ -325,7 +326,7 @@
             <v-row>
               <v-col>
                 <v-text-field
-                  v-if="createdDonation && createdDonation.people.address"
+                  v-if="createdDonation?.people?.address"
                   v-model="cityAndState"
                   label="Cidade"
                   class="mr-3"
@@ -360,10 +361,19 @@
                   </v-col>
                 </v-row>
                 <v-list>
-                  <v-list-item-group>
-                    <v-list-item
+                  <v-list-item-group
+                    class="d-flex flex-column"
+                    style="gap: 16px"
+                  >
+                    <div
                       v-for="(item, index) in donation_products"
                       :key="item.id"
+                      class="d-flex"
+                      style="
+                        padding: 6px;
+                        border-radius: 2px;
+                        border: 1px gray solid;
+                      "
                     >
                       <v-list-item-content>
                         <v-list-item-title>
@@ -374,15 +384,15 @@
                           {{ item.amount }})
                         </v-list-item-subtitle>
                       </v-list-item-content>
-                      <v-list-item-action>
-                        <v-btn icon @click="editProduct(index)">
+                      <v-list-item-action :disabled="false">
+                        <v-btn icon color="blue" @click.stop="editProduct(index)">
                           <v-icon>mdi-pencil</v-icon>
                         </v-btn>
-                        <v-btn icon @click="removeProduct(index)">
+                        <v-btn icon color="red" @click.stop="removeProduct(index)">
                           <v-icon>mdi-delete</v-icon>
                         </v-btn>
                       </v-list-item-action>
-                    </v-list-item>
+                    </div>
                   </v-list-item-group>
                 </v-list>
               </v-container>
@@ -537,7 +547,7 @@ export default {
       productDialog: false,
       loading: false,
       dialog: false,
-      createdDonation: this.getDonation(),
+      createdDonation: {},
       search: "",
       peopleList: [],
       productList: [],
@@ -546,8 +556,8 @@ export default {
       editingIndex: null,
       items: [],
       id: null,
-      menu2: false,
-      formattedDate: "",
+      dateFormatted: "",
+      menu1: false,
       rules: {
         required: (value) => !!value || "Campo obrigatório.",
       },
@@ -558,6 +568,12 @@ export default {
       const city = this.createdDonation.people.address.city || "";
       const state = this.createdDonation.people.address.state || "";
       return city && state ? `${city}, ${state}` : city || state;
+    },
+    formattedDateTitle() {
+      const date = new Date(this.createdDonation.date_delivery);
+      if (isNaN(date.getTime())) return "";
+      const options = { day: "numeric", weekday: "short", month: "long" };
+      return date.toLocaleDateString("pt-BR", options);
     },
   },
   watch: {
@@ -606,21 +622,9 @@ export default {
     },
   },
   methods: {
-    formatDate(date) {
-      const d = new Date(date);
-      const day = String(d.getUTCDate()).padStart(2, "0");
-      const month = String(d.getUTCMonth() + 1).padStart(2, "0");
-      const year = d.getUTCFullYear();
-      return `${day}/${month}/${year}`;
-    },
-    updateDate() {
-      this.formattedDate = this.formatDate(this.createdDonation.date_delivery);
-      this.menu2 = false;
-    },
-
     getDonation() {
       return {
-        date_delivery: new Date().toISOString(),
+        date_delivery: new Date().toISOString().split("T")[0],
         state: "",
         observation: "",
         people: {
@@ -667,9 +671,41 @@ export default {
     },
     openDialog() {
       this.dialog = true;
+      this.createdDonation = this.getDonation();
     },
     closeDialog() {
       this.dialog = false;
+    },
+
+    updateFormattedDate(date) {
+      if (date) {
+        const adjustedDate = new Date(date);
+        adjustedDate.setHours(
+          adjustedDate.getHours() + adjustedDate.getTimezoneOffset() / 60
+        );
+        this.createdDonation.date_delivery = adjustedDate
+          .toISOString()
+          .split("T")[0];
+        this.dateFormatted = this.formatDate(adjustedDate);
+      }
+      this.menu1 = false;
+    },
+
+    updateBirthDate() {
+      this.createdDonation.date_delivery = this.parseDate(this.dateFormatted);
+    },
+
+    formatDate(date) {
+      const d = new Date(date);
+      if (isNaN(d.getTime())) return "";
+      const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+      return new Intl.DateTimeFormat("pt-BR", options).format(d);
+    },
+
+    parseDate(date) {
+      if (!date) return null;
+      const [day, month, year] = date.split("/");
+      return new Date(year, month - 1, day).toISOString().split("T")[0];
     },
 
     addProductToList(product) {
@@ -760,8 +796,6 @@ export default {
     },
 
     async createDonation() {
-      console.log(this.createdDonation);
-
       const productsArray = Array.isArray(this.donation_products)
         ? this.donation_products
         : [];
@@ -777,9 +811,7 @@ export default {
           amount: Number(product.amount),
         })),
       };
-      console.log(donationData);
 
-      console.log("donationData", donationData);
       try {
         const response = await this.$store.dispatch(
           "donation/create",
@@ -789,7 +821,11 @@ export default {
           this.$success("Registro criado!");
           this.$store.dispatch("donation/findAll");
           this.closeDialog();
-          this.selectedPeople = this.getDonation();
+          this.createdDonation = response;
+          this.selectedPeople = "";
+          this.donation_products = "";
+          this.selectedDonor = "";
+          return response;
         } else {
           this.$error("Erro ao criar a família!");
         }
@@ -798,6 +834,7 @@ export default {
         throw error;
       }
     },
+
     searchPeople(search) {
       if (search && search.length > 2) {
         this.fetchPeople(search);
@@ -821,7 +858,8 @@ export default {
     },
   },
   mounted() {
-    this.formattedDate = this.formatDate(this.createdDonation.date_delivery);
+    const today = new Date();
+    this.dateFormatted = this.formatDate(today);
   },
 };
 </script>

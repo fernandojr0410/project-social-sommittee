@@ -23,9 +23,35 @@ export class DonationService {
     return await this.repository.findById(id);
   }
 
-  // async update(id: string, updateDonationDto: UpdateDonationDto) {
-  //   return await this.repository.update(id, updateDonationDto)
-  // }
+  async update(
+    id: string,
+    updateDonationDto: UpdateDonationDto,
+    updatedDonationProducts: { product_id: string; amount: number }[],
+  ) {
+    return await this.repository.update(
+      id,
+      updateDonationDto,
+      updatedDonationProducts,
+    );
+  }
+
+  // Exemplo de como usar o método update em outro método do service
+  async updateDonation(
+    donationId: string,
+    updateDonationDto: UpdateDonationDto,
+    updatedProducts: { product_id: string; amount: number }[],
+  ) {
+    try {
+      const donation = await this.repository.update(
+        donationId,
+        updateDonationDto,
+        updatedProducts,
+      );
+      return donation;
+    } catch (error) {
+      throw new Error(`Erro ao atualizar a doação: ${error.message}`);
+    }
+  }
 
   async remove(id: string) {
     return await this.repository.remove(id);

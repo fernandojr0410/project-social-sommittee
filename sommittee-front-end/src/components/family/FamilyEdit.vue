@@ -1,9 +1,13 @@
 <template>
-  <v-dialog v-model="dialog" max-width="900px">
+  <v-dialog
+    :value="value"
+    @input="(value) => $emit('input', value)"
+    max-width="900px"
+  >
     <v-card>
       <v-card-title class="flex justify-space-between items-center">
         <span class="headline">Editar registro</span>
-        <v-btn icon @click="closeDialog">
+        <v-btn icon @click="$emit('input', false)">
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-card-title>
@@ -85,35 +89,15 @@
 
           <v-row>
             <v-col>
-              <v-menu
-                v-model="menu2"
-                :close-on-content-click="false"
-                :nudge-right="40"
-                transition="scale-transition"
-                offset-y
-                min-width="auto"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    :value="formattedDate"
-                    label="Data de nascimento"
-                    prepend-icon="mdi-calendar"
-                    readonly
-                    v-bind="attrs"
-                    v-on="on"
-                    outlined
-                    dense
-                    hide-details
-                    style="width: 97%"
-                  ></v-text-field>
-                </template>
-                <v-date-picker
-                  color="secondary"
-                  v-model="birthDate"
-                  locale="pt"
-                  @input="updateDate"
-                ></v-date-picker>
-              </v-menu>
+              <v-text-field
+                v-model="updatedFamily.birth_date"
+                label="Data de nascimento"
+                type="date"
+                readonly
+                outlined
+                dense
+                hide-details
+              />
             </v-col>
             <v-col>
               <v-text-field
@@ -311,14 +295,12 @@
 </template>
 
 <script>
-import { states } from '@/assets/state'
-import { format, parseISO } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
+import { states } from "@/assets/state";
 
 export default {
-  name: 'FamilyEdit',
+  name: "FamilyEdit",
   props: {
-    dialog: {
+    value: {
       type: Boolean,
       required: true,
     },
@@ -328,90 +310,73 @@ export default {
   },
   data() {
     return {
-      updatedFamily: this.getPeople(),
+      updatedFamily: {},
       peopleList: [],
-      selectedFunction: '',
+      selectedFunction: "",
       loading: false,
-      menu2: false,
       rules: {
-        required: (value) => !!value || 'Campo obrigatório.',
+        required: (value) => !!value || "Campo obrigatório.",
       },
       states,
-    }
+    };
   },
   watch: {
     id: {
       immediate: true,
       handler: async function (id) {
         if (id) {
-          this.updatedFamily = await this.$store.dispatch('family/findById', id)
-          this.selectedFunction = this.updatedFamily.function || ''
+          this.updatedFamily = await this.$store.dispatch(
+            "family/findById",
+            id
+          );
+          this.selectedFunction = this.updatedFamily.function || "";
         }
-      },
-    },
-  },
-  computed: {
-    formattedDate() {
-      return this.updatedFamily.birth_date
-        ? format(parseISO(this.updatedFamily.birth_date), 'eeee, dd MMM', {
-            locale: ptBR,
-          })
-        : ''
-    },
-    birthDate: {
-      get() {
-        return this.updatedFamily.birth_date
-      },
-      set(value) {
-        this.updatedFamily.birth_date = value
       },
     },
   },
   methods: {
     getPeople() {
       return {
-        id: '',
-        name: '',
-        identifier: '',
-        email: '',
-        birth_date: new Date().toISOString().substr(0, 10),
-        gender: '',
-        telephone: '',
-        work: '',
-        education: '',
+        id: "",
+        name: "",
+        identifier: "",
+        email: "",
+        birth_date: "",
+        gender: "",
+        telephone: "",
+        work: "",
+        education: "",
         address: {
-          zip_code: '',
-          street: '',
-          number: '',
-          complement: '',
-          neighborhood: '',
-          city: '',
-          state: '',
+          zip_code: "",
+          street: "",
+          number: "",
+          complement: "",
+          neighborhood: "",
+          city: "",
+          state: "",
         },
         people_family: [],
-      }
+      };
     },
-    closeDialog() {
-      this.$emit('close')
-    },
-    async fetchPeople(search = '') {
-      this.loading = true
+
+    async fetchPeople(search = "") {
+      this.loading = true;
       try {
-        const response = await this.findAll(search)
-        this.peopleList = response
+        const response = await this.findAll(search);
+        this.peopleList = response;
       } catch (error) {
-        this.$error('Erro ao carregar dados!')
-        throw error
+        this.$error("Erro ao carregar dados!");
+        throw error;
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
     async findAll(search) {
-      return await this.$store.dispatch('people/findAll', { search })
+      return await this.$store.dispatch("people/findAll", { search });
     },
     async saveChanges() {
       try {
-        const familyId = this.id
+        const familyId = this.id;
         const updateData = {
           id: familyId,
           payload: {
@@ -419,29 +384,25 @@ export default {
             address_id: this.updatedFamily.address_id,
             function: this.selectedFunction,
           },
-        }
+        };
 
-        await this.$store.dispatch('family/update', updateData)
-        this.$success('Registro atualizado!')
-        this.updatedFamily = this.getPeople()
-        this.selectedFunction = ''
-        this.closeDialog()
+        await this.$store.dispatch("family/update", updateData);
+        this.$success("Registro atualizado!");
+        this.updatedFamily = this.getPeople();
+        this.selectedFunction = "";
+        this.$emit("input", false);
       } catch (error) {
-        this.$error('Erro ao atualizar!')
-        throw error
+        this.$error("Erro ao atualizar!");
+        throw error;
       }
     },
     searchPeople(search) {
       if (search && search.length > 2) {
-        this.fetchPeople(search)
+        this.fetchPeople(search);
       } else {
-        this.peopleList = []
+        this.peopleList = [];
       }
     },
-    updateDate(date) {
-      this.updatedFamily.birth_date = date
-      this.menu2 = false
-    },
   },
-}
+};
 </script>

@@ -23,7 +23,8 @@
           <v-row>
             <v-col>
               <v-menu
-                v-model="menu2"
+                ref="menu1"
+                v-model="menu1"
                 :close-on-content-click="false"
                 :nudge-right="40"
                 transition="scale-transition"
@@ -32,19 +33,23 @@
               >
                 <template v-slot:activator="{ on, attrs }">
                   <v-text-field
-                    v-model="date"
+                    v-model="dateFormatted"
                     label="Data recebimento"
                     prepend-icon="mdi-calendar"
-                    readonly
                     v-bind="attrs"
+                    @blur="updateBirthDate"
                     v-on="on"
+                    outlined
+                    dense
+                    hide-details
                   ></v-text-field>
                 </template>
                 <v-date-picker
                   color="secondary"
-                  v-model="date"
+                  v-model="updatedReceived.date"
                   locale="pt"
-                  @input="menu2 = false"
+                  @input="updateFormattedDate"
+                  :title="formattedDateTitle"
                 ></v-date-picker>
               </v-menu>
             </v-col>
@@ -88,9 +93,12 @@
                   { text: 'Usado', value: 'USED' },
                   { text: 'Danificado', value: 'DAMAGED' },
                 ]"
-                label="Condição do produto"
+                label="Condição produto"
                 class="mr-3"
                 :rules="[rules.required]"
+                outlined
+                dense
+                hide-details
               />
             </v-col>
           </v-row>
@@ -99,9 +107,11 @@
               <v-textarea
                 v-if="updatedReceived"
                 v-model="updatedReceived.description"
-                label="Descrição"
+                label="Descrição (opcional)"
                 class="mr-3"
-                :rules="[rules.required]"
+                outlined
+                dense
+                hide-details
               />
             </v-col>
           </v-row>
@@ -226,9 +236,18 @@
                 </v-col>
               </v-row>
               <v-list>
-                <v-list-item-group>
-                  <v-list-item v-for="(item, index) in products" :key="item.id">
-                    <v-list-item-content style="border-bottom: 1px solid">
+                <v-list-item-group class="d-flex flex-column" style="gap: 16px">
+                  <div
+                    v-for="(item, index) in products"
+                    :key="item.id"
+                    class="d-flex"
+                    style="
+                      padding: 6px;
+                      border-radius: 2px;
+                      border: 1px gray solid;
+                    "
+                  >
+                    <v-list-item-content>
                       <v-list-item-title>
                         {{ item.product.name }}
                       </v-list-item-title>
@@ -237,15 +256,19 @@
                         {{ item.amount }})
                       </v-list-item-subtitle>
                     </v-list-item-content>
-                    <v-list-item-action>
-                      <v-btn icon @click="editProduct(index)">
+                    <v-list-item-action :disabled="false">
+                      <v-btn icon color="blue" @click.stop="editProduct(index)">
                         <v-icon>mdi-pencil</v-icon>
                       </v-btn>
-                      <v-btn icon @click="removeProduct(index)">
+                      <v-btn
+                        icon
+                        color="red"
+                        @click.stop="removeProduct(index)"
+                      >
                         <v-icon>mdi-delete</v-icon>
                       </v-btn>
                     </v-list-item-action>
-                  </v-list-item>
+                  </div>
                 </v-list-item-group>
               </v-list>
             </v-container>
@@ -295,7 +318,7 @@ export default {
   },
   data() {
     return {
-      updatedReceived: this.getReceived(),
+      updatedReceived: {},
       productDialog: false,
       selectedProduct: null,
       selectedDonor: null,
@@ -305,20 +328,11 @@ export default {
       productList: [],
       donorList: [],
       editingIndex: null,
-      conditionProduct: [
-        { text: "Novo", value: "NEW" },
-        { text: "Usado", value: "USED" },
-        { text: "Danificado", value: "DAMAGED" },
-      ],
       search: "",
       items: [],
       loading: false,
-      date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
-        .toISOString()
-        .substr(0, 10),
-      menu: false,
-      modal: false,
-      menu2: false,
+      dateFormatted: "",
+      menu1: false,
       rules: {
         required: (value) => !!value || "Campo obrigatório.",
       },
@@ -332,6 +346,12 @@ export default {
         name: `${user.name}`,
         identifier: user.identifier,
       }));
+    },
+    formattedDateTitle() {
+      const date = new Date(this.updatedReceived.date);
+      if (isNaN(date.getTime())) return "";
+      const options = { day: "numeric", weekday: "short", month: "long" };
+      return date.toLocaleDateString("pt-BR", options);
     },
   },
 
@@ -374,7 +394,7 @@ export default {
   methods: {
     getReceived() {
       return {
-        date: "",
+        date: new Date().toISOString().split("T")[0],
         condition_product: "",
         description: "",
         products: [],
@@ -397,6 +417,35 @@ export default {
     formatCPF(identifier) {
       if (!identifier) return "";
       return identifier.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+    },
+
+    updateFormattedDate(date) {
+      if (date) {
+        const adjustedDate = new Date(date);
+        adjustedDate.setHours(
+          adjustedDate.getHours() + adjustedDate.getTimezoneOffset() / 60
+        );
+        this.updatedReceived.date = adjustedDate.toISOString().split("T")[0];
+        this.dateFormatted = this.formatDate(adjustedDate);
+      }
+      this.menu1 = false;
+    },
+
+    updateBirthDate() {
+      this.updatedReceived.date = this.parseDate(this.dateFormatted);
+    },
+
+    formatDate(date) {
+      const d = new Date(date);
+      if (isNaN(d.getTime())) return "";
+      const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+      return new Intl.DateTimeFormat("pt-BR", options).format(d);
+    },
+
+    parseDate(date) {
+      if (!date) return null;
+      const [day, month, year] = date.split("/");
+      return new Date(year, month - 1, day).toISOString().split("T")[0];
     },
 
     addProductToList(product) {
@@ -504,10 +553,10 @@ export default {
 
         if (response) {
           this.$success("Registro atualizado com sucesso!");
+          this.$emit("input", false);
           this.selectedProduct = "";
           this.selectedDonor = "";
-          this.$emit("input", false);
-          this.createdReceived = this.getReceived();
+          return response;
         } else {
           this.$error("Erro ao atualizar recebimento!");
         }
@@ -531,6 +580,10 @@ export default {
         this.donorList = [];
       }
     },
+  },
+  mounted() {
+    const today = new Date();
+    this.dateFormatted = this.formatDate(today);
   },
 };
 </script>

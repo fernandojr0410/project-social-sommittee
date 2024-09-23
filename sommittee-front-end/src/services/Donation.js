@@ -10,12 +10,27 @@ class Donation extends Http {
   }
 
   async create(data) {
+    return await this.post("register", data);
+  }
+
+  async findById(id, data) {
     try {
-      const response = await this.post("register", data);
-      console.log("create service", response);
+      const response = await this.get(id, data);
+      console.log("findById service", response);
       return response;
     } catch (error) {
-      console.error("erro ao cadastrar service", error);
+      console.error("error filtering service", error);
+      throw error;
+    }
+  }
+
+  async update(id, data) {
+    try {
+      const response = await this.patch(id, data);
+      console.log("update service", response);
+      return response;
+    } catch (error) {
+      console.error("error updated service", error);
       throw error;
     }
   }

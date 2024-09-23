@@ -102,41 +102,22 @@
 
               <v-row>
                 <v-col>
-                  <v-menu
-                    v-model="menu2"
-                    :close-on-content-click="false"
-                    :nudge-right="40"
-                    transition="scale-transition"
-                    offset-y
-                    min-width="auto"
-                  >
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-text-field
-                        v-model="selectedPeople.birth_date"
-                        label="Data de nascimento"
-                        prepend-icon="mdi-calendar"
-                        readonly
-                        v-bind="attrs"
-                        v-on="on"
-                        outlined
-                        dense
-                        hide-details
-                        style="width: 97.5%"
-                      ></v-text-field>
-                    </template>
-                    <v-date-picker
-                      color="secondary"
-                      v-model="selectedPeople.birth_date"
-                      locale="pt"
-                      @input="menu2 = false"
-                    ></v-date-picker>
-                  </v-menu>
+                  <v-text-field
+                    v-model="selectedPeople.birth_date"
+                    label="Data de nascimento"
+                    type="date"
+                    readonly
+                    outlined
+                    dense
+                    hide-details
+                  />
                 </v-col>
                 <v-col>
                   <v-text-field
                     v-model="selectedPeople.email"
                     label="E-mail"
                     class="mr-3"
+                    readonly
                     outlined
                     dense
                     hide-details
@@ -345,12 +326,10 @@ export default {
   data() {
     return {
       dialog: false,
-      selectedPeople: this.getPeople(),
+      selectedPeople: {},
       selectedFunction: "",
       peopleList: [],
       loading: false,
-      valid: false,
-      menu2: false,
       rules: {
         required: (value) => !!value || "Campo obrigatório.",
       },
@@ -362,7 +341,7 @@ export default {
       return {
         name: "",
         identifier: "",
-        birth_date: new Date().toISOString().substr(0, 10),
+        birth_date: "",
         email: "",
         telephone: "",
         gender: "",
@@ -382,10 +361,13 @@ export default {
     },
     openDialog() {
       this.dialog = true;
+      this.selectedPeople = this.getPeople();
+      this.selectedFunction = "";
     },
     closeDialog() {
       this.dialog = false;
     },
+
     async fetchPeople(search = "") {
       this.loading = true;
       try {
@@ -419,9 +401,10 @@ export default {
         if (response) {
           this.$success("Registro criado!");
           this.$store.dispatch("family/findAll");
-          this.selectedFunction = "";
           this.closeDialog();
+          this.selectedFunction = "";
           this.selectedPeople = this.getPeople();
+          return response;
         } else {
           this.$error("Erro ao criar a família!");
         }

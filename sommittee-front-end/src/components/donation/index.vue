@@ -352,7 +352,10 @@
               <v-col>
                 <v-text-field
                   v-if="selectedDonation"
-                  v-model="selectedDonation.donation_products[0].product.type"
+                  :value="
+                    selectedDonation.donation_products[0].product.type
+                      | productCategory
+                  "
                   label="Categoria"
                   class="mr-3"
                   readonly
@@ -467,7 +470,7 @@
 </template>
 
 <script>
-import { formatDate } from "@/filters";
+import { formatDate, productCategories } from "@/filters";
 import DonationCreate from "./DonationCreate.vue";
 
 export default {
