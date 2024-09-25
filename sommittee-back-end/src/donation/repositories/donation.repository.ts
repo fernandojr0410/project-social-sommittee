@@ -93,14 +93,6 @@ export class DonationRepository {
             amount: new Decimal(stock.amount.toNumber() - product.amount),
           },
         });
-
-        await prisma.donationProducts.create({
-          data: {
-            donation_id: donation.id,
-            product_id: product.product_id,
-            amount: product.amount,
-          },
-        });
       }
 
       return donation;
@@ -150,7 +142,6 @@ export class DonationRepository {
         donor: true,
         donation_products: {
           select: {
-            amount: true,
             product: {
               select: {
                 id: true,
@@ -159,9 +150,14 @@ export class DonationRepository {
                 type: true,
               },
             },
+            amount: true,
           },
         },
-        people: true,
+        people: {
+          include: {
+            address: true,
+          },
+        },
         family: true,
       },
     });
@@ -170,7 +166,7 @@ export class DonationRepository {
   async update(
     id: string,
     updateDonationDto: UpdateDonationDto,
-    updatedDonationProducts: { product_id: string; amount: number }[],
+    updatedDonationProducts?: { product_id: string; amount: number }[],
   ): Promise<DonationEntity> {
     return await this.prisma.$transaction(async (prisma) => {
       const existingDonation = await prisma.donation.findUnique({
@@ -184,83 +180,123 @@ export class DonationRepository {
         throw new Error('Doação não encontrada');
       }
 
+      const updateData: any = {
+        ...(updateDonationDto.date_delivery && {
+          date_delivery: updateDonationDto.date_delivery,
+        }),
+        ...(updateDonationDto.state && { state: updateDonationDto.state }),
+        ...(updateDonationDto.observation && {
+          observation: updateDonationDto.observation,
+        }),
+        ...(updateDonationDto.donor_id && {
+          donor: { connect: { id: updateDonationDto.donor_id } },
+        }),
+        ...(updateDonationDto.people_id && {
+          people: { connect: { id: updateDonationDto.people_id } },
+        }),
+      };
+
       const donation = await prisma.donation.update({
         where: { id },
-        data: {
-          date_delivery: updateDonationDto.date_delivery,
-          state: updateDonationDto.state,
-          observation: updateDonationDto.observation,
-          donor: {
-            connect: { id: updateDonationDto.donor_id },
-          },
-          people: {
-            connect: { id: updateDonationDto.people_id },
-          },
-          family: {
-            connect: {
-              id: (
-                await prisma.people_Family.findFirst({
-                  where: { people_id: updateDonationDto.people_id },
-                })
-              ).family_id,
-            },
-          },
-        },
+        data: updateData,
+      });
+
+      const existingProductsMap = new Map<string, { amount: number }>();
+      existingDonation.donation_products.forEach((product) => {
+        existingProductsMap.set(product.product_id, {
+          amount: product.amount.toNumber(),
+        });
       });
 
       for (const oldProduct of existingDonation.donation_products) {
-        const stock = await prisma.stock.findFirst({
-          where: { product_id: oldProduct.product_id },
-        });
+        const newProductData = updatedDonationProducts?.find(
+          (product) => product.product_id === oldProduct.product_id,
+        );
 
-        if (!stock) {
-          throw new Error(
-            `Estoque não encontrado para o produto com id ${oldProduct.product_id}`,
-          );
+        if (newProductData) {
+          const stock = await prisma.stock.findFirst({
+            where: { product_id: oldProduct.product_id },
+          });
+
+          if (!stock) {
+            throw new Error(
+              `Estoque não encontrado para o produto com id ${oldProduct.product_id}`,
+            );
+          }
+
+          await prisma.stock.update({
+            where: { id: stock.id },
+            data: {
+              amount: stock.amount.plus(new Decimal(oldProduct.amount)),
+            },
+          });
+
+          await prisma.stock.update({
+            where: { id: stock.id },
+            data: {
+              amount: stock.amount.minus(new Decimal(newProductData.amount)),
+            },
+          });
+
+          await prisma.donationProducts.update({
+            where: {
+              id: oldProduct.id,
+            },
+            data: {
+              amount: newProductData.amount,
+            },
+          });
+        } else {
+          const stock = await prisma.stock.findFirst({
+            where: { product_id: oldProduct.product_id },
+          });
+
+          if (stock) {
+            await prisma.stock.update({
+              where: { id: stock.id },
+              data: {
+                amount: stock.amount.plus(
+                  new Decimal(oldProduct.amount.toString()),
+                ),
+              },
+            });
+          }
+
+          await prisma.donationProducts.deleteMany({
+            where: {
+              donation_id: donation.id,
+              product_id: oldProduct.product_id,
+            },
+          });
         }
-
-        await prisma.stock.update({
-          where: { id: stock.id },
-          data: {
-            amount: stock.amount.plus(new Decimal(oldProduct.amount)),
-          },
-        });
-
-        await prisma.donationProducts.deleteMany({
-          where: {
-            donation_id: donation.id,
-            product_id: oldProduct.product_id,
-          },
-        });
       }
 
-      for (const newProduct of updatedDonationProducts) {
-        const stock = await prisma.stock.findFirst({
-          where: { product_id: newProduct.product_id },
-        });
-
-        if (!stock || stock.amount.toNumber() < newProduct.amount) {
-          throw new Error(
-            `Estoque insuficiente para o produto com id ${newProduct.product_id}`,
+      if (updatedDonationProducts) {
+        for (const newProduct of updatedDonationProducts) {
+          const existingProduct = existingProductsMap.get(
+            newProduct.product_id,
           );
+
+          if (!existingProduct) {
+            const stock = await prisma.stock.findFirst({
+              where: { product_id: newProduct.product_id },
+            });
+
+            if (!stock || stock.amount.toNumber() < newProduct.amount) {
+              throw new Error(
+                `Estoque insuficiente para o produto com id ${newProduct.product_id}`,
+              );
+            }
+
+            await prisma.stock.update({
+              where: { id: stock.id },
+              data: {
+                amount: stock.amount.minus(new Decimal(newProduct.amount)),
+              },
+            });
+          }
         }
-
-        await prisma.stock.update({
-          where: { id: stock.id },
-          data: {
-            amount: stock.amount.minus(new Decimal(newProduct.amount)),
-          },
-        });
-
-        await prisma.donationProducts.create({
-          data: {
-            donation_id: donation.id,
-            product_id: newProduct.product_id,
-            amount: newProduct.amount,
-          },
-        });
       }
-
       return donation;
     });
   }

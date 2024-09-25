@@ -385,10 +385,18 @@
                         </v-list-item-subtitle>
                       </v-list-item-content>
                       <v-list-item-action :disabled="false">
-                        <v-btn icon color="blue" @click.stop="editProduct(index)">
+                        <v-btn
+                          icon
+                          color="blue"
+                          @click.stop="editProduct(index)"
+                        >
                           <v-icon>mdi-pencil</v-icon>
                         </v-btn>
-                        <v-btn icon color="red" @click.stop="removeProduct(index)">
+                        <v-btn
+                          icon
+                          color="red"
+                          @click.stop="removeProduct(index)"
+                        >
                           <v-icon>mdi-delete</v-icon>
                         </v-btn>
                       </v-list-item-action>
@@ -783,15 +791,13 @@ export default {
           search,
         });
       } else if (type === "product") {
-        const responseProduct = await this.$store.dispatch("product/findAll", {
+        return await this.$store.dispatch("product/findAll", {
           search,
         });
-        return responseProduct;
       } else if (type === "donor") {
-        const responseDonor = await this.$store.dispatch("donor/findAll", {
+        return await this.$store.dispatch("donor/findAll", {
           search,
         });
-        return responseDonor;
       }
     },
 
@@ -823,7 +829,7 @@ export default {
           this.closeDialog();
           this.createdDonation = response;
           this.selectedPeople = "";
-          this.donation_products = "";
+          this.donation_products = [];
           this.selectedDonor = "";
           return response;
         } else {

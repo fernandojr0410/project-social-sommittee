@@ -35,7 +35,6 @@ export class DonationService {
     );
   }
 
-  // Exemplo de como usar o método update em outro método do service
   async updateDonation(
     donationId: string,
     updateDonationDto: UpdateDonationDto,

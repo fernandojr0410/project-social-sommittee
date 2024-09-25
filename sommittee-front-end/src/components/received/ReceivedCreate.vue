@@ -342,7 +342,7 @@ export default {
   name: "ReceivedCreate",
   props: {
     value: {
-      typ: Boolean,
+      type: Boolean,
       required: true,
     },
   },
@@ -351,7 +351,7 @@ export default {
     return {
       dialog: false,
       productDialog: false,
-      createdReceived: {},
+      createdReceived: this.getReceived(),
       selectedProduct: null,
       selectedDonor: null,
       selectedUser: null,
@@ -359,11 +359,6 @@ export default {
       products: [],
       productList: [],
       editingIndex: null,
-      conditionOptions: [
-        { text: "Novo", value: "NEW" },
-        { text: "Usado", value: "USED" },
-        { text: "Danificado", value: "DAMAGED" },
-      ],
       donorList: [],
       search: "",
       items: [],
@@ -462,7 +457,6 @@ export default {
     },
     openDialog() {
       this.dialog = true;
-      this.createdReceived = this.getReceived();
     },
     closeDialog() {
       this.dialog = false;
@@ -578,7 +572,7 @@ export default {
 
     async createReceived() {
       const receivedData = {
-        date: this.date,
+        date: this.createdReceived.date,
         condition_product: this.createdReceived.condition_product,
         description: this.createdReceived.description,
         user_id: this.selectedUser.id,
@@ -591,10 +585,10 @@ export default {
           type_donor: this.createdReceived.donor.type_donor,
         },
 
-        products: this.products.map((product) => ({
-          product_id: product.id,
-          type: product.type,
-          amount: product.amount,
+        products: this.products.map((item) => ({
+          product_id: item.product.id,
+          type: item.product.type,
+          amount: item.amount,
         })),
       };
 
@@ -606,12 +600,11 @@ export default {
 
         if (response) {
           this.$success("Registro criado!");
-          this.selectedProduct = "";
-          this.selectedDonor = "";
+          this.$store.dispatch("received/findAll");
+          this.createdReceived = this.getReceived();
+          this.selectedProduct = null;
+          this.selectedDonor = null;
           this.closeDialog();
-          this.$emit("close");
-          this.createdReceived = response;
-          return response;
         } else {
           this.$error("Erro ao criar recebimento!");
         }

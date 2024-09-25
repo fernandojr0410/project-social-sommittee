@@ -360,7 +360,6 @@ export default {
           "received/update",
           updatedReceived
         );
-        console.log("updatedReceived", response);
         this.loadData();
         this.editDialog = false;
         return response;

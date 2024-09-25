@@ -12,7 +12,7 @@
         </v-btn>
       </v-card-title>
       <v-card-text>
-        <v-card style="padding: 16px">
+        <v-card class="elevation-4" style="padding: 16px">
           <v-row>
             <v-col>
               <span color="primary" style="font-weight: 500; font-size: 16px">
@@ -117,7 +117,7 @@
           </v-row>
         </v-card>
 
-        <v-card style="padding: 14px; margin-top: 30px">
+        <v-card class="elevation-4" style="padding: 14px; margin-top: 30px">
           <v-row>
             <v-col>
               <span color="primary" style="font-weight: 500; font-size: 16px">
@@ -217,7 +217,7 @@
           </v-row>
         </v-card>
 
-        <v-card style="padding: 14px; margin-top: 30px">
+        <v-card class="elevation-4" style="padding: 14px; margin-top: 30px">
           <v-container class="d-flex justify-space-between">
             <div v-if="products.length === 0">
               <span color="primary" style="font-weight: 500; font-size: 16px">
@@ -552,7 +552,7 @@ export default {
         });
 
         if (response) {
-          this.$success("Registro atualizado com sucesso!");
+          this.$success("Registro atualizado!");
           this.$emit("input", false);
           this.selectedProduct = "";
           this.selectedDonor = "";

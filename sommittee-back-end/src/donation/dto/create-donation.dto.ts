@@ -24,7 +24,6 @@ export class CreateDonationDto {
   products: {
     product_id: string;
     amount: number;
-    condition_product: Condition_product;
   }[];
 
   @IsNotEmpty()
