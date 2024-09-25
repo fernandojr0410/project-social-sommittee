@@ -4,7 +4,7 @@
     left
     bottom
     :value="true"
-    :timeout="15000"
+    :timeout="100000"
   >
     <div class="d-flex align-center caption">
       <v-icon color="red">mdi-close-circle</v-icon>

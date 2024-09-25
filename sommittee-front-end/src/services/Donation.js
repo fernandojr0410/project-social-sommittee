@@ -14,25 +14,15 @@ class Donation extends Http {
   }
 
   async findById(id, data) {
-    try {
-      const response = await this.get(id, data);
-      console.log("findById service", response);
-      return response;
-    } catch (error) {
-      console.error("error filtering service", error);
-      throw error;
-    }
+    return await this.get(id, data);
   }
 
   async update(id, data) {
-    try {
-      const response = await this.patch(id, data);
-      console.log("update service", response);
-      return response;
-    } catch (error) {
-      console.error("error updated service", error);
-      throw error;
-    }
+    return await this.patch(id, data);
+  }
+
+  async delete(id) {
+    return await super.delete(id);
   }
 }
 

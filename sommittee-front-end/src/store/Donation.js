@@ -19,6 +19,9 @@ const mutations = {
         : item;
     });
   },
+  DELETE_DONATION(state, id) {
+    state.donation = state.donation.filter((donation) => donation.id !== id);
+  },
 };
 
 const getters = {
@@ -41,28 +44,22 @@ const actions = {
   },
 
   async findById({ commit }, id) {
-    try {
-      const response = await API.donation.findById(id);
-      console.log("findById store", response);
-      commit("UPDATE_DONATION", response);
-      return response;
-    } catch (error) {
-      console.error("error filtering store", error);
-      throw error;
-    }
+    const response = await API.donation.findById(id);
+    commit("UPDATE_DONATION", response);
+    return response;
   },
 
-  async update({commit}, {id, payload}) {
-    try {
-      const response = await API.donation.update(id, payload)
-      console.log("update store", response)
-      commit('UPDATE_DONATION', response)
-      return response
-    } catch (error) {
-      console.error('error updated store', error)
-      throw error
-    }
-  }
+  async update({ commit }, { id, payload }) {
+    const response = await API.donation.update(id, payload);
+    commit("UPDATE_DONATION", response);
+    return response;
+  },
+
+  async delete({ commit }, id) {
+    const response = await API.donation.delete(id);
+    commit("DELETE_DONATION", id);
+    return response;
+  },
 };
 
 export default {

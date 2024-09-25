@@ -71,12 +71,7 @@ export default {
         } else {
           this.query.search = this.formattedSearch;
         }
-        const response = await this.$store.dispatch(
-          "received/findAll",
-          this.query
-        );
-        console.log("response", response);
-        return response;
+        return await this.$store.dispatch("received/findAll", this.query);
       } catch (error) {
         console.error("Erro ao filtrar recebimento");
         throw error;

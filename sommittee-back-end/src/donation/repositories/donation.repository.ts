@@ -124,14 +124,44 @@ export class DonationRepository {
         family: true,
       },
     };
+
     if (query.searchField && query.search) {
-      _query.where = {
-        [query.searchField]: {
-          contains: query.search,
-          mode: 'insensitive',
-        },
-      };
+      if (query.searchField === 'name') {
+        _query.where = {
+          people: {
+            name: {
+              contains: query.search,
+              mode: 'insensitive',
+            },
+          },
+        };
+      } else if (query.searchField === 'telephone') {
+        _query.where = {
+          people: {
+            telephone: {
+              contains: query.search,
+              mode: 'insensitive',
+            },
+          },
+        };
+      } else if (query.searchField === 'state') {
+        _query.where = {
+          state: query.search,
+        };
+      } else if (query.searchField === 'date_delivery') {
+        _query.where = {
+          date_delivery: query.search,
+        };
+      } else {
+        _query.where = {
+          [query.searchField]: {
+            contains: query.search,
+            mode: 'insensitive',
+          },
+        };
+      }
     }
+
     return await this.prisma.donation.findMany(_query);
   }
 

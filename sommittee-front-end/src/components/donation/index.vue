@@ -2,6 +2,10 @@
   <v-container>
     <v-card>
       <v-card-text>
+        <div style="display: flex; align-items: center">
+          <DonationSearch @search="handleSearch" />
+          <DonationRefresh />
+        </div>
         <v-data-table
           :loading="loading"
           :headers="headers"
@@ -20,9 +24,9 @@
             <span>{{ item.state | stateDonation }}</span>
           </template>
 
-          <template v-slot:[`item.date_delivery`]="{ item }">
-            <span>{{ formatDate(item.date_delivery) }}</span>
-          </template>
+          <!-- <template v-slot:[`item.date_delivery`]="{ item }">
+            <span>{{ dateDelivery(item.date_delivery) }}</span>
+          </template> -->
 
           <template v-slot:[`item.name`]="{ item }">
             <span>{{ item.people.name }}</span>
@@ -57,6 +61,11 @@
           v-model="editDialog"
           :id="updatedDonationId"
           @save="saveUpdatedDonation"
+        />
+        <DonationDelete
+          :dialog="deleteDialog"
+          :id="itemToDelete"
+          @close="handleDeleteClose"
         />
       </v-card-text>
     </v-card>
@@ -486,10 +495,19 @@
 import { formatDate } from "@/filters";
 import DonationCreate from "./DonationCreate.vue";
 import DonationEdit from "./DonationEdit.vue";
+import DonationDelete from "./DonationDelete.vue";
+import DonationSearch from "./DonationSearch.vue";
+import DonationRefresh from "./DonationRefresh.vue";
 
 export default {
   name: "index",
-  components: { DonationCreate, DonationEdit },
+  components: {
+    DonationCreate,
+    DonationEdit,
+    DonationDelete,
+    DonationSearch,
+    DonationRefresh,
+  },
   data() {
     return {
       loading: false,
@@ -498,6 +516,9 @@ export default {
       createDialog: false,
       editDialog: false,
       updatedDonationId: null,
+      deleteDialog: false,
+      itemToDelete: null,
+      search: "",
       donation_products: [],
       headers: [
         { text: "Data criação", value: "created_at" },
@@ -508,6 +529,7 @@ export default {
         { text: "Ações", value: "actions" },
       ],
       formatDate,
+      dateFormatted: "",
     };
   },
   computed: {
@@ -524,6 +546,21 @@ export default {
     this.loadData();
   },
   methods: {
+    // dateDelivery(date) {
+    //   const d = new Date(date);
+    //   if (isNaN(d.getTime())) return ""; // Verifica se a data é válida
+    //   const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+    //   return new Intl.DateTimeFormat("pt-BR", options).format(d);
+    // },
+
+    // parseDate(date) {
+    //   if (!date) return null;
+    //   console.log("Parsing date:", date); // Debugging
+    //   const [day, month, year] = date.split("/");
+    //   return new Date(Date.UTC(year, month - 1, day))
+    //     .toISOString()
+    //     .split("T")[0];
+    // },
     async loadData() {
       this.loading = true;
       try {
@@ -538,6 +575,9 @@ export default {
     async findAll() {
       const response = await this.$store.dispatch("donation/findAll");
       console.log("response", response);
+    },
+    async handleSearch(search) {
+      this.search = search;
     },
     showDetails(item) {
       this.selectedDonation = item;
@@ -581,6 +621,21 @@ export default {
     isSelected(item) {
       return this.updatedDonationId === item.id;
     },
+    confirmDelete(item) {
+      this.itemToDelete = item.id;
+      this.deleteDialog = false;
+      this.$nextTick(() => {
+        this.deleteDialog = true;
+      });
+    },
+    handleDeleteClose() {
+      this.deleteDialog = false;
+      this.itemToDelete = null;
+    },
   },
+  // mounted() {
+  //   const today = new Date();
+  //   this.dateFormatted = this.dateDelivery(today);
+  // },
 };
 </script>

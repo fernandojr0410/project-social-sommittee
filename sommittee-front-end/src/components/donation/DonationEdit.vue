@@ -589,7 +589,6 @@ export default {
       immediate: true,
       handler: async function (id) {
         if (id) {
-          console.log("id donation", id);
           this.updatedDonation = await this.$store.dispatch(
             "donation/findById",
             id
@@ -717,7 +716,6 @@ export default {
         this.selectedProduct = this.updatedDonation.donation_products[index];
         this.productDialog = true;
         this.editingIndex = index;
-        console.log("this.selectedProduct", this.selectedProduct)
       }
     },
 
@@ -796,7 +794,6 @@ export default {
           amount: Number(item.amount),
         })),
       };
-      console.log(updateData, "updateData");
       try {
         const response = await this.$store.dispatch("donation/update", {
           id: this.id,
@@ -811,7 +808,6 @@ export default {
         }
       } catch (error) {
         this.$error("Erro ao atualizar registro");
-        console.error("Erro ao atualizar", error);
         throw error;
       }
     },
