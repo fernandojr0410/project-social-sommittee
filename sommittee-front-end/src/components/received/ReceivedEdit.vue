@@ -528,9 +528,9 @@ export default {
       const updateData = {
         date: this.date,
         condition_product: this.updatedReceived.condition_product,
-        description: this.updatedReceived.description,
-        user_id: this.selectedUser.id,
-        donor_id: this.selectedDonor.id,
+        description: this.updatedReceived.description || "",
+        user_id: this.selectedUser?.id,
+        donor_id: this.selectedDonor?.id,
         donor: {
           name: this.updatedReceived.donor.name,
           identifier: this.updatedReceived.donor.identifier,

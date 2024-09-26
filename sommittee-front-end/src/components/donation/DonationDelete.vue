@@ -47,6 +47,7 @@ export default {
             "Não foi possível deletar esse registro! A doação está vinculada a produtos e não pode ser removida enquanto esses vínculos existirem."
           );
         }, 2000);
+        throw error;
       }
     },
     handleCancel() {

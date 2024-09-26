@@ -1,19 +1,19 @@
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../../prisma/prisma.service";
-import { CreateProductDto } from "../dto/create-product.dto";
-import { ProductEntity } from "../entities/product.entity";
-import { UpdateProductDto } from "../dto/update-product.dto";
-import { Decimal } from "@prisma/client/runtime/library";
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
+import { CreateProductDto } from '../dto/create-product.dto';
+import { ProductEntity } from '../entities/product.entity';
+import { UpdateProductDto } from '../dto/update-product.dto';
+import { Decimal } from '@prisma/client/runtime/library';
+import { ProductDashboardDto } from '../dto/dashboard-product.dto';
 
 @Injectable()
 export class ProductRepository {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(createProductDto: CreateProductDto) {
     const { name, description, type } = createProductDto;
 
     return await this.prisma.$transaction(async (prisma) => {
-
       const createdProduct = await prisma.product.create({
         data: {
           name,
@@ -32,7 +32,6 @@ export class ProductRepository {
       return createdProduct;
     });
   }
-
 
   async findAll(query: any): Promise<ProductEntity[]> {
     const _query: any = {
@@ -82,9 +81,22 @@ export class ProductRepository {
       where: { product_id: id },
     });
 
-
     return await this.prisma.product.delete({
       where: { id },
     });
+  }
+
+  async findAllWithStock(type?: string): Promise<any> {
+    const query: any = {
+      include: {
+        stocks: true,
+      },
+    };
+
+    if (type) {
+      query.where = { type: type };
+    }
+
+    return await this.prisma.product.findMany(query);
   }
 }

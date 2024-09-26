@@ -1,34 +1,29 @@
-import Http from './Http'
+import Http from "./Http";
 
 class People extends Http {
   constructor() {
-    super('people')
+    super("people");
   }
 
   async create(data) {
-    const response = await this.post('register', data)
-    return response
+    return await this.post("register", data);
   }
 
   async findAll(query) {
-    const response = await this.get('', query)
-    return response
+    return await this.get("", query);
   }
 
   async findById(id, data) {
-    const response = await this.get(id, data)
-    return response
+    return await this.get(id, data);
   }
 
   async update(id, data) {
-    const response = await super.patch(id, data)
-    return response
+    return await super.patch(id, data);
   }
 
   async delete(id) {
-    const response = await super.delete(id)
-    return response
+    return await super.delete(id);
   }
 }
 
-export default People
+export default People;

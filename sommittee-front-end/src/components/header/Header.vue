@@ -126,12 +126,12 @@
           <v-list-item-title>Financeiro</v-list-item-title>
         </v-list-item>
 
-        <v-list-item>
+        <!-- <v-list-item>
           <v-list-item-icon>
             <v-icon>mdi-shopping</v-icon>
           </v-list-item-icon>
           <v-list-item-title>Compras</v-list-item-title>
-        </v-list-item>
+        </v-list-item> -->
 
         <v-list-group no-action prepend-icon="mdi-cog-outline" color="#FFF">
           <template v-slot:activator>

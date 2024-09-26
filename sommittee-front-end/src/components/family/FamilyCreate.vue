@@ -268,25 +268,8 @@
                 <v-col>
                   <v-text-field
                     v-if="selectedPeople && selectedPeople.address"
-                    v-model="selectedPeople.address.city"
+                    v-model="cityAndState"
                     label="Cidade"
-                    class="mr-3"
-                    readonly
-                    outlined
-                    dense
-                    hide-details
-                  />
-                </v-col>
-                <v-col>
-                  <v-select
-                    v-if="selectedPeople && selectedPeople.address"
-                    v-model="selectedPeople.address.state"
-                    :items="states"
-                    item-value="acronym"
-                    item-text="name"
-                    class="mr-3"
-                    label="Estado"
-                    readonly
                     outlined
                     dense
                     hide-details
@@ -335,6 +318,13 @@ export default {
       },
       states,
     };
+  },
+  computed: {
+    cityAndState() {
+      const city = this.selectedPeople.address.city || "";
+      const state = this.selectedPeople.address.state || "";
+      return city && state ? `${city}, ${state}` : city || state;
+    },
   },
   methods: {
     getPeople() {

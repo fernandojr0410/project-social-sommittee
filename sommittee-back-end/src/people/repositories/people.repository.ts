@@ -1,13 +1,16 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { PrismaService } from "../../prisma/prisma.service";
-import { CreatePeopleDto } from "../dto/create-people.dto";
-import { PeopleEntity } from "../entities/people.entity";
-import { UpdatePeopleDto } from "../dto/update-people.dto";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
+import { CreatePeopleDto } from '../dto/create-people.dto';
+import { PeopleEntity } from '../entities/people.entity';
+import { UpdatePeopleDto } from '../dto/update-people.dto';
 
 @Injectable()
 export class PeopleRepository {
-  constructor(private readonly prisma: PrismaService,
-  ) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(createPeopleDto: CreatePeopleDto): Promise<PeopleEntity> {
     const { address, ...peopleData } = createPeopleDto;
@@ -42,12 +45,12 @@ export class PeopleRepository {
             neighborhood: true,
             city: true,
             state: true,
-          }
-        }
-      }
+          },
+        },
+      },
     };
 
-    return await this.prisma.people.findMany(_query)
+    return await this.prisma.people.findMany(_query);
   }
 
   async findById(id: string): Promise<PeopleEntity> {
@@ -63,23 +66,26 @@ export class PeopleRepository {
             neighborhood: true,
             city: true,
             state: true,
-          }
-        }
-      }
-    })
+          },
+        },
+      },
+    });
   }
 
-  async update(id: string, updatePeopleDto: UpdatePeopleDto): Promise<PeopleEntity> {
-    const { address, ...rest } = updatePeopleDto
+  async update(
+    id: string,
+    updatePeopleDto: UpdatePeopleDto,
+  ): Promise<PeopleEntity> {
+    const { address, ...rest } = updatePeopleDto;
 
-    const updateData: any = { ...rest }
+    const updateData: any = { ...rest };
 
     if (address) {
       updateData.address = {
         update: {
           ...address,
-        }
-      }
+        },
+      };
     }
     return await this.prisma.people.update({
       where: { id },
@@ -94,11 +100,10 @@ export class PeopleRepository {
             neighborhood: true,
             city: true,
             state: true,
-          }
-        }
-      }
-    })
-
+          },
+        },
+      },
+    });
   }
 
   async remove(id: string): Promise<PeopleEntity> {
@@ -107,7 +112,7 @@ export class PeopleRepository {
       include: {
         address: true,
         People_Family: true,
-        families: true
+        families: true,
       },
     });
 

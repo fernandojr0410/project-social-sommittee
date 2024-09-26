@@ -24,9 +24,9 @@
             <span>{{ item.state | stateDonation }}</span>
           </template>
 
-          <!-- <template v-slot:[`item.date_delivery`]="{ item }">
+          <template v-slot:[`item.date_delivery`]="{ item }">
             <span>{{ dateDelivery(item.date_delivery) }}</span>
-          </template> -->
+          </template>
 
           <template v-slot:[`item.name`]="{ item }">
             <span>{{ item.people.name }}</span>
@@ -546,21 +546,11 @@ export default {
     this.loadData();
   },
   methods: {
-    // dateDelivery(date) {
-    //   const d = new Date(date);
-    //   if (isNaN(d.getTime())) return ""; // Verifica se a data é válida
-    //   const options = { year: "numeric", month: "2-digit", day: "2-digit" };
-    //   return new Intl.DateTimeFormat("pt-BR", options).format(d);
-    // },
-
-    // parseDate(date) {
-    //   if (!date) return null;
-    //   console.log("Parsing date:", date); // Debugging
-    //   const [day, month, year] = date.split("/");
-    //   return new Date(Date.UTC(year, month - 1, day))
-    //     .toISOString()
-    //     .split("T")[0];
-    // },
+    dateDelivery(dateString) {
+      if (!dateString) return "";
+      const [year, month, day] = dateString.split("-");
+      return `${day}/${month}/${year}`;
+    },
     async loadData() {
       this.loading = true;
       try {
@@ -633,9 +623,5 @@ export default {
       this.itemToDelete = null;
     },
   },
-  // mounted() {
-  //   const today = new Date();
-  //   this.dateFormatted = this.dateDelivery(today);
-  // },
 };
 </script>

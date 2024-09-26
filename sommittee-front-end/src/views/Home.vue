@@ -1,9 +1,14 @@
 <template>
-  <h1>Home</h1>
+  <Index />
 </template>
 
 <script>
+import Index from "@/components/Home/index.vue";
+
 export default {
-  name: 'Home',
-}
+  name: "Home",
+  components: {
+    Index,
+  },
+};
 </script>
