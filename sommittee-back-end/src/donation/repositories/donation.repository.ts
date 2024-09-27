@@ -99,6 +99,37 @@ export class DonationRepository {
     });
   }
 
+  async findLatestDonations(): Promise<DonationEntity[]> {
+    return await this.prisma.donation.findMany({
+      orderBy: {
+        date_delivery: 'desc',
+      },
+      take: 5,
+      include: {
+        donor: true,
+        donation_products: {
+          select: {
+            product: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                type: true,
+              },
+            },
+            amount: true,
+          },
+        },
+        people: {
+          include: {
+            address: true,
+          },
+        },
+        family: true,
+      },
+    });
+  }
+
   async findAll(query: any): Promise<DonationEntity[]> {
     const _query: any = {
       include: {

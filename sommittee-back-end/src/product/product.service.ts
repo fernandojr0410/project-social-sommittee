@@ -16,6 +16,29 @@ export class ProductService {
     return await this.repository.findAll(queryDto);
   }
 
+  async getDashboardData(): Promise<any> {
+    const products = await this.repository.findAllWithStock();
+
+    const productMap = products.reduce((acc, product) => {
+      const totalAmount = product.stocks.reduce((sum, stock) => {
+        return sum + parseInt(stock.amount);
+      }, 0);
+
+      if (acc[product.type]) {
+        acc[product.type].totalAmount += totalAmount;
+      } else {
+        acc[product.type] = {
+          type: product.type,
+          totalAmount: totalAmount,
+        };
+      }
+
+      return acc;
+    }, {});
+
+    return Object.values(productMap);
+  }
+
   async findById(id: string) {
     return await this.repository.findById(id);
   }
@@ -26,26 +49,5 @@ export class ProductService {
 
   async remove(id: string) {
     return await this.repository.remove(id);
-  }
-
-  async getDashboardData(type: string): Promise<any> {
-    const products = await this.repository.findAllWithStock();
-
-    // Filtra os produtos pelo tipo e soma os estoques
-    const filteredProducts = products.filter(
-      (product) => product.type === type,
-    );
-
-    const totalAmount = filteredProducts.reduce((total, product) => {
-      const productStock = product.stocks.reduce((sum, stock) => {
-        return sum + stock.amount.toNumber();
-      }, 0);
-      return total + productStock;
-    }, 0);
-
-    return {
-      type: type,
-      totalAmount: totalAmount,
-    };
   }
 }

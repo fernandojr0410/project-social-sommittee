@@ -52,6 +52,14 @@ export class ProductRepository {
     return await this.prisma.product.findMany(_query);
   }
 
+  async findAllWithStock(): Promise<any> {
+    return await this.prisma.product.findMany({
+      include: {
+        stocks: true,
+      },
+    });
+  }
+
   async findById(id: string): Promise<ProductEntity | null> {
     const product = await this.prisma.product.findUnique({
       where: { id },
@@ -84,19 +92,5 @@ export class ProductRepository {
     return await this.prisma.product.delete({
       where: { id },
     });
-  }
-
-  async findAllWithStock(type?: string): Promise<any> {
-    const query: any = {
-      include: {
-        stocks: true,
-      },
-    };
-
-    if (type) {
-      query.where = { type: type };
-    }
-
-    return await this.prisma.product.findMany(query);
   }
 }

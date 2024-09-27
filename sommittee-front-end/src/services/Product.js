@@ -17,6 +17,10 @@ class Product extends Http {
     return await this.get("", query);
   }
 
+  async getDashboardData() {
+    return await this.get("dashboard");
+  }
+
   async findById(id, data) {
     return await this.get(id, data);
   }

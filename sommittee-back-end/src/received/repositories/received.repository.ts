@@ -92,6 +92,30 @@ export class ReceivedRepository {
     return received;
   }
 
+  async findLatestReceived(): Promise<ReceivedEntity[]> {
+    return await this.prisma.received.findMany({
+      orderBy: {
+        updated_at: 'desc',
+      },
+      take: 5,
+      include: {
+        products: {
+          include: {
+            product: true,
+          },
+        },
+        donor: true,
+        user: {
+          select: {
+            name: true,
+            email: true,
+            telephone: true,
+          },
+        },
+      },
+    });
+  }
+
   async findAll(query: any): Promise<ReceivedEntity[]> {
     const _query: any = {
       include: {

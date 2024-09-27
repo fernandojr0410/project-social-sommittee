@@ -35,6 +35,12 @@ export class ProductController {
   }
 
   @UseGuards(AuthGuard)
+  @Get('dashboard')
+  async getDashboard() {
+    return await this.service.getDashboardData();
+  }
+
+  @UseGuards(AuthGuard)
   @Get(':id')
   async findById(@Param('id') id: string) {
     const product = await this.service.findById(id);
@@ -61,11 +67,5 @@ export class ProductController {
       throw new NotFoundException('Product not found');
     }
     return product;
-  }
-
-  @UseGuards(AuthGuard)
-  @Get('dashboard/:type')
-  async getDashboard(@Param('type') type: string) {
-    return await this.service.getDashboardData(type);
   }
 }

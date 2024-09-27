@@ -29,6 +29,12 @@ export class DonationController {
   }
 
   @UseGuards(AuthGuard)
+  @Get('latest')
+  async getLatestDonations() {
+    return await this.service.findLatestDonations();
+  }
+
+  @UseGuards(AuthGuard)
   @Get()
   async getAll(@Query() query: QueryDonationDto) {
     return await this.service.findAll(query);

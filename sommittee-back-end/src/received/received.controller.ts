@@ -27,6 +27,12 @@ export class ReceivedController {
   }
 
   @UseGuards(AuthGuard)
+  @Get('latest')
+  async findLatestReceived() {
+    return await this.service.findLatestReceived();
+  }
+
+  @UseGuards(AuthGuard)
   @Get()
   async findAll(@Query() queryDto: QueryReceivedDto) {
     return await this.service.findAll(queryDto);

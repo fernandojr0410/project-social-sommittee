@@ -9,6 +9,11 @@ const mutations = {
   SET_DONATION(state, donation) {
     state.donation = donation;
   },
+
+  SET_LATEST_DONATIONS(state, donation) {
+    state.donation = donation;
+  },
+
   CREATE_DONATION(state, newDonation) {
     state.donation.push(newDonation);
   },
@@ -28,6 +33,10 @@ const getters = {
   getById: (state) => {
     return (id) => state.donation.find((donation) => donation.id === id);
   },
+
+  latestDonations(state) {
+    return state.donation;
+  },
 };
 
 const actions = {
@@ -41,6 +50,17 @@ const actions = {
     const response = await API.donation.create(data);
     commit("CREATE_DONATION", response);
     return response;
+  },
+
+  async fetchLatestDonations({ commit }) {
+    try {
+      const response = await API.donation.getLatestDonations();
+      commit("SET_LATEST_DONATIONS", response);
+      return response;
+    } catch (error) {
+      console.error("Erro ao buscar as últimas doações:", error);
+      throw error;
+    }
   },
 
   async findById({ commit }, id) {

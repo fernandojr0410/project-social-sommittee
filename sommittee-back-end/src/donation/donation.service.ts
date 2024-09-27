@@ -15,6 +15,10 @@ export class DonationService {
     return await this.repository.create(createDonationDto, donationProducts);
   }
 
+  async findLatestDonations() {
+    return await this.repository.findLatestDonations();
+  }
+
   async findAll(querydto: QueryDonationDto = {}) {
     return await this.repository.findAll(querydto);
   }

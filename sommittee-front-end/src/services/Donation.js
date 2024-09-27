@@ -9,6 +9,10 @@ class Donation extends Http {
     return await this.get("", query);
   }
 
+  async getLatestDonations() {
+    return await this.get("latest");
+  }
+
   async create(data) {
     return await this.post("register", data);
   }

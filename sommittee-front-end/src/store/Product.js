@@ -9,6 +9,10 @@ const mutations = {
     state.product.push(newProduct);
   },
 
+  SET_DASHBOARD_DATA(state, dashboardData) {
+    state.product = dashboardData;
+  },
+
   SET_PRODUCT(state, product) {
     state.product = product;
   },
@@ -29,6 +33,10 @@ const mutations = {
 const getters = {
   getById: (state) => {
     return (id) => state.product.find((product) => product.id === id);
+  },
+
+  dashboardProducts: (state) => {
+    return state.product;
   },
 };
 
@@ -53,6 +61,17 @@ const actions = {
     const response = await API.product.findAll(query);
     commit("SET_PRODUCT", response);
     return response;
+  },
+
+  async fetchDashboardData({ commit }) {
+    try {
+      const response = await API.product.getDashboardData();
+      commit("SET_DASHBOARD_DATA", response);
+      return response;
+    } catch (error) {
+      console.error("Erro ao buscar dados da dashboard:", error);
+      throw error;
+    }
   },
 
   async findById({ commit }, id) {
