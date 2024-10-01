@@ -4,6 +4,7 @@
       <v-row>
         <v-col cols="12" sm="12">
           <v-text-field
+            filled
             label="Senha antiga"
             v-model="oldPassword"
             @input="validatePassword"
@@ -17,6 +18,7 @@
       <v-row>
         <v-col cols="12" sm="12">
           <v-text-field
+            filled
             label="Nova senha"
             v-model="newPassword"
             @input="validatePassword"
@@ -30,6 +32,7 @@
       <v-row>
         <v-col cols="12" sm="12">
           <v-text-field
+            filled
             label="Confirmar nova senha"
             v-model="confirmPassword"
             @input="validatePassword"
@@ -59,8 +62,8 @@
               >
                 {{
                   passwordCriteria.length
-                    ? 'mdi-check-circle'
-                    : 'mdi-close-circle'
+                    ? "mdi-check-circle"
+                    : "mdi-close-circle"
                 }}
               </v-icon>
               Precisa ter no mínimo 8 caracteres
@@ -81,8 +84,8 @@
               >
                 {{
                   passwordCriteria.uppercase
-                    ? 'mdi-check-circle'
-                    : 'mdi-close-circle'
+                    ? "mdi-check-circle"
+                    : "mdi-close-circle"
                 }}
               </v-icon>
               Precisa ter pelo menos uma letra maiúscula
@@ -103,8 +106,8 @@
               >
                 {{
                   passwordCriteria.lowercase
-                    ? 'mdi-check-circle'
-                    : 'mdi-close-circle'
+                    ? "mdi-check-circle"
+                    : "mdi-close-circle"
                 }}
               </v-icon>
               Precisa ter pelo menos uma letra minúscula
@@ -125,8 +128,8 @@
               >
                 {{
                   passwordCriteria.special
-                    ? 'mdi-check-circle'
-                    : 'mdi-close-circle'
+                    ? "mdi-check-circle"
+                    : "mdi-close-circle"
                 }}
               </v-icon>
               Precisa ter pelo menos um caractere especial
@@ -147,8 +150,8 @@
               >
                 {{
                   passwordCriteria.number
-                    ? 'mdi-check-circle'
-                    : 'mdi-close-circle'
+                    ? "mdi-check-circle"
+                    : "mdi-close-circle"
                 }}
               </v-icon>
               Precisa ter pelo menos um dígito numérico
@@ -169,8 +172,8 @@
               >
                 {{
                   passwordCriteria.match
-                    ? 'mdi-check-circle'
-                    : 'mdi-close-circle'
+                    ? "mdi-check-circle"
+                    : "mdi-close-circle"
                 }}
               </v-icon>
               As senhas precisam ser iguais
@@ -201,24 +204,24 @@
 </template>
 
 <script>
-import Modal from '@/components/modal/Modal.vue'
+import Modal from "@/components/modal/Modal.vue";
 
 export default {
-  name: 'FormPassword',
+  name: "FormPassword",
   components: {
     Modal,
   },
   data() {
     return {
-      oldPassword: '',
-      newPassword: '',
-      confirmPassword: '',
+      oldPassword: "",
+      newPassword: "",
+      confirmPassword: "",
       showOldPassword: false,
       showNewPassword: false,
       showConfirmPassword: false,
       showPasswordCriteria: false,
-      modalTitle: '',
-      modalText: '',
+      modalTitle: "",
+      modalText: "",
       modalButton: false,
       showModal: false,
       passwordCriteria: {
@@ -229,29 +232,29 @@ export default {
         number: false,
         match: false,
       },
-    }
+    };
   },
   methods: {
     toggleOldPasswordVisibility() {
-      this.showOldPassword = !this.showOldPassword
+      this.showOldPassword = !this.showOldPassword;
     },
     toggleNewPasswordVisibility() {
-      this.showNewPassword = !this.showNewPassword
+      this.showNewPassword = !this.showNewPassword;
     },
     toggleConfirmPasswordVisibility() {
-      this.showConfirmPassword = !this.showConfirmPassword
+      this.showConfirmPassword = !this.showConfirmPassword;
     },
     validatePassword() {
       this.showPasswordCriteria =
-        this.newPassword.length > 0 || this.confirmPassword.length > 0
-      this.passwordCriteria.length = this.newPassword.length >= 8
-      this.passwordCriteria.uppercase = /[A-Z]/.test(this.newPassword)
-      this.passwordCriteria.lowercase = /[a-z]/.test(this.newPassword)
+        this.newPassword.length > 0 || this.confirmPassword.length > 0;
+      this.passwordCriteria.length = this.newPassword.length >= 8;
+      this.passwordCriteria.uppercase = /[A-Z]/.test(this.newPassword);
+      this.passwordCriteria.lowercase = /[a-z]/.test(this.newPassword);
       this.passwordCriteria.special = /[!@#$%^&*(),.?":{}|<>]/.test(
         this.newPassword
-      )
-      this.passwordCriteria.number = /[0-9]/.test(this.newPassword)
-      this.passwordCriteria.match = this.newPassword === this.confirmPassword
+      );
+      this.passwordCriteria.number = /[0-9]/.test(this.newPassword);
+      this.passwordCriteria.match = this.newPassword === this.confirmPassword;
     },
     isFormValid() {
       return (
@@ -261,49 +264,49 @@ export default {
         this.passwordCriteria.special &&
         this.passwordCriteria.number &&
         this.passwordCriteria.match
-      )
+      );
     },
     async updatePassword() {
       const requestBody = {
         oldPassword: this.oldPassword,
         newPassword: this.newPassword,
-      }
+      };
       try {
         const response = await this.$store.dispatch(
-          'auth/updatePassword',
+          "auth/updatePassword",
           requestBody
-        )
-        this.showModal = true
+        );
+        this.showModal = true;
         this.openModal(
-          'Senha alterada!',
-          'Sua senha foi alterada com sucesso! Você será deslogado!',
-          'OK'
-        )
+          "Senha alterada!",
+          "Sua senha foi alterada com sucesso! Você será deslogado!",
+          "OK"
+        );
 
-        await this.$store.dispatch('auth/logout')
-        this.showModal = false
-        this.$router.push('/login')
+        await this.$store.dispatch("auth/logout");
+        this.showModal = false;
+        this.$router.push("/login");
 
-        return response
+        return response;
       } catch (error) {
-        this.showModal = true
+        this.showModal = true;
         this.openModal(
-          'Senha antiga incorreta!',
-          'A senha que você digitou está incorreta, tente novamente!',
-          'OK'
-        )
+          "Senha antiga incorreta!",
+          "A senha que você digitou está incorreta, tente novamente!",
+          "OK"
+        );
 
-        throw error
+        throw error;
       }
     },
     openModal(title, text) {
-      ;(this.modalTitle = title),
+      (this.modalTitle = title),
         (this.modalText = text),
-        (this.modalButton = true)
+        (this.modalButton = true);
     },
     redirectToLogin() {},
   },
-}
+};
 </script>
 
 <style scoped>

@@ -1,38 +1,34 @@
 <template>
-  <v-card flat>
+  <v-card class="elevation-4">
+    <div
+      class="d-flex flex-column align-center justify-center"
+      style="padding-top: 20px"
+    >
+      <AvatarPhoto v-model="form.avatar_url" />
+    </div>
     <v-form>
-      <v-row class="d-flex justify-center">
-        <v-col cols="12" class="d-flex justify-center">
-          <v-avatar size="120" class="avatar-display" @click="triggerFileInput">
-            <img
-              :src="avatarPreview || defaultAvatar"
-              v-if="avatarPreview || defaultAvatar"
-            />
-
-            <input
-              ref="fileInput"
-              type="file"
-              class="d-none"
-              accept="image/*"
-              @change="handleFileChange"
-            />
-            <v-icon class="avatar-icon" dark>mdi-camera</v-icon>
-          </v-avatar>
-        </v-col>
-      </v-row>
-
       <v-row class="pa-15">
         <v-col cols="12" sm="6">
           <v-text-field label="Nome" filled v-model="form.name" />
         </v-col>
         <v-col cols="12" sm="6">
-          <v-text-field label="Sobrenome" filled v-model="form.identifier" />
+          <v-text-field
+            :value="form.identifier | cpf"
+            label="CPF"
+            filled
+            readonly
+          />
         </v-col>
         <v-col cols="12" sm="6">
-          <v-text-field label="Telefone" filled v-model="form.telephone" />
+          <v-text-field
+            label="Telefone"
+            v-mask="'(##) #####-####'"
+            filled
+            v-model="form.telephone"
+          />
         </v-col>
         <v-col cols="12" sm="6">
-          <v-text-field label="E-mail" filled v-model="form.email" disabled />
+          <v-text-field label="E-mail" filled v-model="form.email" />
         </v-col>
       </v-row>
 
@@ -47,52 +43,44 @@
         </v-btn>
       </v-card-actions>
     </v-form>
-    <Modal
-      :value="showModal"
-      @input="showModal = $event"
-      :title="modalTitle"
-      :text="modalText"
-      :button="modalButton"
-    />
   </v-card>
 </template>
 
 <script>
-import { mapState } from 'vuex'
-import { mapGetters, mapActions } from 'vuex'
-import Modal from '../../components/modal/Modal.vue'
+import { mapState } from "vuex";
+import AvatarPhoto from "./AvatarPhoto.vue";
 
 export default {
-  components: { Modal },
-  name: 'FormMyInfo',
+  name: "FormMyInfo",
+  components: { AvatarPhoto },
   data() {
     return {
       form: {
-        name: '',
-        identifier: '',
-        telephone: '',
-        email: '',
+        name: "",
+        identifier: "",
+        telephone: "",
+        email: "",
+        avatar_url: "",
       },
       originalForm: {
-        name: '',
-        identifier: '',
-        telephone: '',
-        email: '',
+        name: "",
+        identifier: "",
+        telephone: "",
+        email: "",
+        avatar_url: "",
       },
-      avatarPreview: '',
-      defaultAvatar: '',
-      isFormChanged: false,
-      modalTitle: '',
-      modalText: '',
-      modalButton: false,
-      showModal: false,
-    }
+    };
   },
   computed: {
-    ...mapState('auth', ['user']),
-    ...mapGetters('auth', ['avatarUrl']),
-    avatarUrl() {
-      return this.user?.avatarUrl || ''
+    ...mapState("auth", ["user"]),
+    isFormChanged() {
+      return (
+        this.form.name !== this.originalForm.name ||
+        this.form.identifier !== this.originalForm.identifier ||
+        this.form.telephone !== this.originalForm.telephone ||
+        this.form.email !== this.originalForm.email ||
+        this.form.avatar_url !== this.originalForm.avatar_url
+      );
     },
   },
   watch: {
@@ -100,99 +88,28 @@ export default {
       immediate: true,
       handler(user) {
         if (user) {
-          this.form = { ...user }
-          this.originalForm = { ...this.form }
-
-          this.avatarPreview = user.avatarUrl
-            ? user.avatarUrl
-            : this.defaultAvatar
+          this.form = { ...user };
+          this.originalForm = { ...this.form };
         }
-      },
-    },
-    form: {
-      deep: true,
-      handler() {
-        this.isFormChanged = this.checkFormChanges()
       },
     },
   },
   methods: {
-    checkFormChanges() {
-      return (
-        this.form.name !== this.originalForm.name ||
-        this.form.identifier !== this.originalForm.identifier ||
-        this.form.telephone !== this.originalForm.telephone ||
-        this.form.email !== this.originalForm.email
-      )
-    },
     async updateProfile() {
       try {
-        await this.$store.dispatch('auth/updateProfile', this.form)
-        this.openModal(
-          'Dados atualizados com sucesso!',
-          'Seus dados foram atualizados com sucesso!',
-          'OK'
-        )
+        const payload = { ...this.form };
+
+        delete payload.created_at;
+        delete payload.updated_at;
+        delete payload.last_action;
+
+        await this.$store.dispatch("auth/updateProfile", payload);
+        this.$success("Dados atualizados com sucesso!");
       } catch (error) {
-        console.error('Erro ao atualizar perfil:', error)
+        this.$error("Erro ao atualizar perfil.");
+        throw error;
       }
-    },
-    openModal(title, text) {
-      this.modalTitle = title
-      this.modalText = text
-      this.showModal = true
-    },
-    ...mapActions('auth', ['uploadAvatar']),
-    async handleFileChange(event) {
-      const file = event.target.files[0]
-      if (file) {
-        const formData = new FormData()
-        formData.append('file', file)
-
-        try {
-          const response = await this.uploadAvatar(formData)
-          if (response && response.avatar) {
-            this.avatarPreview = response.avatar
-          }
-        } catch (error) {
-          console.error('Erro ao enviar o avatar:', error)
-        }
-      }
-    },
-
-    async uploadAvatar(formData) {
-      try {
-        const response = await this.$store.dispatch(
-          'auth/uploadAvatar',
-          formData
-        )
-        return response
-      } catch (error) {
-        console.error('Erro ao enviar o avatar:', error)
-        throw error
-      }
-    },
-
-    triggerFileInput() {
-      this.$refs.fileInput.click()
     },
   },
-}
+};
 </script>
-
-<style scoped>
-.avatar-display {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  cursor: pointer;
-}
-
-.avatar-icon {
-  position: absolute;
-  background-color: rgba(0, 0, 0, 0.6);
-  border-radius: 100%;
-  color: white;
-}
-</style>
