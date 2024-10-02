@@ -9,7 +9,15 @@ import { UserRepository } from '../user/repositories/user.repository';
 
 @Module({
   imports: [],
-  providers: [PasswordService, PasswordRepository, PrismaService, EmailService, UserService, UserRepository],
+  providers: [
+    PasswordService,
+    PasswordRepository,
+    PrismaService,
+    EmailService,
+    UserService,
+    UserRepository,
+  ],
   controllers: [PasswordController],
+  exports: [PasswordService],
 })
-export class PasswordModule { }
+export class PasswordModule {}

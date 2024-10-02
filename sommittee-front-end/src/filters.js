@@ -1,6 +1,21 @@
 import Vue from "vue";
 import { format } from "date-fns";
 
+export const roleUser = [
+  { text: "Administrador", value: "ADMIN" },
+  { text: "Gerenete", value: "MANAGER" },
+  { text: "Usuário padrão", value: "OPERATOR" },
+];
+
+Vue.filter("roleUser", (value) => {
+  const roleUserMap = {
+    ADMIN: "Administrador",
+    MANAGER: "Gerente",
+    OPERATOR: "Usuário padrão",
+  };
+  return roleUserMap[value] || value;
+});
+
 export const productCategories = [
   { text: "Roupas", value: "clothes" },
   { text: "Calçados", value: "shoes" },

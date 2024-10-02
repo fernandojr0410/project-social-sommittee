@@ -1,5 +1,4 @@
 import API from "@/services/module/API";
-import { updateLocale } from "moment";
 
 const state = {
   donation: [],

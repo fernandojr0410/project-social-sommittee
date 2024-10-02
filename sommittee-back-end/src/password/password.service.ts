@@ -5,7 +5,7 @@ import { UpdatePasswordDto } from './dto/update-password.dto';
 
 @Injectable()
 export class PasswordService {
-  constructor(private readonly passwordRepository: PasswordRepository) { }
+  constructor(private readonly passwordRepository: PasswordRepository) {}
 
   validatePassword(password: string): string[] {
     const errors: string[] = [];
@@ -34,11 +34,37 @@ export class PasswordService {
   }
 
   generateRandomPassword(): string {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%^&*';
+    const upperCaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const lowerCaseChars = 'abcdefghijklmnopqrstuvwxyz';
+    const numberChars = '0123456789';
+    const specialChars = '@#$%^&*';
+    const allChars =
+      upperCaseChars + lowerCaseChars + numberChars + specialChars;
+
     let password = '';
-    for (let i = 0; i < 12; i++) {
-      password += chars.charAt(Math.floor(Math.random() * chars.length));
+
+    password += upperCaseChars.charAt(
+      Math.floor(Math.random() * upperCaseChars.length),
+    );
+    password += lowerCaseChars.charAt(
+      Math.floor(Math.random() * lowerCaseChars.length),
+    );
+    password += numberChars.charAt(
+      Math.floor(Math.random() * numberChars.length),
+    );
+    password += specialChars.charAt(
+      Math.floor(Math.random() * specialChars.length),
+    );
+
+    for (let i = password.length; i < 12; i++) {
+      password += allChars.charAt(Math.floor(Math.random() * allChars.length));
     }
+
+    password = password
+      .split('')
+      .sort(() => 0.5 - Math.random())
+      .join('');
+
     return password;
   }
 
@@ -47,7 +73,10 @@ export class PasswordService {
     return bcrypt.hash(password, saltRounds);
   }
 
-  async comparePassword(plainPassword: string, hashedPassword: string): Promise<boolean> {
+  async comparePassword(
+    plainPassword: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
     return bcrypt.compare(plainPassword, hashedPassword);
   }
 

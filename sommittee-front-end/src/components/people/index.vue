@@ -400,6 +400,9 @@ export default {
     people() {
       return this.$store.state.people.people;
     },
+    user() {
+      return this.$store.state.auth.user;
+    },
   },
   created() {
     this.loadData();
@@ -460,8 +463,12 @@ export default {
       this.dialog = false;
     },
     confirmDelete(item) {
-      this.itemToDelete = item.id;
-      this.deleteDialog = true;
+      if (this.user.role === "OPERATOR") {
+        this.$error("Você não tem permissão para deletar registros!");
+      } else {
+        this.itemToDelete = item.id;
+        this.deleteDialog = true;
+      }
     },
     handleDeleteClose() {
       this.deleteDialog = false;

@@ -1,5 +1,5 @@
 import Auth from "../Auth";
-import User from "../User";
+
 import Received from "../Received";
 import People from "../People";
 import Cep from "../Cep";
@@ -10,9 +10,9 @@ import Donation from "../Donation";
 import Product from "../Product";
 import UploadService from "../Upload";
 import StorageService from "../Storage";
+import UserColaborator from "../UserColaborator";
 
 class API {
-  static user = new User();
   static auth = new Auth();
   static received = new Received();
   static people = new People();
@@ -24,6 +24,7 @@ class API {
   static product = new Product();
   static uploadService = new UploadService();
   static storageService = new StorageService();
+  static userColaborator = new UserColaborator();
 }
 
 export default API;

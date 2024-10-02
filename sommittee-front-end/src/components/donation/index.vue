@@ -350,15 +350,27 @@
 
           <v-card style="padding: 14px; margin-top: 30px">
             <v-container class="d-flex justify-space-between">
-              <div v-if="donation_products.length === 0">
+              <v-container
+                v-if="
+                  selectedDonation &&
+                  selectedDonation.donation_products &&
+                  selectedDonation.donation_products.length === 0
+                "
+              >
                 <span
                   color="primary"
                   style="font-weight: bold; font-size: 16px"
                 >
                   Nenhum produto adicionado
                 </span>
-              </div>
-              <v-container v-else>
+              </v-container>
+              <v-container
+                v-else-if="
+                  selectedDonation &&
+                  selectedDonation.donation_products &&
+                  selectedDonation.donation_products.length > 0
+                "
+              >
                 <v-row>
                   <v-col>
                     <span
@@ -375,8 +387,8 @@
                     style="gap: 16px"
                   >
                     <div
-                      v-for="item in donation_products"
-                      :key="item.id"
+                      v-for="item in selectedDonation.donation_products"
+                      :key="item.product.id"
                       class="d-flex"
                       style="
                         padding: 6px;
@@ -385,14 +397,9 @@
                       "
                     >
                       <v-list-item-content>
-                        <v-list-item-title>
-                          {{ item.product.id }}
-                        </v-list-item-title>
-                      </v-list-item-content>
-                      <v-list-item-content>
-                        <v-list-item-title>
-                          {{ item.product.name }}
-                        </v-list-item-title>
+                        <v-list-item-title>{{
+                          item.product.name
+                        }}</v-list-item-title>
                         <v-list-item-subtitle>
                           {{ item.product.description }} (Quantidade:
                           {{ item.amount }})
@@ -563,8 +570,7 @@ export default {
       }
     },
     async findAll() {
-      const response = await this.$store.dispatch("donation/findAll");
-      console.log("response", response);
+      return await this.$store.dispatch("donation/findAll");
     },
     async handleSearch(search) {
       this.search = search;
@@ -595,7 +601,6 @@ export default {
           "donation/update",
           updatedDonation
         );
-        console.log("updatedDonation", response);
         this.loadData();
         this.editDialog = false;
         return response;

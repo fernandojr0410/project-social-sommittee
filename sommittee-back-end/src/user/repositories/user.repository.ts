@@ -1,33 +1,64 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
-import { CreateUserDto } from "../dto/create-user.dto";
-import { UserEntity } from "../entities/user.entity";
-import { PrismaService } from "../../prisma/prisma.service";
-import { UpdateUserDto } from "../dto/update-user.dto";
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { CreateUserDto } from '../dto/create-user.dto';
+import { UserEntity } from '../entities/user.entity';
+import { PrismaService } from '../../prisma/prisma.service';
+import { UpdateUserDto } from '../dto/update-user.dto';
+import { PasswordService } from 'src/password/password.service';
 
 @Injectable()
 export class UserRepository {
-  constructor(private readonly prisma: PrismaService) {
-  }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly passwordService: PasswordService,
+  ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<UserEntity> {
-    // if (!this.passwordService.validatePassword(createUserDto.password)) {
-    //   throw new UnauthorizedException('Senha inválida');
-    // }
+  async create(createUserDto: CreateUserDto): Promise<any> {
+    let generatedPassword = '';
 
-    return this.prisma.user.create({
-      data: createUserDto
+    if (!createUserDto.password) {
+      generatedPassword = this.passwordService.generateRandomPassword();
+      createUserDto.password = generatedPassword;
+    }
+
+    const validationErrors = this.passwordService.validatePassword(
+      createUserDto.password,
+    );
+    if (validationErrors.length) {
+      throw new UnauthorizedException('Senha inválida');
+    }
+
+    createUserDto.password = await this.passwordService.hashPassword(
+      createUserDto.password,
+    );
+
+    const newUser = await this.prisma.user.create({
+      data: createUserDto,
     });
+
+    return {
+      ...newUser,
+      plainPassword: generatedPassword,
+    };
   }
 
-  async findAll(): Promise<UserEntity[]> {
-    return this.prisma.user.findMany();
-  }
-
-  async findOne(id: string): Promise<UserEntity> {
-    return this.prisma.user.findFirst({
+  async findAll(query: any): Promise<UserEntity[]> {
+    const _query: any = {
       where: {
-        id,
-      }
+        ...query,
+      },
+      include: {
+        receiveds: true,
+      },
+    };
+    return await this.prisma.user.findMany(_query);
+  }
+
+  async findById(id: string): Promise<UserEntity> {
+    return await this.prisma.user.findFirst({
+      where: { id },
+      include: {
+        receiveds: true,
+      },
     });
   }
 
@@ -35,8 +66,8 @@ export class UserRepository {
     return this.prisma.user.findFirst({
       where: {
         email,
-      }
-    })
+      },
+    });
   }
 
   async updateLastAction(userId: string, last_action: string) {
@@ -66,7 +97,7 @@ export class UserRepository {
   async update(id: string, updateUserDto: UpdateUserDto): Promise<UserEntity> {
     return this.prisma.user.update({
       where: { id },
-      data: updateUserDto
+      data: updateUserDto,
     });
   }
 
@@ -74,7 +105,7 @@ export class UserRepository {
     return this.prisma.user.delete({
       where: {
         id,
-      }
+      },
     });
   }
 }

@@ -25,20 +25,23 @@
         transition="scale-transition"
       >
         <template v-slot:activator="{ on, attrs }">
-          <v-avatar v-bind="attrs" v-on="on" size="45">
+          <v-avatar v-bind="attrs" v-on="on" size="56">
             <v-img v-if="user.avatar_url" :src="user.avatar_url" alt="Avatar" />
-            <v-icon v-else color="white">mdi-account-circle</v-icon>
+            <v-icon v-else size="56" color="white">mdi-account-circle</v-icon>
           </v-avatar>
         </template>
-        <v-card class="user-card" style="width: 250px">
-          <div class="d-flex align-center">
-            <v-avatar size="45">
+
+        <v-card class="user-card" style="width: 300px">
+          <div class="d-flex align-center justify-center">
+            <v-avatar size="56">
               <v-img
                 v-if="user.avatar_url"
                 :src="user.avatar_url"
                 alt="Avatar"
               />
-              <v-icon v-else color="white">mdi-account-circle</v-icon>
+              <v-icon v-else size="56" color="orange"
+                >mdi-account-circle</v-icon
+              >
             </v-avatar>
             <div class="d-flex flex-column pr-10">
               <v-card-title>{{ user.name }}</v-card-title>
@@ -139,13 +142,18 @@
           <v-list-item-title>Compras</v-list-item-title>
         </v-list-item> -->
 
-        <v-list-group no-action prepend-icon="mdi-cog-outline" color="#FFF">
+        <v-list-group
+          v-if="user.role === 'ADMIN' || user.role === 'MANAGER'"
+          no-action
+          prepend-icon="mdi-cog-outline"
+          color="#FFF"
+        >
           <template v-slot:activator>
             <v-list-item-content>
               <v-list-item-title>Configurações</v-list-item-title>
             </v-list-item-content>
           </template>
-          <v-list-item>
+          <v-list-item :to="{ path: '/users' }">
             <v-list-item-content>
               <v-list-item-title>Usuários</v-list-item-title>
             </v-list-item-content>
@@ -223,6 +231,10 @@ export default {
             document.title = `Sommittee | Produtos`;
             this.pageName = "Produtos";
             break;
+          case "/users":
+            document.title = `Sommittee | Usuários`;
+            this.pageName = "Usuários";
+            break;
         }
       },
     },
@@ -233,17 +245,31 @@ export default {
     },
   },
   methods: {
-    login() {
-      this.$router.push("/login-collaborator");
+    async logout() {
+      try {
+        await this.$store.dispatch("auth/logout");
+
+        this.$router.replace("/login");
+      } catch (error) {
+        console.error("Erro ao fazer logout:", error);
+      }
+    },
+
+    async login() {
+      try {
+        await this.$store.dispatch("auth/login", this.credentials);
+
+        this.$router.push("/home");
+      } catch (error) {
+        this.$error("Erro ao realizar login.");
+      }
     },
     viewProfile() {
       if (this.$route.path !== "/my-data") {
         this.$router.push("/my-data");
       }
     },
-    logout() {
-      this.$store.dispatch("auth/logout");
-    },
+
     handleMenuItemClick(item) {
       if (this.$route.path === item.to) {
         return false;

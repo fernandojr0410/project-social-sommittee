@@ -12,16 +12,10 @@ import { AuthService } from './auth.service';
 import { UpdatePasswordDto } from './dto/updatePassword-auth-dto';
 import { AuthGuard } from './auth.guard';
 import { UpdateUserDto } from '../user/dto/update-user.dto';
-import { CreateUserDto } from '../user/dto/create-user.dto';
 
 @Controller('users/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-
-  @Post('register')
-  async register(@Body() createUserDto: CreateUserDto) {
-    return await this.authService.create(createUserDto);
-  }
 
   @UseGuards(AuthGuard)
   @Get('profile')

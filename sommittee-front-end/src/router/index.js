@@ -1,84 +1,87 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import Home from '@/views/Home.vue'
-import index from '@/forms/myData/index.vue'
-import LoginCollaborator from '@/views/LoginCollaborator.vue'
-import Received from '@/views/Received.vue'
-import People from '@/views/People.vue'
-import Family from '@/views/Family.vue'
-import Donor from '@/views/Donor.vue'
-import Donation from '@/views/Donation.vue'
-import Product from '@/views/Product.vue'
+import Vue from "vue";
+import VueRouter from "vue-router";
+import Home from "@/views/Home.vue";
+import index from "@/forms/myData/index.vue";
+import LoginCollaborator from "@/views/LoginCollaborator.vue";
+import Received from "@/views/Received.vue";
+import People from "@/views/People.vue";
+import Family from "@/views/Family.vue";
+import Donor from "@/views/Donor.vue";
+import Donation from "@/views/Donation.vue";
+import Product from "@/views/Product.vue";
+import User from "@/views/User.vue";
 
-Vue.use(VueRouter)
+Vue.use(VueRouter);
 
 const routes = [
   {
-    path: '/',
+    path: "/",
     component: Home,
-    meta: { title: 'Dashboard', auth: true },
+    meta: { title: "Dashboard", auth: true },
   },
   {
-    path: '/my-data',
+    path: "/my-data",
     component: index,
-    meta: { title: 'Meus Dados', auth: true },
+    meta: { title: "Meus Dados", auth: true },
   },
   {
-    path: '/login',
+    path: "/login",
     component: LoginCollaborator,
-    meta: { title: 'Login' },
+    meta: { title: "Login" },
   },
-  { path: '*', redirect: '/' },
+  { path: "*", redirect: "/" },
   {
-    path: '/people',
+    path: "/people",
     component: People,
-    meta: { title: 'Pessoas', auth: true },
+    meta: { title: "Pessoas", auth: true },
   },
   {
-    path: '/family',
+    path: "/family",
     component: Family,
-    meta: { title: 'Famílias', auth: true },
+    meta: { title: "Famílias", auth: true },
   },
   {
-    path: '/donor',
+    path: "/donor",
     component: Donor,
-    meta: { title: 'Doadores', auth: true },
+    meta: { title: "Doadores", auth: true },
   },
   {
-    path: '/product',
+    path: "/product",
     component: Product,
-    meta: { title: 'Produtos', auth: true },
+    meta: { title: "Produtos", auth: true },
   },
   {
-    path: '/received',
+    path: "/received",
     component: Received,
-    meta: { title: 'Recebimento', auth: true },
+    meta: { title: "Recebimento", auth: true },
   },
   {
-    path: '/donation',
+    path: "/donation",
     component: Donation,
-    meta: { title: 'Doações', auth: true },
+    meta: { title: "Doações", auth: true },
   },
-]
+  {
+    path: "/users",
+    component: User,
+    meta: { title: "Usuários", auth: true },
+  },
+];
 
 const router = new VueRouter({
-  mode: 'history',
+  mode: "history",
   routes,
-})
+});
 
 router.beforeEach((to, from, next) => {
-  if (to.matched.some((record) => record.meta.auth)) {
-    if (!localStorage.getItem('@sommittee.access_token')) {
-      next({
-        path: '/login',
-        query: { redirect: to.fullPath },
-      })
-    } else {
-      next()
-    }
-  } else {
-    next()
-  }
-})
+  const token = localStorage.getItem("@sommittee.access_token");
 
-export default router
+  if (!token && to.path !== "/login") {
+    next("/login");
+  } else if (token && to.path === "/login") {
+    next("/");
+  } else {
+    next();
+  }
+});
+
+export default router;
