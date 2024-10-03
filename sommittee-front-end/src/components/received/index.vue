@@ -144,7 +144,7 @@
           <v-card class="elevation-4" style="padding: 16px; margin-top: 30px">
             <div style="padding-bottom: 20px">
               <span color="primary" style="font-weight: bold; font-size: 16px">
-                Informações dos produtos doados:
+                Informações dos produtos:
               </span>
             </div>
 

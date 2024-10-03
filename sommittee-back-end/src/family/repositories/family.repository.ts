@@ -1,18 +1,17 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { PrismaService } from "../../prisma/prisma.service";
-import { CreateFamilyDto } from "../dto/create-family.dto";
-import { FamilyEntity } from "../entities/family.entity";
-import { UpdateFamilyDto } from "../dto/update-family.dto";
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
+import { CreateFamilyDto } from '../dto/create-family.dto';
+import { FamilyEntity } from '../entities/family.entity';
+import { UpdateFamilyDto } from '../dto/update-family.dto';
 
 @Injectable()
 export class FamilyRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(createFamilyDto: CreateFamilyDto): Promise<FamilyEntity> {
     const { address_id, people_id, function: peopleFunction } = createFamilyDto;
 
     return await this.prisma.$transaction(async (prisma) => {
-
       const createdFamily = await prisma.family.create({
         data: {
           address: {
@@ -101,7 +100,10 @@ export class FamilyRepository {
     });
   }
 
-  async update(id: string, updateFamilyDto: Partial<UpdateFamilyDto>): Promise<FamilyEntity> {
+  async update(
+    id: string,
+    updateFamilyDto: Partial<UpdateFamilyDto>,
+  ): Promise<FamilyEntity> {
     const { people_id, address_id, function: familyFunction } = updateFamilyDto;
 
     const updatedFamily = await this.prisma.family.update({
@@ -121,14 +123,26 @@ export class FamilyRepository {
       },
     });
 
-    await this.prisma.people_Family.update({
-      where: {
-        id: updatedFamily.people_family[0].id,
-      },
-      data: {
-        function: familyFunction,
-      },
-    });
+    const peopleFamily = updatedFamily.people_family?.[0];
+
+    if (!peopleFamily) {
+      await this.prisma.people_Family.create({
+        data: {
+          people_id: people_id,
+          family_id: id,
+          function: familyFunction,
+        },
+      });
+    } else {
+      await this.prisma.people_Family.update({
+        where: {
+          id: peopleFamily.id,
+        },
+        data: {
+          function: familyFunction,
+        },
+      });
+    }
 
     return this.prisma.family.findUnique({
       where: { id },

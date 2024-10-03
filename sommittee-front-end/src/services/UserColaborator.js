@@ -10,14 +10,19 @@ class UserColaborator extends Http {
   }
 
   async create(data) {
-    try {
-      const response = await this.post("register", data);
-      console.log("create service", response);
-      return response;
-    } catch (error) {
-      console.error("erro create service", error);
-      throw error;
-    }
+    return await this.post("register", data);
+  }
+
+  async findById(id, data) {
+    return await this.get(id, data);
+  }
+
+  async update(id, data) {
+    return await this.patch(id, data);
+  }
+
+  async delete(id) {
+    return await super.delete(id);
   }
 }
 

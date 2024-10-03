@@ -106,7 +106,7 @@
               <v-col>
                 <v-text-field
                   v-if="selectedProduct"
-                  v-model="selectedProduct.type"
+                  :value="selectedProduct.type | productCategory"
                   label="Categoria"
                   class="mr-3"
                   readonly

@@ -17,16 +17,12 @@ export class UserService {
   }
 
   async findAll(queryDto: QueryUserDto = {}) {
-    let query = {};
+    const query = {};
 
     if (queryDto.searchField && queryDto.search) {
-      query = {
-        where: {
-          [queryDto.searchField]: {
-            contains: queryDto.search,
-            mode: 'insensitive',
-          },
-        },
+      query[queryDto.searchField] = {
+        contains: queryDto.search,
+        mode: 'insensitive',
       };
     }
 

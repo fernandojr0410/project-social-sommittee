@@ -26,7 +26,7 @@
                   color="primary"
                   style="font-weight: bold; font-size: 16px"
                 >
-                  Informações recebimento:
+                  Informações do recebimento:
                 </span>
               </v-col>
             </v-row>
@@ -128,13 +128,88 @@
           </v-card>
 
           <v-card style="padding: 14px; margin-top: 30px">
+            <v-container class="d-flex justify-space-between">
+              <div v-if="products.length === 0">
+                <span
+                  color="primary"
+                  style="font-weight: bold; font-size: 16px"
+                >
+                  Nenhum produto adicionado
+                </span>
+              </div>
+              <v-container v-else>
+                <v-row>
+                  <v-col>
+                    <span
+                      color="primary"
+                      style="font-weight: bold; font-size: 16px"
+                    >
+                      Informações do produto:
+                    </span>
+                  </v-col>
+                </v-row>
+                <v-list>
+                  <v-list-item-group
+                    class="d-flex flex-column"
+                    style="gap: 16px"
+                  >
+                    <div
+                      v-for="(item, index) in products"
+                      :key="item.id"
+                      class="d-flex"
+                      style="
+                        padding: 6px;
+                        border-radius: 2px;
+                        border: 1px gray solid;
+                      "
+                    >
+                      <v-list-item-content>
+                        <v-list-item-title>
+                          {{ item.product.name }}
+                        </v-list-item-title>
+                        <v-list-item-subtitle>
+                          {{ item.product.description }} (Quantidade:
+                          {{ item.amount }})
+                        </v-list-item-subtitle>
+                      </v-list-item-content>
+                      <v-list-item-action :disabled="false">
+                        <v-btn
+                          icon
+                          color="blue"
+                          @click.stop="editProduct(index)"
+                        >
+                          <v-icon>mdi-pencil</v-icon>
+                        </v-btn>
+                        <v-btn
+                          icon
+                          color="red"
+                          @click.stop="removeProduct(index)"
+                        >
+                          <v-icon>mdi-delete</v-icon>
+                        </v-btn>
+                      </v-list-item-action>
+                    </div>
+                  </v-list-item-group>
+                </v-list>
+              </v-container>
+              <v-btn
+                color="green"
+                @click="openProductDialog"
+                style="color: white; font-weight: bold"
+              >
+                ADICIONAR
+              </v-btn>
+            </v-container>
+          </v-card>
+
+          <v-card style="padding: 14px; margin-top: 30px">
             <v-row>
               <v-col>
                 <span
                   color="primary"
                   style="font-weight: bold; font-size: 16px"
                 >
-                  Informações de doador:
+                  Informações do doador:
                 </span>
               </v-col>
             </v-row>
@@ -231,81 +306,6 @@
                 />
               </v-col>
             </v-row>
-          </v-card>
-
-          <v-card style="padding: 14px; margin-top: 30px">
-            <v-container class="d-flex justify-space-between">
-              <div v-if="products.length === 0">
-                <span
-                  color="primary"
-                  style="font-weight: bold; font-size: 16px"
-                >
-                  Nenhum produto adicionado
-                </span>
-              </div>
-              <v-container v-else>
-                <v-row>
-                  <v-col>
-                    <span
-                      color="primary"
-                      style="font-weight: bold; font-size: 16px"
-                    >
-                      Produto
-                    </span>
-                  </v-col>
-                </v-row>
-                <v-list>
-                  <v-list-item-group
-                    class="d-flex flex-column"
-                    style="gap: 16px"
-                  >
-                    <div
-                      v-for="(item, index) in products"
-                      :key="item.id"
-                      class="d-flex"
-                      style="
-                        padding: 6px;
-                        border-radius: 2px;
-                        border: 1px gray solid;
-                      "
-                    >
-                      <v-list-item-content>
-                        <v-list-item-title>
-                          {{ item.product.name }}
-                        </v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ item.product.description }} (Quantidade:
-                          {{ item.amount }})
-                        </v-list-item-subtitle>
-                      </v-list-item-content>
-                      <v-list-item-action :disabled="false">
-                        <v-btn
-                          icon
-                          color="blue"
-                          @click.stop="editProduct(index)"
-                        >
-                          <v-icon>mdi-pencil</v-icon>
-                        </v-btn>
-                        <v-btn
-                          icon
-                          color="red"
-                          @click.stop="removeProduct(index)"
-                        >
-                          <v-icon>mdi-delete</v-icon>
-                        </v-btn>
-                      </v-list-item-action>
-                    </div>
-                  </v-list-item-group>
-                </v-list>
-              </v-container>
-              <v-btn
-                color="green"
-                @click="openProductDialog"
-                style="color: white; font-weight: bold"
-              >
-                ADICIONAR
-              </v-btn>
-            </v-container>
           </v-card>
         </v-card-text>
         <v-card-actions>

@@ -173,7 +173,7 @@
 
 <script>
 export default {
-  name: "userCreate",
+  name: "UserCreate",
   data() {
     return {
       dialog: false,
@@ -231,12 +231,11 @@ export default {
           "userColaborator/create",
           userData
         );
-
         if (response) {
           this.$success("Registro criado!");
-
           this.createdUser = this.getUser();
           this.closeDialog();
+          return response;
         } else {
           this.$error("Erro ao criar usuário.");
         }

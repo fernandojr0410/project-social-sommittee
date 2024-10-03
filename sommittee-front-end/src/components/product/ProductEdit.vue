@@ -24,21 +24,34 @@
                 v-model="updatedProduct.name"
                 label="Produto"
                 class="mr-3"
-                readonly
                 outlined
                 dense
                 hide-details
               />
             </v-col>
             <v-col>
-              <v-text-field
+              <v-select
                 v-model="updatedProduct.type"
                 label="Categoria"
                 class="mr-3"
-                readonly
+                :rules="[rules.required]"
                 outlined
                 dense
                 hide-details
+                :items="[
+                  { text: 'Roupas', value: 'clothes' },
+                  { text: 'Calçados', value: 'shoes' },
+                  { text: 'Acessórios', value: 'accessories' },
+                  { text: 'Beleza e Cuidados Pessoais', value: 'beauty' },
+                  { text: 'Alimentos e Bebidas', value: 'food' },
+                  { text: 'Eletrônicos', value: 'electronics' },
+                  { text: 'Casa e Decoração', value: 'home' },
+                  { text: 'Esportes e Lazer', value: 'sports' },
+                  { text: 'Brinquedos e Jogos', value: 'toys' },
+                  { text: 'Saúde e Bem-estar', value: 'health' },
+                ]"
+                item-value="value"
+                item-text="text"
               />
             </v-col>
           </v-row>
@@ -48,7 +61,6 @@
                 v-model="updatedProduct.description"
                 label="Descrição"
                 class="mr-3"
-                readonly
                 outlined
                 dense
                 hide-details
@@ -78,7 +90,7 @@
 
 <script>
 export default {
-  name: 'ProductEdit',
+  name: "ProductEdit",
   props: {
     value: {
       type: Boolean,
@@ -93,9 +105,9 @@ export default {
       updatedProduct: this.getProduct(),
       loading: false,
       rules: {
-        required: (value) => !!value || 'Campo obrigatório.',
+        required: (value) => !!value || "Campo obrigatório.",
       },
-    }
+    };
   },
   watch: {
     id: {
@@ -103,9 +115,9 @@ export default {
       handler: async function (id) {
         if (id) {
           this.updatedProduct = await this.$store.dispatch(
-            'product/findById',
+            "product/findById",
             id
-          )
+          );
         }
       },
     },
@@ -113,17 +125,17 @@ export default {
   methods: {
     getProduct() {
       return {
-        name: '',
-        type: '',
-        description: '',
-      }
+        name: "",
+        type: "",
+        description: "",
+      };
     },
     closeDialog() {
-      this.$emit('input', false)
+      this.$emit("input", false);
     },
     async saveChanges() {
       try {
-        const productId = this.id
+        const productId = this.id;
         const updateData = {
           id: productId,
           payload: {
@@ -131,20 +143,19 @@ export default {
             type: this.updatedProduct.type,
             description: this.updatedProduct.description,
           },
-        }
+        };
         const response = await this.$store.dispatch(
-          'product/update',
+          "product/update",
           updateData
-        )
-        this.$success('Registro atualizado!')
-        this.updatedProduct = this.getProduct()
-        this.closeDialog()
-        return response
+        );
+        this.$success("Registro atualizado!");
+        this.closeDialog();
+        return response;
       } catch (error) {
-        this.$error('Erro ao atualizar registro!')
-        throw error
+        this.$error("Erro ao atualizar registro!");
+        throw error;
       }
     },
   },
-}
+};
 </script>

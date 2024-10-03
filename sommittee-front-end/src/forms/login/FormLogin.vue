@@ -23,6 +23,7 @@
 
             <v-text-field
               outlined
+              @keyup.enter="fetchData"
               :type="showPassword ? 'text' : 'password'"
               :append-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
               v-model="inputPassword"
@@ -58,54 +59,54 @@
 </template>
 
 <script>
-import Modal from '@/components/modal/Modal.vue'
+import Modal from "@/components/modal/Modal.vue";
 
 export default {
-  name: 'FormLogin',
+  name: "FormLogin",
   components: {
     Modal,
   },
   data() {
     return {
-      inputEmail: '',
-      inputPassword: '',
+      inputEmail: "",
+      inputPassword: "",
       showPassword: false,
       visible: false,
-      modalTitle: '',
-      modalText: '',
+      modalTitle: "",
+      modalText: "",
       modalButton: false,
       showModal: false,
-    }
+    };
   },
   methods: {
     togglePasswordVisibility() {
-      this.showPassword = !this.showPassword
+      this.showPassword = !this.showPassword;
     },
     async fetchData() {
       const requestBody = {
         email: this.inputEmail,
         password: this.inputPassword,
-      }
+      };
       try {
-        const response = await this.$store.dispatch('auth/login', requestBody)
-        await this.$store.dispatch('auth/fetchUser')
-        this.$router.push(this.$route.query.redirect || '/')
-        return response
+        const response = await this.$store.dispatch("auth/login", requestBody);
+        await this.$store.dispatch("auth/fetchUser");
+        this.$router.push(this.$route.query.redirect || "/");
+        return response;
       } catch (error) {
         this.openModal(
-          'Conta não encontrada!',
-          'Email ou senha não encontrado! Verifique suas credenciais e tente novamente.'
-        )
-        throw error
+          "Conta não encontrada!",
+          "Email ou senha não encontrado! Verifique suas credenciais e tente novamente."
+        );
+        throw error;
       }
     },
     openModal(title, text) {
-      this.modalTitle = title
-      this.modalText = text
-      this.showModal = true
+      this.modalTitle = title;
+      this.modalText = text;
+      this.showModal = true;
     },
   },
-}
+};
 </script>
 
 <style scoped>

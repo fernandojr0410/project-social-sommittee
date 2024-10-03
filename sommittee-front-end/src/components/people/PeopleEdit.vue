@@ -1,5 +1,9 @@
 <template>
-  <v-dialog v-model="dialog" max-width="900px">
+  <v-dialog
+    :value="value"
+    @input="(value) => $emit('input', value)"
+    max-width="900px"
+  >
     <v-card>
       <v-card-title class="flex justify-space-between items-center">
         <span class="headline">Editar registro</span>
@@ -82,7 +86,6 @@
                 v-model="updatedPeople.email"
                 label="E-mail"
                 class="mr-3"
-                readonly
                 outlined
                 dense
                 hide-details
@@ -274,7 +277,7 @@ import { states } from "@/assets/state";
 export default {
   name: "PeopleEdit",
   props: {
-    dialog: {
+    value: {
       type: Boolean,
       required: true,
     },
@@ -308,6 +311,9 @@ export default {
             "people/findById",
             id
           );
+          if (this.updatedPeople.birth_date) {
+            this.dateFormatted = this.formatDate(this.updatedPeople.birth_date);
+          }
         }
       },
     },
@@ -319,7 +325,7 @@ export default {
         name: "",
         identifier: "",
         email: "",
-        birth_date: new Date().toISOString().split("T")[0],
+        birth_date: "",
         gender: "",
         telephone: "",
         work: "",
@@ -336,7 +342,7 @@ export default {
       };
     },
     closeDialog() {
-      this.$emit("close");
+      this.$emit("input", false);
     },
     updateFormattedDate(date) {
       if (date) {
@@ -422,10 +428,6 @@ export default {
         throw error;
       }
     },
-  },
-  mounted() {
-    const today = new Date();
-    this.dateFormatted = this.formatDate(today);
   },
 };
 </script>

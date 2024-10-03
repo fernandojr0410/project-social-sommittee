@@ -101,7 +101,7 @@
 
 <script>
 export default {
-  name: 'DonorEdit',
+  name: "DonorEdit",
   props: {
     dialog: {
       type: Boolean,
@@ -115,53 +115,74 @@ export default {
     return {
       updatedDonor: this.getDonor(),
       loading: false,
-    }
+    };
   },
   watch: {
     id: {
       immediate: true,
       handler: async function (id) {
         if (id) {
-          this.updatedDonor = await this.$store.dispatch('donor/findById', id)
+          this.updatedDonor = await this.$store.dispatch("donor/findById", id);
         }
+        this.updatedDonor.identifier = this.formatIdentifier(
+          this.updatedDonor.identifier
+        );
+        this.updatedDonor.telephone = this.formatTelephone(
+          this.updatedDonor.telephone
+        );
       },
     },
   },
   methods: {
+    formatIdentifier(value) {
+      if (!value) return "";
+      return value
+        .replace(/\D/g, "")
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    },
+    formatTelephone(value) {
+      if (!value) return "";
+      return value
+        .replace(/\D/g, "")
+        .replace(/(\d{2})(\d)/, "($1) $2")
+        .replace(/(\d{5})(\d{4})$/, "$1-$2");
+    },
     getDonor() {
       return {
-        name: '',
-        identifier: '',
-        email: '',
-        telephone: '',
-        type_donor: '',
-      }
+        name: "",
+        identifier: "",
+        email: "",
+        telephone: "",
+        type_donor: "",
+      };
     },
     closeDialog() {
-      this.$emit('close')
+      this.$emit("close");
     },
     async saveChanges() {
       try {
-        const donorId = this.id
+        const donorId = this.id;
         const updateData = {
           id: donorId,
           payload: {
             name: this.updatedDonor.name,
-            identifier: this.updatedDonor.identifier.replace(/\D/g, ''),
+            identifier: this.updatedDonor.identifier.replace(/\D/g, ""),
             email: this.updatedDonor.email,
-            telephone: this.updatedDonor.telephone.replace(/\D/g, ''),
+            telephone: this.updatedDonor.telephone.replace(/\D/g, ""),
             type_donor: this.updatedDonor.type_donor,
           },
-        }
-        await this.$store.dispatch('donor/update', updateData)
-        this.$success('Registro atualizado!')
-        this.updatedDonor = this.getDonor()
-        this.closeDialog()
+        };
+        await this.$store.dispatch("donor/update", updateData);
+        this.$success("Registro atualizado!");
+        this.updatedDonor = this.getDonor();
+        this.closeDialog();
       } catch (error) {
-        this.$error('Erro ao atualizar!')
-        throw error
+        this.$error("Erro ao atualizar!");
+        throw error;
       }
     },
   },
-}
+};
 </script>

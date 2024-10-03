@@ -4,7 +4,9 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -12,6 +14,7 @@ import { UserService } from './user.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { QueryUserDto } from './dto/query-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('user')
 export class UserController {
@@ -35,7 +38,7 @@ export class UserController {
 
   @UseGuards(AuthGuard)
   @Get()
-  async findAll(query: QueryUserDto) {
+  async findAll(@Query() query: QueryUserDto) {
     return await this.userService.findAll(query);
   }
 
@@ -48,10 +51,14 @@ export class UserController {
   }
 
   @UseGuards(AuthGuard)
+  @Patch(':id')
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return await this.userService.update(id, updateUserDto);
+  }
+
+  @UseGuards(AuthGuard)
   @Delete(':id')
   async remove(@Param('id') id: string) {
-    const dataUser = await this.userService.remove(id);
-    await this.userService.updateLastAction(dataUser.id, 'remove');
-    return dataUser;
+    return await this.userService.remove(id);
   }
 }

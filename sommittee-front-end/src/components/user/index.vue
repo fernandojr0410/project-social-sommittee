@@ -2,6 +2,10 @@
   <v-container>
     <v-card>
       <v-card-text>
+        <div style="display: flex; align-items: center">
+          <UserSearch @search="handleSearch" />
+          <UserRefresh />
+        </div>
         <v-data-table
           :loading="loading"
           :headers="headers"
@@ -28,9 +32,13 @@
             <span>{{ item.role | roleUser }}</span>
           </template>
 
-          <!-- :color="isSelected(item) ? 'primary' : ''" -->
           <template v-slot:[`item.actions`]="{ item }">
-            <v-icon class="mr-2" @click="showDetails(item)">mdi-eye</v-icon>
+            <v-icon
+              class="mr-2"
+              :color="isSelected(item) ? 'primary' : ''"
+              @click="showDetails(item)"
+              >mdi-eye</v-icon
+            >
 
             <v-icon class="mr-2" color="blue" @click="editItem(item)"
               >mdi-pencil</v-icon
@@ -41,6 +49,17 @@
             >
           </template>
         </v-data-table>
+        <UserEdit
+          v-model="editDialog"
+          :id="updatedUserId"
+          @save="saveUpdatedUser"
+        />
+
+        <UserDelete
+          :dialog="deleteDialog"
+          :id="itemToDelete"
+          @close="handleDeleteClose"
+        />
       </v-card-text>
     </v-card>
 
@@ -170,17 +189,26 @@
 
 <script>
 import { formatDate } from "@/filters";
-import UserCreate from "./userCreate.vue";
+import UserCreate from "@/components/user/UserCreate";
+import UserEdit from "./UserEdit.vue";
+import UserDelete from "./UserDelete.vue";
+import UserSearch from "./UserSearch.vue";
+import UserRefresh from "./UserRefresh.vue";
 
 export default {
   name: "index",
-  components: { UserCreate },
+  components: { UserCreate, UserEdit, UserDelete, UserSearch, UserRefresh },
   data() {
     return {
       loading: false,
       dialog: false,
       selectedUser: null,
       createDialog: false,
+      editDialog: false,
+      updatedUserId: null,
+      deleteDialog: false,
+      itemToDelete: null,
+
       headers: [
         { text: "Data criação", value: "created_at" },
         { text: "Nome completo", value: "name" },
@@ -215,12 +243,37 @@ export default {
     async findAll() {
       return await this.$store.dispatch("userColaborator/findAll");
     },
+    async handleSearch(query) {
+      this.search = query;
+    },
     showDetails(item) {
       this.selectedUser = item;
       this.dialog = true;
     },
     closeDialog() {
       this.dialog = false;
+    },
+    isSelected(item) {
+      return this.updatedUserId === item.id;
+    },
+    editItem(item) {
+      this.updatedUserId = item.id;
+      this.editDialog = true;
+    },
+
+    async saveUpdatedUser(updatedUser) {
+      try {
+        const response = await this.$store.dispatch(
+          "userColaborator/update",
+          updatedUser
+        );
+        this.loadData();
+        this.editDialog = false;
+        return response;
+      } catch (error) {
+        this.$error("Erro ao atualizar registro!");
+        throw error;
+      }
     },
 
     async createdUser(newUser) {
@@ -233,6 +286,14 @@ export default {
         this.error("Erro ao criar registro!");
         throw error;
       }
+    },
+    confirmDelete(item) {
+      this.itemToDelete = item.id;
+      this.deleteDialog = true;
+    },
+    handleDeleteClose() {
+      this.deleteDialog = false;
+      this.itemToDelete = null;
     },
   },
 };

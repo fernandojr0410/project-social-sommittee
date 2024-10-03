@@ -314,11 +314,31 @@ export default {
             "family/findById",
             id
           );
-          this.selectedFunction = this.updatedFamily.function || "";
+
+          if (this.updatedFamily.people) {
+            const person = this.updatedFamily.people;
+            this.updatedFamily.name = person.name;
+            this.updatedFamily.identifier = person.identifier.trim();
+            this.updatedFamily.birth_date = person.birth_date;
+            this.updatedFamily.email = person.email;
+            this.updatedFamily.telephone = person.telephone;
+            this.updatedFamily.gender = person.gender;
+            this.updatedFamily.work = person.work;
+            this.updatedFamily.education = person.education;
+          }
+
+          if (
+            this.updatedFamily.people_family &&
+            this.updatedFamily.people_family.length > 0
+          ) {
+            this.selectedFunction =
+              this.updatedFamily.people_family[0].function;
+          }
         }
       },
     },
   },
+
   computed: {
     cityAndState() {
       const city = this.updatedFamily.address.city || "";
@@ -380,8 +400,6 @@ export default {
 
         await this.$store.dispatch("family/update", updateData);
         this.$success("Registro atualizado!");
-        this.updatedFamily = this.getPeople();
-        this.selectedFunction = "";
         this.$emit("input", false);
       } catch (error) {
         this.$error("Erro ao atualizar!");

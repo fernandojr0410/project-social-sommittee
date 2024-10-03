@@ -153,12 +153,15 @@
               <v-list-item-title>Configurações</v-list-item-title>
             </v-list-item-content>
           </template>
-          <v-list-item :to="{ path: '/users' }">
+          <v-list-item
+            :to="{ path: '/users' }"
+            v-if="user.role === 'ADMIN' || user.role === 'MANAGER'"
+          >
             <v-list-item-content>
               <v-list-item-title>Usuários</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
-          <v-list-item>
+          <v-list-item v-if="user.role === 'ADMIN'">
             <v-list-item-content>
               <v-list-item-title>Logs</v-list-item-title>
             </v-list-item-content>

@@ -75,7 +75,7 @@
         </v-data-table>
 
         <PeopleEdit
-          :dialog="editDialog"
+          v-model="editDialog"
           :id="updatedPeopleId"
           @close="editDialog = false"
           @save="saveUpdatedPeople"

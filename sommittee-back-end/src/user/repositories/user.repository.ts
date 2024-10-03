@@ -46,19 +46,14 @@ export class UserRepository {
       where: {
         ...query,
       },
-      include: {
-        receiveds: true,
-      },
     };
+
     return await this.prisma.user.findMany(_query);
   }
 
   async findById(id: string): Promise<UserEntity> {
     return await this.prisma.user.findFirst({
       where: { id },
-      include: {
-        receiveds: true,
-      },
     });
   }
 

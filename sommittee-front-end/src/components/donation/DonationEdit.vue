@@ -13,7 +13,6 @@
       </v-card-title>
       <v-card-text>
         <v-card>
-          <v-card-title>Cadastrar registro</v-card-title>
           <v-card-text>
             <v-card class="elevation-4" style="padding: 16px">
               <div style="padding-bottom: 16px">
@@ -38,7 +37,7 @@
                         label="Data de entrega"
                         prepend-icon="mdi-calendar"
                         v-bind="attrs"
-                        @blur="updateBirthDate"
+                        @blur="updateDateDelivery"
                         v-on="on"
                         outlined
                         dense
@@ -596,6 +595,9 @@ export default {
           this.selectedPeople = this.updatedDonation.people;
           this.selectedProduct = this.updatedDonation.donation_products;
           this.selectedDonor = this.updatedDonation.donor;
+          this.dateFormatted = this.formatDate(
+            this.updatedDonation.date_delivery
+          );
         }
       },
     },
@@ -665,10 +667,8 @@ export default {
 
     updateFormattedDate(date) {
       if (date) {
-        const adjustedDate = new Date(date);
-        adjustedDate.setHours(
-          adjustedDate.getHours() + adjustedDate.getTimezoneOffset() / 60
-        );
+        const [year, month, day] = date.split("-");
+        const adjustedDate = new Date(Date.UTC(year, month - 1, day));
         this.updatedDonation.date_delivery = adjustedDate
           .toISOString()
           .split("T")[0];
@@ -676,18 +676,15 @@ export default {
       }
       this.menu1 = false;
     },
-
-    updateBirthDate() {
+    updateDateDelivery() {
       this.updatedDonation.date_delivery = this.parseDate(this.dateFormatted);
     },
 
     formatDate(date) {
-      const d = new Date(date);
-      if (isNaN(d.getTime())) return "";
-      const options = { year: "numeric", month: "2-digit", day: "2-digit" };
-      return new Intl.DateTimeFormat("pt-BR", options).format(d);
+      if (!date) return "";
+      const [year, month, day] = date.split("-");
+      return `${day}/${month}/${year}`;
     },
-
     parseDate(date) {
       if (!date) return null;
       const [day, month, year] = date.split("/");
@@ -832,10 +829,6 @@ export default {
         this.donorList = [];
       }
     },
-  },
-  mounted() {
-    const today = new Date();
-    this.dateFormatted = this.formatDate(today);
   },
 };
 </script>

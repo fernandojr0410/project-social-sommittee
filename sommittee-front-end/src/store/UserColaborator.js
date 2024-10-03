@@ -12,6 +12,16 @@ const mutations = {
   CREATE_USER(state, newUser) {
     state.user.push(newUser);
   },
+
+  UPDATE_USER(state, updatedUser) {
+    state.user = state.user.map((item) => {
+      return item.id === updatedUser.id ? { ...item, ...updatedUser } : item;
+    });
+  },
+
+  DELETE_USER(state, id) {
+    state.user = state.user.filter((item) => item.id !== id);
+  },
 };
 
 const getters = {
@@ -28,15 +38,27 @@ const actions = {
   },
 
   async create({ commit }, data) {
-    try {
-      const response = await API.userColaborator.create(data);
-      console.log("create store", response);
-      commit("CREATE_USER", response);
-      return response;
-    } catch (error) {
-      console.error("erro create store", error);
-      throw error;
-    }
+    const response = await API.userColaborator.create(data);
+    commit("CREATE_USER", response);
+    return response;
+  },
+
+  async findById({ commit }, id) {
+    const response = await API.userColaborator.findById(id);
+    commit("UPDATE_USER", response);
+    return response;
+  },
+
+  async update({ commit }, { id, payload }) {
+    const response = await API.userColaborator.update(id, payload);
+    commit("UPDATE_USER", response);
+    return response;
+  },
+
+  async delete({ commit }, id) {
+    const response = await API.userColaborator.delete(id);
+    commit("DELETE_USER", id);
+    return response;
   },
 };
 
