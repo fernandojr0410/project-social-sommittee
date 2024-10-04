@@ -10,6 +10,7 @@ import Donor from "@/views/Donor.vue";
 import Donation from "@/views/Donation.vue";
 import Product from "@/views/Product.vue";
 import User from "@/views/User.vue";
+import Logger from "@/views/Logger.vue";
 
 Vue.use(VueRouter);
 
@@ -64,6 +65,11 @@ const routes = [
     path: "/users",
     component: User,
     meta: { title: "Usuários", auth: true },
+  },
+  {
+    path: "/logger",
+    component: Logger,
+    meta: { title: "Logs", auth: true },
   },
 ];
 

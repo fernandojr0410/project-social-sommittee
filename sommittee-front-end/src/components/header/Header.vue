@@ -161,7 +161,7 @@
               <v-list-item-title>Usuários</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
-          <v-list-item v-if="user.role === 'ADMIN'">
+          <v-list-item :to="{ path: '/logger' }" v-if="user.role === 'ADMIN'">
             <v-list-item-content>
               <v-list-item-title>Logs</v-list-item-title>
             </v-list-item-content>
@@ -238,6 +238,10 @@ export default {
             document.title = `Sommittee | Usuários`;
             this.pageName = "Usuários";
             break;
+          case "/logger":
+            document.title = `Sommittee | Logs`;
+            this.pageName = "Logs";
+            break;
         }
       },
     },
@@ -255,6 +259,7 @@ export default {
         this.$router.replace("/login");
       } catch (error) {
         console.error("Erro ao fazer logout:", error);
+        throw error;
       }
     },
 

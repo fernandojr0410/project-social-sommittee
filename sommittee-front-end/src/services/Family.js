@@ -14,7 +14,10 @@ class Family extends Http {
   }
 
   async findById(id, data) {
-    return await this.get(id, data)
+    // return await this.get(id, data)
+    const response = await this.get(id, data)
+    console.log("findById service", response)
+    return response
   }
 
   async update(id, data) {

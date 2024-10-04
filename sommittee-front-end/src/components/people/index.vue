@@ -49,14 +49,6 @@
             <span>{{ item.address?.neighborhood }}</span>
           </template>
 
-          <template v-slot:[`item.address`]="{ item }">
-            <span>{{ formatAddress(item.address) }}</span>
-          </template>
-
-          <template v-slot:[`item.states`]="{ item }">
-            <span>{{ item.states | state }}</span>
-          </template>
-
           <template v-slot:[`item.actions`]="{ item }">
             <v-icon
               class="mr-2"
@@ -319,21 +311,9 @@
               <v-col>
                 <v-text-field
                   v-if="selectedPeople?.address"
-                  v-model="selectedPeople.address.city"
+                  v-model="cityAndState"
                   label="Cidade"
-                  readonly
-                  outlined
-                  dense
-                  hide-details
-                  style="width: 96%"
-                />
-              </v-col>
-
-              <v-col>
-                <v-text-field
-                  v-if="selectedPeople?.address"
-                  v-model="selectedPeople.address.state"
-                  label="Estado"
+                  class="mr-3"
                   readonly
                   outlined
                   dense
@@ -390,6 +370,7 @@ export default {
         { text: "CEP", value: "zip_code" },
         { text: "Rua", value: "street" },
         { text: "Bairro", value: "neighborhood" },
+
         { text: "Ações", value: "actions" },
       ],
       states,
@@ -399,6 +380,11 @@ export default {
   computed: {
     people() {
       return this.$store.state.people.people;
+    },
+    cityAndState() {
+      const city = this.selectedPeople?.address.city || "";
+      const state = this.selectedPeople?.address.state || "";
+      return city && state ? `${city}, ${state}` : city || state;
     },
     user() {
       return this.$store.state.auth.user;

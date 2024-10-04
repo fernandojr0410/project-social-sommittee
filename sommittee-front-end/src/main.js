@@ -1,3 +1,4 @@
+import axios from "axios";
 import Vue from "vue";
 import App from "./App.vue";
 import router from "./router";
@@ -37,6 +38,19 @@ Vue.prototype.$loading = (text) => {
 Vue.prototype.$error = (text) => {
   store.dispatch("snackbar", { status: "error", text });
 };
+
+axios.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("@sommittee.access_token");
+      router.push("/login");
+    }
+    return Promise.reject(error);
+  }
+);
 
 Vue.config.productionTip = false;
 new Vue({

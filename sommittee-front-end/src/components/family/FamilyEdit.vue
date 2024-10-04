@@ -24,16 +24,15 @@
                 :loading="loading"
                 :rules="[rules.required]"
                 return-object
-                @update:search-input="searchPeople"
                 outlined
                 dense
                 hide-details
+                @update:search-input="searchPeople"
               />
             </v-col>
 
             <v-col>
               <v-select
-                v-if="updatedFamily"
                 v-model="selectedFunction"
                 :rules="[rules.required]"
                 :items="[
@@ -53,127 +52,53 @@
                 hide-details
               />
             </v-col>
+
+            <v-col>
+              <v-btn
+                @click="addPersonToFamily"
+                color="green"
+                style="color: white; font-weight: bold; margin-right: 16px"
+                >Adicionar Pessoa</v-btn
+              >
+            </v-col>
           </v-row>
         </v-card>
-        <v-card class="elevation-4" style="padding: 16px; margin-top: 30px">
+
+        <v-card class="elevation" style="margin-top: 30px; padding: 16px">
           <div style="padding-bottom: 16px">
             <span color="primary" style="font-weight: bold; font-size: 16px">
-              Informações da pessoa:
+              Pessoas adicionadas à família:
             </span>
           </div>
-          <v-row>
-            <v-col>
-              <v-text-field
-                v-model="updatedFamily.name"
-                label="Nome completo"
-                class="mr-3"
-                readonly
-                outlined
-                dense
-                hide-details
-              />
-            </v-col>
-            <v-col>
-              <v-text-field
-                v-model="updatedFamily.identifier"
-                label="CPF"
-                class="mr-3"
-                v-mask="'###.###.###-##'"
-                readonly
-                outlined
-                dense
-                hide-details
-              />
-            </v-col>
-          </v-row>
 
-          <v-row>
-            <v-col>
-              <v-text-field
-                v-model="updatedFamily.birth_date"
-                label="Data de nascimento"
-                type="date"
-                readonly
-                outlined
+          <v-list>
+            <v-list-item-group>
+              <v-list-item
+                v-for="(person, index) in familyMembers"
+                :key="index"
+                class="elevation-2 mb-2"
+                style="border: 1px solid #ccc; padding: 10px"
+                :ripple="false"
                 dense
-                hide-details
-              />
-            </v-col>
-            <v-col>
-              <v-text-field
-                v-model="updatedFamily.email"
-                label="E-mail"
-                class="mr-3"
-                readonly
-                outlined
-                dense
-                hide-details
-              />
-            </v-col>
-          </v-row>
-
-          <v-row>
-            <v-col>
-              <v-text-field
-                v-model="updatedFamily.telephone"
-                label="Telefone"
-                class="mr-3"
-                v-mask="'(##) #####-####'"
-                readonly
-                outlined
-                dense
-                hide-details
-              />
-            </v-col>
-            <v-col>
-              <v-select
-                v-model="updatedFamily.gender"
-                :items="[
-                  { text: 'Masculino', value: 'MALE' },
-                  { text: 'Feminino', value: 'FEMALE' },
-                ]"
-                item-value="value"
-                item-text="text"
-                class="mr-3"
-                label="Sexo"
-                readonly
-                outlined
-                dense
-                hide-details
-              />
-            </v-col>
-          </v-row>
-
-          <v-row>
-            <v-col>
-              <v-select
-                v-model="updatedFamily.work"
-                :items="[
-                  { text: 'Sim', value: true },
-                  { text: 'Não', value: false },
-                ]"
-                item-value="value"
-                item-text="text"
-                class="mr-3"
-                label="Trabalha?"
-                readonly
-                outlined
-                dense
-                hide-details
-              />
-            </v-col>
-            <v-col>
-              <v-text-field
-                v-model="updatedFamily.education"
-                label="Educação"
-                class="mr-3"
-                readonly
-                outlined
-                dense
-                hide-details
-              />
-            </v-col>
-          </v-row>
+                inactive
+              >
+                <v-list-item-content>
+                  <v-list-item-title>
+                    <strong>Nome:</strong> {{ person.name }}
+                  </v-list-item-title>
+                  <v-list-item-subtitle>
+                    <strong>Função:</strong>
+                    {{ person.function | functionFamily }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+                <v-list-item-action>
+                  <v-btn @click="removePerson(index)" icon color="red">
+                    <v-icon>mdi-delete</v-icon>
+                  </v-btn>
+                </v-list-item-action>
+              </v-list-item>
+            </v-list-item-group>
+          </v-list>
         </v-card>
 
         <v-card class="elevation-4" style="padding: 16px; margin-top: 30px">
@@ -182,12 +107,12 @@
               Informações do endereço:
             </span>
           </div>
+
           <v-row>
             <v-col>
               <v-text-field
-                v-if="updatedFamily && updatedFamily.address"
+                v-if="updatedFamily.address"
                 v-model="updatedFamily.address.zip_code"
-                class="mr-3"
                 label="CEP"
                 v-mask="'#####-###'"
                 outlined
@@ -197,23 +122,22 @@
             </v-col>
             <v-col>
               <v-text-field
-                v-if="updatedFamily && updatedFamily.address"
+                v-if="updatedFamily.address"
                 v-model="updatedFamily.address.street"
                 label="Rua"
-                class="mr-3"
                 outlined
                 dense
                 hide-details
               />
             </v-col>
           </v-row>
+
           <v-row>
             <v-col>
               <v-text-field
-                v-if="updatedFamily && updatedFamily.address"
+                v-if="updatedFamily.address"
                 v-model="updatedFamily.address.number"
                 label="Número"
-                class="mr-3"
                 outlined
                 dense
                 hide-details
@@ -221,10 +145,9 @@
             </v-col>
             <v-col>
               <v-text-field
-                v-if="updatedFamily && updatedFamily.address"
+                v-if="updatedFamily.address"
                 v-model="updatedFamily.address.neighborhood"
                 label="Bairro"
-                class="mr-3"
                 outlined
                 dense
                 hide-details
@@ -235,10 +158,9 @@
           <v-row>
             <v-col>
               <v-text-field
-                v-if="updatedFamily && updatedFamily.address"
+                v-if="updatedFamily.address"
                 v-model="updatedFamily.address.complement"
                 label="Complemento"
-                class="mr-3"
                 outlined
                 dense
                 hide-details
@@ -249,7 +171,7 @@
           <v-row>
             <v-col>
               <v-text-field
-                v-if="updatedFamily && updatedFamily.address"
+                v-if="updatedFamily.address"
                 v-model="cityAndState"
                 label="Cidade"
                 outlined
@@ -260,6 +182,7 @@
           </v-row>
         </v-card>
       </v-card-text>
+
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn
@@ -297,6 +220,7 @@ export default {
     return {
       updatedFamily: {},
       peopleList: [],
+      familyMembers: [],
       selectedFunction: "",
       loading: false,
       rules: {
@@ -305,6 +229,7 @@ export default {
       states,
     };
   },
+
   watch: {
     id: {
       immediate: true,
@@ -315,25 +240,26 @@ export default {
             id
           );
 
-          if (this.updatedFamily.people) {
-            const person = this.updatedFamily.people;
-            this.updatedFamily.name = person.name;
-            this.updatedFamily.identifier = person.identifier.trim();
-            this.updatedFamily.birth_date = person.birth_date;
-            this.updatedFamily.email = person.email;
-            this.updatedFamily.telephone = person.telephone;
-            this.updatedFamily.gender = person.gender;
-            this.updatedFamily.work = person.work;
-            this.updatedFamily.education = person.education;
-          }
-
           if (
             this.updatedFamily.people_family &&
             this.updatedFamily.people_family.length > 0
           ) {
-            this.selectedFunction =
-              this.updatedFamily.people_family[0].function;
+            this.familyMembers = this.updatedFamily.people_family.map(
+              (personFamily) => {
+                const person = this.updatedFamily.people;
+                return {
+                  name: person?.name,
+                  function: personFamily.function,
+                  address: { ...this.updatedFamily.address },
+                };
+              }
+            );
+          } else {
+            this.familyMembers = [];
           }
+
+          this.selectedFunction =
+            this.updatedFamily.people_family?.[0]?.function || "";
         }
       },
     },
@@ -341,8 +267,8 @@ export default {
 
   computed: {
     cityAndState() {
-      const city = this.updatedFamily.address.city || "";
-      const state = this.updatedFamily.address.state || "";
+      const city = this.updatedFamily.address?.city || "";
+      const state = this.updatedFamily.address?.state || "";
       return city && state ? `${city}, ${state}` : city || state;
     },
   },
@@ -385,6 +311,26 @@ export default {
     },
     async findAll(search) {
       return await this.$store.dispatch("people/findAll", { search });
+    },
+
+    addPersonToFamily() {
+      if (this.updatedFamily && this.selectedFunction) {
+        const person = this.updatedFamily.people;
+        this.familyMembers.push({
+          id: person.id,
+          name: person?.name || "Nome não definido",
+          function: this.selectedFunction,
+          address: this.updatedFamily.address,
+        });
+
+        this.familyMembers = [...this.familyMembers];
+
+        this.selectedFunction = null;
+      }
+    },
+
+    removePerson(index) {
+      this.familyMembers.splice(index, 1);
     },
     async saveChanges() {
       try {

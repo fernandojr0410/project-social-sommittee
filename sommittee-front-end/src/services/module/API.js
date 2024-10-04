@@ -11,6 +11,7 @@ import Product from "../Product";
 import UploadService from "../Upload";
 import StorageService from "../Storage";
 import UserColaborator from "../UserColaborator";
+import Logger from "../Logger";
 
 class API {
   static auth = new Auth();
@@ -25,6 +26,7 @@ class API {
   static uploadService = new UploadService();
   static storageService = new StorageService();
   static userColaborator = new UserColaborator();
+  static logger = new Logger();
 }
 
 export default API;

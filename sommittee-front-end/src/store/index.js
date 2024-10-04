@@ -9,6 +9,7 @@ import donor from "./Donor";
 import donation from "./Donation";
 import product from "./Product";
 import userColaborator from "./UserColaborator";
+import log from "./Logger";
 
 Vue.use(Vuex);
 
@@ -23,6 +24,7 @@ export default new Vuex.Store({
     donation,
     product,
     userColaborator,
+    log,
   },
   state: {
     snackbar: {

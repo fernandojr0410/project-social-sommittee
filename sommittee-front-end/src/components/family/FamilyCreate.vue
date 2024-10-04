@@ -43,7 +43,6 @@
 
                 <v-col>
                   <v-select
-                    v-if="selectedPeople"
                     v-model="selectedFunction"
                     :rules="[rules.required]"
                     :items="[
@@ -63,127 +62,58 @@
                     hide-details
                   />
                 </v-col>
+
+                <v-col>
+                  <v-btn
+                    @click="addPersonToFamily"
+                    color="green"
+                    style="color: white; font-weight: bold; margin-right: 16px"
+                    >Adicionar Pessoa</v-btn
+                  >
+                </v-col>
               </v-row>
             </v-card>
 
-            <v-card class="elevation-4" style="padding: 16px; margin-top: 30px">
+            <v-card class="elevation" style="margin-top: 30px; padding: 16px">
               <div style="padding-bottom: 16px">
                 <span
                   color="primary"
                   style="font-weight: bold; font-size: 16px"
                 >
-                  Informações da pessoa:
+                  Adicionar pessoas à família:
                 </span>
               </div>
 
-              <v-row>
-                <v-col>
-                  <v-text-field
-                    v-model="selectedPeople.name"
-                    label="Nome completo"
-                    class="mr-3"
-                    outlined
+              <v-list>
+                <v-list-item-group>
+                  <v-list-item
+                    v-for="(person, index) in familyMembers"
+                    :key="index"
+                    class="elevation-2 mb-2"
+                    style="border: 1px solid #ccc; padding: 10px"
+                    :ripple="false"
                     dense
-                    hide-details
-                  />
-                </v-col>
-                <v-col>
-                  <v-text-field
-                    v-model="selectedPeople.identifier"
-                    label="CPF"
-                    class="mr-3"
-                    v-mask="'###.###.###-##'"
-                    outlined
-                    dense
-                    hide-details
-                  />
-                </v-col>
-              </v-row>
-
-              <v-row>
-                <v-col>
-                  <v-text-field
-                    v-model="selectedPeople.birth_date"
-                    label="Data de nascimento"
-                    type="date"
-                    readonly
-                    outlined
-                    dense
-                    hide-details
-                  />
-                </v-col>
-                <v-col>
-                  <v-text-field
-                    v-model="selectedPeople.email"
-                    label="E-mail"
-                    class="mr-3"
-                    readonly
-                    outlined
-                    dense
-                    hide-details
-                  />
-                </v-col>
-              </v-row>
-
-              <v-row>
-                <v-col>
-                  <v-text-field
-                    v-model="selectedPeople.telephone"
-                    label="Telefone"
-                    class="mr-3"
-                    v-mask="'(##) #####-####'"
-                    outlined
-                    dense
-                    hide-details
-                  />
-                </v-col>
-                <v-col>
-                  <v-select
-                    v-model="selectedPeople.gender"
-                    :items="[
-                      { text: 'Masculino', value: 'MALE' },
-                      { text: 'Feminino', value: 'FEMALE' },
-                    ]"
-                    item-value="value"
-                    item-text="text"
-                    class="mr-3"
-                    label="Sexo"
-                    outlined
-                    dense
-                    hide-details
-                  />
-                </v-col>
-              </v-row>
-
-              <v-row>
-                <v-col>
-                  <v-select
-                    v-model="selectedPeople.work"
-                    :items="[
-                      { text: 'Sim', value: true },
-                      { text: 'Não', value: false },
-                    ]"
-                    item-value="value"
-                    item-text="text"
-                    class="mr-3"
-                    label="Trabalha?"
-                    outlined
-                    dense
-                    hide-details
-                  />
-                </v-col>
-                <v-col>
-                  <v-text-field
-                    v-model="selectedPeople.education"
-                    label="Educação"
-                    class="mr-3"
-                    outlined
-                    dense
-                    hide-details
-                  />
-                </v-col>
-              </v-row>
+                    inactive
+                  >
+                    <v-list-item-content>
+                      <v-list-item-title>
+                        <strong>Nome:</strong> {{ person.name }}
+                      </v-list-item-title>
+                      <v-list-item-subtitle>
+                        <strong>Função:</strong>
+                        {{ person.function | functionFamily }}
+                      </v-list-item-subtitle>
+                    </v-list-item-content>
+                    <v-list-item-action>
+                      <v-btn @click="removePerson(index)" icon color="red">
+                        <v-icon>mdi-delete</v-icon>
+                      </v-btn>
+                    </v-list-item-action>
+                  </v-list-item>
+                </v-list-item-group>
+              </v-list>
             </v-card>
+
             <v-card class="elevation-4" style="padding: 16px; margin-top: 30px">
               <div style="padding-bottom: 16px">
                 <span
@@ -312,6 +242,7 @@ export default {
       selectedPeople: {},
       selectedFunction: "",
       peopleList: [],
+      familyMembers: [],
       loading: false,
       rules: {
         required: (value) => !!value || "Campo obrigatório.",
@@ -374,32 +305,90 @@ export default {
     async findAll(search) {
       return await this.$store.dispatch("people/findAll", { search });
     },
+    addPersonToFamily() {
+      if (this.selectedPeople && this.selectedFunction) {
+        this.familyMembers.push({
+          id: this.selectedPeople.id,
+          name: this.selectedPeople.name,
+          function: this.selectedFunction,
+          address: this.selectedPeople.address,
+        });
 
+        this.selectedFunction = null;
+      }
+    },
+    removePerson(index) {
+      this.familyMembers.splice(index, 1);
+    },
+
+    // async createFamily() {
+    //   if (!this.familyMembers.length) {
+    //     this.$error("Adicione pelo menos uma pessoa à família.");
+    //     return;
+    //   }
+
+    //   const familyData = this.familyMembers.map((person) => ({
+    //     people_id: person.id,
+    //     address_id: this.selectedPeople?.address_id,
+    //     function: person.function,
+    //   }));
+
+    //   try {
+    //     for (const familyMember of familyData) {
+    //       const response = await this.$store.dispatch(
+    //         "family/create",
+    //         familyMember
+    //       );
+    //       if (response) {
+    //         this.$success("Família criada com sucesso!");
+    //         this.$store.dispatch("family/findAll");
+    //         this.closeDialog();
+    //         this.selectedFunction = "";
+    //         this.familyMembers = [];
+    //         this.selectedPeople = this.getPeople();
+    //       } else {
+    //         this.$error("Erro ao criar a família!");
+    //       }
+    //     }
+    //   } catch (error) {
+    //     this.$error("Erro ao criar a família!");
+    //     throw error;
+    //   }
+    // },
     async createFamily() {
+      if (!this.familyMembers.length) {
+        this.$error("Adicione pelo menos uma pessoa à família.");
+        return;
+      }
+
+      // Criação do objeto da família com endereço e dados de pessoas
       const familyData = {
-        address_id: this.selectedPeople?.address_id,
-        people_id: this.selectedPeople?.id,
-        people_family: this.selectedPeople.people_family,
-        function: this.selectedFunction,
+        address_id: this.selectedPeople?.address_id, // ID do endereço associado
+        members: this.familyMembers.map((person) => ({
+          people_id: person.id,
+          function: person.function,
+        })),
       };
 
       try {
+        // Criar a família uma vez e associar todos os membros
         const response = await this.$store.dispatch(
           "family/create",
           familyData
         );
+
         if (response) {
-          this.$success("Registro criado!");
+          this.$success("Família criada com sucesso!");
           this.$store.dispatch("family/findAll");
           this.closeDialog();
           this.selectedFunction = "";
+          this.familyMembers = [];
           this.selectedPeople = this.getPeople();
-          return response;
         } else {
           this.$error("Erro ao criar a família!");
         }
       } catch (error) {
-        this.$error("Erro ao criar registro!");
+        this.$error("Erro ao criar a família!");
         throw error;
       }
     },

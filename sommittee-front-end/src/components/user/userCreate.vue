@@ -22,7 +22,7 @@
           <v-card class="elevation-4" style="padding: 16px">
             <div style="padding-bottom: 16px">
               <span color="primary" style="font-weight: bold; font-size: 16px"
-                >Informações do usuário</span
+                >Informações do usuário:</span
               >
             </div>
             <v-row justify="center" align="center">

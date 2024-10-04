@@ -230,9 +230,9 @@ model DonationProducts {
 model Logger {
   id         Int      @id @default(autoincrement())
   path       String?
-  data       Json?
   status     Int      @default(0)
   method     String?
+  payload Json?
   user       User?    @relation(fields: [user_id], references: [id])
   user_id    String?  @db.Uuid()
   created_at DateTime @default(now())

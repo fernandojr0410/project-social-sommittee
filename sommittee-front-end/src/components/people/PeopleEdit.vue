@@ -209,7 +209,7 @@
           </v-row>
 
           <v-row>
-            <v-col cols="12">
+            <v-col>
               <v-text-field
                 v-if="updatedPeople && updatedPeople.address"
                 v-model="updatedPeople.address.complement"
@@ -226,23 +226,10 @@
             <v-col>
               <v-text-field
                 v-if="updatedPeople && updatedPeople.address"
-                v-model="updatedPeople.address.city"
+                v-model="cityAndState"
                 label="Cidade"
-                outlined
-                dense
-                hide-details
-                style="width: 96.2%"
-              />
-            </v-col>
-
-            <v-col>
-              <v-select
-                v-if="updatedPeople && updatedPeople.address"
-                v-model="updatedPeople.address.state"
-                :items="states"
-                item-value="acronym"
-                item-text="name"
-                label="Selecione o estado"
+                class="mr-3"
+                readonly
                 outlined
                 dense
                 hide-details
@@ -300,6 +287,11 @@ export default {
       if (isNaN(date.getTime())) return "";
       const options = { day: "numeric", weekday: "short", month: "long" };
       return date.toLocaleDateString("pt-BR", options);
+    },
+    cityAndState() {
+      const city = this.updatedPeople?.address.city || "";
+      const state = this.updatedPeople?.address.state || "";
+      return city && state ? `${city}, ${state}` : city || state;
     },
   },
   watch: {

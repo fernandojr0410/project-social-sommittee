@@ -45,6 +45,7 @@ const actions = {
 
   async findById({ commit }, id) {
     const response = await API.family.findById(id)
+    console.log("findById store", response)
     commit('UPDATE_FAMILY', response)
     return response
   },
