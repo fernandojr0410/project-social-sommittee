@@ -11,6 +11,8 @@ import { CreateUserDto } from '../user/dto/create-user.dto';
 import { PasswordService } from '../password/password.service';
 import { User } from '@prisma/client';
 import { UploadService } from 'src/photo/upload/photo-upload.service';
+import { ReCaptchaService } from './recaptcha.service';
+import * as speakeasy from 'speakeasy';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +22,7 @@ export class AuthService {
     private readonly passwordService: PasswordService,
     private readonly jwtService: JwtService,
     private readonly uploadService: UploadService,
+    private readonly recaptchaService: ReCaptchaService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -98,7 +101,8 @@ export class AuthService {
         email: true,
         telephone: true,
         role: true,
-        avatar_url: true,      },
+        avatar_url: true,
+      },
     });
     return updatedUser;
   }
@@ -160,15 +164,22 @@ export class AuthService {
     return { access_token: accessToken };
   }
 
-  async login(email: string, password: string) {
+  async login(
+    email: string,
+    password: string,
+    recaptchaToken: string,
+  ): Promise<{ access_token: string }> {
+    await this.recaptchaService.verifyToken(recaptchaToken, 'login');
+
     const user = await this.validateUser(email, password);
     if (!user) {
-      throw new Error('Credenciais Inválidas!');
+      throw new NotFoundException('Credenciais Inválidas!');
     }
 
     const payload = { email: user.email, id: user.id };
     const accessToken = this.jwtService.sign(payload, {
       secret: jwtConstants.secret,
+      expiresIn: '1h',
     });
 
     await this.prisma.token.create({

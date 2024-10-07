@@ -12,9 +12,14 @@ import { PasswordService } from '../password/password.service';
 import { UserService } from '../user/user.service';
 import { PasswordRepository } from '../password/repositories/password.repository';
 import { UploadService } from 'src/photo/upload/photo-upload.service';
+import { ReCaptchaService } from './recaptcha.service';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     PassportModule,
     JwtModule.register({
       global: true,
@@ -32,6 +37,7 @@ import { UploadService } from 'src/photo/upload/photo-upload.service';
     PrismaService,
     UserService,
     UploadService,
+    ReCaptchaService,
   ],
   controllers: [AuthController],
   exports: [AuthService, AuthGuard],

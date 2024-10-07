@@ -17,6 +17,7 @@ model User {
   password    String
   role        Role
   avatar_url      String?
+   twoFactorSecret String?
   created_at  DateTime     @default(now())
   updated_at  DateTime     @default(now()) @updatedAt
   last_action String?

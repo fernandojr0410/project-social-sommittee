@@ -23,28 +23,26 @@
 
             <v-text-field
               outlined
-              @keyup.enter="fetchData"
+              @keyup.enter="handleLogin"
               :type="showPassword ? 'text' : 'password'"
               :append-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
               v-model="inputPassword"
               label="Senha"
               @click:append="togglePasswordVisibility"
             />
-
-            <div class="my-password">
-              <span>Esqueci minha senha</span>
-            </div>
           </div>
 
           <v-btn
-            @click="fetchData"
+            @click="handleLogin"
             color="primary"
             block
             dark
             style="display: flex; width: 50%"
+            :disabled="isSubmitting"
           >
-            Entrar
+            {{ isSubmitting ? "Entrando..." : "Entrar" }}
           </v-btn>
+
           <Modal
             :value="showModal"
             @input="showModal = $event"
@@ -76,18 +74,56 @@ export default {
       modalText: "",
       modalButton: false,
       showModal: false,
+      isSubmitting: false,
+      recaptchaReady: false,
     };
   },
+  mounted() {
+    this.loadReCaptcha();
+  },
   methods: {
+    loadReCaptcha() {
+      const script = document.createElement("script");
+      script.src = `https://www.google.com/recaptcha/api.js?render=${process.env.VUE_APP_RECAPTCHA_SITE_KEY}`;
+      script.async = true;
+      script.defer = true;
+      script.onload = () => {
+        this.recaptchaReady = true;
+      };
+      document.head.appendChild(script);
+    },
     togglePasswordVisibility() {
       this.showPassword = !this.showPassword;
     },
-    async fetchData() {
-      const requestBody = {
-        email: this.inputEmail,
-        password: this.inputPassword,
-      };
+    async handleLogin() {
+      if (!this.recaptchaReady) {
+        console.error("reCAPTCHA não está pronto");
+        return;
+      }
+
+      this.isSubmitting = true;
+      this.modalTitle = "";
+      this.modalText = "";
+      this.showModal = false;
+
       try {
+        const token = await grecaptcha.execute(
+          process.env.VUE_APP_RECAPTCHA_SITE_KEY,
+          {
+            action: "login",
+          }
+        );
+
+        if (!token) {
+          throw new Error("Falha ao obter o token do reCAPTCHA");
+        }
+
+        const requestBody = {
+          email: this.inputEmail,
+          password: this.inputPassword,
+          recaptchaToken: token,
+        };
+
         const response = await this.$store.dispatch("auth/login", requestBody);
         await this.$store.dispatch("auth/fetchUser");
         this.$router.push(this.$route.query.redirect || "/");
@@ -98,6 +134,8 @@ export default {
           "Email ou senha não encontrado! Verifique suas credenciais e tente novamente."
         );
         throw error;
+      } finally {
+        this.isSubmitting = false;
       }
     },
     openModal(title, text) {
@@ -138,12 +176,5 @@ export default {
   height: 2px;
   background-color: black;
   margin-bottom: 20px;
-}
-
-.my-password {
-  display: flex;
-  justify-content: end;
-  margin-bottom: 40px;
-  font-weight: bold;
 }
 </style>

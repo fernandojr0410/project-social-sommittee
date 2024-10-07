@@ -20,7 +20,9 @@ const actions = {
   async login({ commit }, requestBody) {
     await API.auth.login(requestBody);
     const user = await API.auth.profile();
+    console.log("user", user);
     commit("SET_USER", user);
+    return user
   },
 
   async fetchUsers({ commit }) {

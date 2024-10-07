@@ -12,6 +12,9 @@ import { AuthService } from './auth.service';
 import { UpdatePasswordDto } from './dto/updatePassword-auth-dto';
 import { AuthGuard } from './auth.guard';
 import { UpdateUserDto } from '../user/dto/update-user.dto';
+import { LoginDto } from './dto/login.dto';
+import * as speakeasy from 'speakeasy';
+import * as qrcode from 'qrcode';
 
 @Controller('users/auth')
 export class AuthController {
@@ -53,9 +56,9 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() body) {
-    const { email, password } = body;
-    return this.authService.login(email, password);
+  async login(@Body() loginDto: LoginDto) {
+    const { email, password, recaptchaToken } = loginDto;
+    return this.authService.login(email, password, recaptchaToken);
   }
 
   @UseGuards(AuthGuard)

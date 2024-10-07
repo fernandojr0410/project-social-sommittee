@@ -6,11 +6,8 @@ import store from "./store";
 import "./filters";
 import vuetify from "./plugins/vuetify";
 import { VueMaskDirective } from "v-mask";
-import Notifications from "vue-notification";
 
 Vue.directive("mask", VueMaskDirective);
-
-Vue.use(Notifications);
 
 Vue.filter("capitalize", function (value) {
   if (!value) return "";

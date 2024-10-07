@@ -14,9 +14,7 @@ export class LogRepository {
     return await this.prisma.logger.create({
       data: {
         ...logData,
-        user: {
-          connect: { id: user_id },
-        },
+        ...(user_id && { user: { connect: { id: user_id } } }),
       },
       include: {
         user: {
