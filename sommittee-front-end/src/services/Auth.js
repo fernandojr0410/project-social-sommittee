@@ -6,12 +6,28 @@ class Auth extends Http {
     super("users/auth");
   }
 
+  // async login(data) {
+  //   const { access_token } = await this.post("login", data);
+  //   localStorage.setItem("@sommittee.access_token", access_token);
+  //   axios.defaults.headers.Authorization = `Bearer ${access_token}`;
+  // }
   async login(data) {
-    const { access_token } = await this.post("login", data);
-    localStorage.setItem("@sommittee.access_token", access_token);
-    axios.defaults.headers.Authorization = `Bearer ${access_token}`;
+    const response = await this.post("login", data);
+    return response; // Devolve a resposta completa para o front-end
   }
 
+  // async verifyTwoFactor(data) {
+  //   const response = await this.post("verify-2fa", data);
+  //   return response;
+  // }
+
+  async verifyTwoFactor(data) {
+    const { access_token } = await this.post("verify-2fa", data);
+    // Armazena o access token e define o cabeçalho de autorização
+    localStorage.setItem("@sommittee.access_token", access_token);
+    axios.defaults.headers.Authorization = `Bearer ${access_token}`;
+    return { access_token };
+  }
   async profile() {
     return await this.get("profile");
   }

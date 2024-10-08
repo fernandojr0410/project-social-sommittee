@@ -8,7 +8,8 @@ export class UserEntity implements User {
   password: string;
   role: $Enums.Role;
   avatar_url: string;
-  twoFactorSecret: string;
+  two_factor_secret: string;
+  is_two_factor_enabled: boolean;
   created_at: Date;
   updated_at: Date;
   last_action: string;

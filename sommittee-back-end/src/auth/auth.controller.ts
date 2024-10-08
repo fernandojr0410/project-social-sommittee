@@ -12,13 +12,24 @@ import { AuthService } from './auth.service';
 import { UpdatePasswordDto } from './dto/updatePassword-auth-dto';
 import { AuthGuard } from './auth.guard';
 import { UpdateUserDto } from '../user/dto/update-user.dto';
-import { LoginDto } from './dto/login.dto';
-import * as speakeasy from 'speakeasy';
-import * as qrcode from 'qrcode';
+import { LoginDto } from './dto/login-auth.dto';
+import { VerifyTwoFactorDto } from './dto/VerifyTwoFactorDto.auth.dto';
 
 @Controller('users/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Post('login')
+  async login(@Body() loginDto: LoginDto) {
+    const { email, password, recaptchaToken } = loginDto;
+    return this.authService.login(email, password, recaptchaToken);
+  }
+
+  @Post('verify-2fa')
+  async verifyTwoFactor(@Body() verifyTwoFactorDto: VerifyTwoFactorDto) {
+    const { code, user_id } = verifyTwoFactorDto;
+    return this.authService.verifyTwoFactorCode(code, user_id);
+  }
 
   @UseGuards(AuthGuard)
   @Get('profile')
@@ -36,43 +47,12 @@ export class AuthController {
     @Req() req,
     @Body() updatePasswordDto: UpdatePasswordDto,
   ) {
-    return await this.authService.updatePassword(
-      req.user.id,
-      updatePasswordDto,
-    );
+    return this.authService.updatePassword(req.user.id, updatePasswordDto);
   }
 
   @UseGuards(AuthGuard)
   @Patch('profile')
   async changeProfile(@Req() req, @Body() updateUserDto: UpdateUserDto) {
-    const updateUser = await this.authService.changeProfile(
-      req.user.id,
-      updateUserDto,
-    );
-    if (!updateUser) {
-      throw new NotFoundException('Profile not found');
-    }
-    return updateUser;
-  }
-
-  @Post('login')
-  async login(@Body() loginDto: LoginDto) {
-    const { email, password, recaptchaToken } = loginDto;
-    return this.authService.login(email, password, recaptchaToken);
-  }
-
-  @UseGuards(AuthGuard)
-  @Post('logout')
-  async logout(@Req() req) {
-    const userId = req.user.id;
-    return await this.authService.logout(userId);
-  }
-
-  @UseGuards(AuthGuard)
-  @Patch('avatar')
-  async updateAvatar(@Req() req, @Body('url') avatarUrl: string) {
-    const userId = req.user.id;
-    const updatedUser = await this.authService.updateAvatar(userId, avatarUrl);
-    return updatedUser;
+    return this.authService.changeProfile(req.user.id, updateUserDto);
   }
 }

@@ -14,6 +14,7 @@ import { PasswordRepository } from '../password/repositories/password.repository
 import { UploadService } from 'src/photo/upload/photo-upload.service';
 import { ReCaptchaService } from './recaptcha.service';
 import { ConfigModule } from '@nestjs/config';
+import { EmailModule } from 'src/email/email.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ConfigModule } from '@nestjs/config';
       signOptions: { expiresIn: '24h' },
     }),
     UserModule,
+    EmailModule,
   ],
   providers: [
     AuthService,

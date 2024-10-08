@@ -17,10 +17,12 @@ model User {
   password    String
   role        Role
   avatar_url      String?
-   twoFactorSecret String?
+   two_factor_secret String?
+   is_two_factor_enabled Boolean @default(false)
   created_at  DateTime     @default(now())
   updated_at  DateTime     @default(now()) @updatedAt
   last_action String?
+  verification_codes VerificationCode[]
   tokens      Token[]
   loggers     Logger[]
   attachments Attachment[]
@@ -34,6 +36,15 @@ enum Role {
   MANAGER
   OPERATOR
 }
+
+model VerificationCode {
+  id        String   @id @default(cuid())
+  code      String
+  expiresAt DateTime
+  user      User     @relation(fields: [user_id], references: [id])
+  user_id   String   @db.Uuid()
+}
+
 
 model Token {
   id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()

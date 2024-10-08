@@ -43,13 +43,38 @@
             {{ isSubmitting ? "Entrando..." : "Entrar" }}
           </v-btn>
 
+          <!-- Modal para erros (conta não encontrada) -->
           <Modal
-            :value="showModal"
-            @input="showModal = $event"
+            :value="showErrorModal"
+            @input="showErrorModal = $event"
             :title="modalTitle"
             :text="modalText"
             :button="modalButton"
           />
+
+          <!-- Modal 2FA para autenticação -->
+          <v-dialog v-model="show2FAModal" width="400">
+            <v-card>
+              <v-card-title>Autenticação 2FA</v-card-title>
+              <v-card-text>
+                <v-text-field
+                  v-model="otpCode"
+                  label="Digite o código 2FA"
+                  outlined
+                />
+              </v-card-text>
+              <v-card-actions>
+                <v-btn
+                  @click="submitOtpCode"
+                  color="primary"
+                  block
+                  :disabled="isSubmitting"
+                >
+                  Validar Código
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
         </v-card>
       </div>
     </v-container>
@@ -58,6 +83,7 @@
 
 <script>
 import Modal from "@/components/modal/Modal.vue";
+import router from "@/router";
 
 export default {
   name: "FormLogin",
@@ -68,55 +94,40 @@ export default {
     return {
       inputEmail: "",
       inputPassword: "",
+      otpCode: "", // Código 2FA inserido pelo usuário
       showPassword: false,
-      visible: false,
       modalTitle: "",
       modalText: "",
       modalButton: false,
-      showModal: false,
+      showErrorModal: false,
+      show2FAModal: false, // Modal de autenticação 2FA
+      userId: null, // ID do usuário para a validação do código 2FA
       isSubmitting: false,
-      recaptchaReady: false,
     };
   },
-  mounted() {
-    this.loadReCaptcha();
-  },
   methods: {
-    loadReCaptcha() {
-      const script = document.createElement("script");
-      script.src = `https://www.google.com/recaptcha/api.js?render=${process.env.VUE_APP_RECAPTCHA_SITE_KEY}`;
-      script.async = true;
-      script.defer = true;
-      script.onload = () => {
-        this.recaptchaReady = true;
-      };
-      document.head.appendChild(script);
-    },
     togglePasswordVisibility() {
       this.showPassword = !this.showPassword;
     },
-    async handleLogin() {
-      if (!this.recaptchaReady) {
-        console.error("reCAPTCHA não está pronto");
-        return;
-      }
 
+    resetModals() {
+      this.showErrorModal = false;
+      this.show2FAModal = false;
+    },
+
+    async handleLogin() {
       this.isSubmitting = true;
-      this.modalTitle = "";
-      this.modalText = "";
-      this.showModal = false;
+      this.resetModals();
 
       try {
+        console.log("Iniciando o login...");
+
+        // Simula o recaptcha token
         const token = await grecaptcha.execute(
           process.env.VUE_APP_RECAPTCHA_SITE_KEY,
-          {
-            action: "login",
-          }
+          { action: "login" }
         );
-
-        if (!token) {
-          throw new Error("Falha ao obter o token do reCAPTCHA");
-        }
+        console.log("Token reCAPTCHA gerado:", token);
 
         const requestBody = {
           email: this.inputEmail,
@@ -124,24 +135,54 @@ export default {
           recaptchaToken: token,
         };
 
+        console.log("Enviando dados de login para o servidor:", requestBody);
         const response = await this.$store.dispatch("auth/login", requestBody);
-        await this.$store.dispatch("auth/fetchUser");
-        this.$router.push(this.$route.query.redirect || "/");
-        return response;
+
+        if (response && response.two_factor) {
+          this.userId = response.user_id;
+          this.show2FAModal = true;
+        } else {
+          console.error(
+            "Erro: Resposta inválida no fluxo de 2FA ou ID de usuário não encontrado."
+          );
+        }
       } catch (error) {
-        this.openModal(
-          "Conta não encontrada!",
-          "Email ou senha não encontrado! Verifique suas credenciais e tente novamente."
+        console.error("Erro durante o login:", error);
+        this.openErrorModal(
+          "Erro de autenticação!",
+          "Você não está autorizado. Tente novamente."
         );
-        throw error;
       } finally {
         this.isSubmitting = false;
       }
     },
-    openModal(title, text) {
+
+    async submitOtpCode() {
+      const requestBody = {
+        code: this.otpCode,
+        user_id: this.userId,
+      };
+      try {
+        console.log("Enviando código 2FA:", requestBody);
+        const response = await this.$store.dispatch(
+          "auth/verifyTwoFactor",
+          requestBody
+        );
+        console.log("Resposta da verificação do código 2FA:", response);
+        // Redireciona o usuário para a página Home após a verificação bem-sucedida
+        this.$router.push("/");
+        return response;
+        // O `getProfile` será chamado automaticamente após o redirecionamento
+      } catch (error) {
+        console.error("Erro durante a verificação do código 2FA:", error);
+        this.$emit("erroOtp", "O código inserido é inválido.");
+      }
+    },
+
+    openErrorModal(title, text) {
       this.modalTitle = title;
       this.modalText = text;
-      this.showModal = true;
+      this.showErrorModal = true;
     },
   },
 };
@@ -169,12 +210,5 @@ export default {
   inset: 0;
   background: linear-gradient(to bottom, #fbbf24, #fb923c);
   opacity: 0.6;
-}
-
-.line-divider {
-  width: 50%;
-  height: 2px;
-  background-color: black;
-  margin-bottom: 20px;
 }
 </style>
