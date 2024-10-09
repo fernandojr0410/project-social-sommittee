@@ -14,7 +14,7 @@
       v-if="dashboardData && dashboardData.length > 0"
     >
       <v-col>
-        <canvas id="doughnutChart"></canvas>
+        <canvas ref="doughnutChart"></canvas>
       </v-col>
     </v-row>
   </v-card>
@@ -49,6 +49,7 @@ export default {
     async fetchDashboardData() {
       try {
         await this.$store.dispatch("product/fetchDashboardData");
+
         this.$nextTick(() => {
           this.renderChart();
         });
@@ -68,7 +69,13 @@ export default {
     },
 
     renderChart() {
-      const ctx = document.getElementById("doughnutChart").getContext("2d");
+      const canvas = this.$refs.doughnutChart;
+      console.log("Canvas:", canvas);
+      if (!canvas) {
+        console.error("Canvas não encontrado!");
+        return;
+      }
+      const ctx = canvas.getContext("2d");
 
       if (this.chartInstance) {
         this.chartInstance.destroy();

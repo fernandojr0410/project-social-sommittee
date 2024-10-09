@@ -44,6 +44,7 @@ const actions = {
   async fetchDashboardData({ commit }, category) {
     try {
       const response = await API.product.getDashboardData(category);
+      commit("SET_DASHBOARD_DATA", response);
       return response;
     } catch (error) {
       console.error("Erro ao buscar dados da dashboard:", error);
@@ -61,17 +62,6 @@ const actions = {
     const response = await API.product.findAll(query);
     commit("SET_PRODUCT", response);
     return response;
-  },
-
-  async fetchDashboardData({ commit }) {
-    try {
-      const response = await API.product.getDashboardData();
-      commit("SET_DASHBOARD_DATA", response);
-      return response;
-    } catch (error) {
-      console.error("Erro ao buscar dados da dashboard:", error);
-      throw error;
-    }
   },
 
   async findById({ commit }, id) {

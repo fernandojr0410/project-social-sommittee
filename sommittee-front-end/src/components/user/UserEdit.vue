@@ -113,6 +113,7 @@
           <v-row>
             <v-col>
               <v-text-field
+                readonly
                 outlined
                 dense
                 hide-details
@@ -181,6 +182,9 @@ export default {
           this.updatedUser.telephone = this.formatTelephone(
             this.updatedUser.telephone
           );
+          this.updatedUser.password = this.generatePassword(
+            this.updatedUser.password
+          );
         }
       },
     },
@@ -213,6 +217,15 @@ export default {
         role: "",
         password: "",
       };
+    },
+    generatePassword() {
+      const chars =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&*!";
+      let password = "";
+      for (let i = 0; i < 10; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return password;
     },
     closeDialog() {
       this.$emit("input", false);

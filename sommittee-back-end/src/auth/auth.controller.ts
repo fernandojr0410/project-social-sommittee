@@ -14,10 +14,16 @@ import { AuthGuard } from './auth.guard';
 import { UpdateUserDto } from '../user/dto/update-user.dto';
 import { LoginDto } from './dto/login-auth.dto';
 import { VerifyTwoFactorDto } from './dto/VerifyTwoFactorDto.auth.dto';
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
 
 @Controller('users/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Post('register')
+  async register(@Body() createUserDto: CreateUserDto) {
+    return await this.authService.create(createUserDto);
+  }
 
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
@@ -54,5 +60,20 @@ export class AuthController {
   @Patch('profile')
   async changeProfile(@Req() req, @Body() updateUserDto: UpdateUserDto) {
     return this.authService.changeProfile(req.user.id, updateUserDto);
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch('avatar')
+  async updateAvatar(@Req() req, @Body('url') avatarUrl: string) {
+    const userId = req.user.id;
+    const updatedUser = await this.authService.updateAvatar(userId, avatarUrl);
+    return updatedUser;
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('logout')
+  async logout(@Req() req) {
+    const userId = req.user.id;
+    return await this.authService.logout(userId);
   }
 }

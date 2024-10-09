@@ -16,12 +16,15 @@ import { UpdateUserDto } from '../user/dto/update-user.dto';
 import { UserRepository } from '../user/repositories/user.repository';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { ReCaptchaService } from './recaptcha.service';
+import { User } from '@prisma/client';
+import { PasswordService } from 'src/password/password.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly userRepository: UserRepository,
+    private readonly passwordService: PasswordService,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
     private readonly recaptchaService: ReCaptchaService,
@@ -58,6 +61,46 @@ export class AuthService {
     return { two_factor: true, user_id: user.id };
   }
 
+  // async generateTwoFactorCode(
+  //   email: string,
+  //   name: string,
+  //   user_id: string,
+  // ): Promise<string> {
+  //   const secret = speakeasy.generateSecret({ name: 'YourAppName' });
+  //   await this.prisma.user.update({
+  //     where: { id: user_id },
+  //     data: {
+  //       two_factor_secret: secret.base32,
+  //       is_two_factor_enabled: true,
+  //     },
+  //   });
+
+  //   const code = speakeasy.totp({
+  //     secret: secret.base32,
+  //     encoding: 'base32',
+  //     step: 300,
+  //   });
+
+  //   const templatePath = path.resolve(
+  //     process.cwd(),
+  //     'src',
+  //     'email',
+  //     'html',
+  //     '2FA.html',
+  //   );
+  //   const template = fs.readFileSync(templatePath, 'utf8');
+  //   const htmlContent = template
+  //     .replace('{{name}}', name)
+  //     .replace('{{code}}', code);
+
+  //   await this.emailService.sendEmailUser(
+  //     email,
+  //     'Seu código de verificação 2FA',
+  //     htmlContent,
+  //   );
+
+  //   return code;
+  // }
   async generateTwoFactorCode(
     email: string,
     name: string,
@@ -78,23 +121,7 @@ export class AuthService {
       step: 300,
     });
 
-    const templatePath = path.resolve(
-      process.cwd(),
-      'src',
-      'email',
-      'html',
-      '2FA.html',
-    );
-    const template = fs.readFileSync(templatePath, 'utf8');
-    const htmlContent = template
-      .replace('{{name}}', name)
-      .replace('{{code}}', code);
-
-    await this.emailService.sendEmailUser(
-      email,
-      'Seu código de verificação 2FA',
-      htmlContent,
-    );
+    console.log(`Código de autenticação 2FA para ${email}: ${code}`);
 
     return code;
   }
@@ -125,8 +152,18 @@ export class AuthService {
     }
 
     const payload = { id: user_id, email: user.email, name: user.name };
+
     const accessToken = await this.jwtService.signAsync(payload, {
-      secret: jwtConstants.secret,
+      expiresIn: '5d',
+      secret: Buffer.from(process.env.JWT_SECRET, 'base64').toString(),
+      algorithm: 'HS256',
+    });
+
+    await this.prisma.token.create({
+      data: {
+        access_token: accessToken,
+        user_id: user_id,
+      },
     });
 
     return { access_token: accessToken };
@@ -147,6 +184,7 @@ export class AuthService {
         last_action: true,
       },
     });
+    console.log(user);
     return user;
   }
 
@@ -172,14 +210,12 @@ export class AuthService {
     });
   }
 
-  // Método adicionado: Verificar senha
   async verifyUserPassword(email: string, password: string): Promise<boolean> {
     const user = await this.userRepository.findUserByEmail(email);
     if (!user) return false;
     return bcrypt.compare(password, user.password);
   }
 
-  // Método adicionado: Atualizar perfil
   async changeProfile(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.prisma.user.findFirst({ where: { id } });
     if (!user) throw new NotFoundException('Usuário não encontrado!');
@@ -196,5 +232,86 @@ export class AuthService {
         avatar_url: true,
       },
     });
+  }
+  async createUserWithHashedPassword(
+    createUserDto: CreateUserDto,
+  ): Promise<User> {
+    const hashedPassword = await this.passwordService.hashPassword(
+      createUserDto.password,
+    );
+    const user = await this.prisma.user.create({
+      data: {
+        ...createUserDto,
+        password: hashedPassword,
+      },
+    });
+    return user;
+  }
+
+  async signIn(
+    email: string,
+    password: string,
+  ): Promise<{ access_token: string }> {
+    const user = await this.userRepository.findUserByEmail(email);
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado!');
+    }
+    const isPasswordValid = await this.verifyUserPassword(email, password);
+    if (!isPasswordValid) {
+      throw new NotFoundException('Senha inválida!');
+    }
+
+    await this.userRepository.updateLastAction(user.id, 'login');
+    const payload = { id: user.id, name: user.name, email: user.email };
+    const accessToken = await this.jwtService.signAsync(payload, {
+      secret: jwtConstants.secret,
+    });
+    return { access_token: accessToken };
+  }
+
+  async logout(userId: string) {
+    await this.prisma.token.updateMany({
+      where: {
+        user_id: userId,
+        is_revoked: false,
+      },
+      data: {
+        is_revoked: true,
+      },
+    });
+  }
+
+  async validateUser(email: string, password: string): Promise<any> {
+    const user = await this.prisma.user.findFirst({ where: { email } });
+    if (user && (await bcrypt.compare(password, user.password))) {
+      return user;
+    }
+    return null;
+  }
+
+  async updateAvatar(
+    userId: string,
+    avatarUrl: string,
+  ): Promise<Partial<User>> {
+    const user = await this.prisma.user.findFirst({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    const updatedUser = await this.prisma.user.update({
+      where: { id: userId },
+      data: { avatar_url: avatarUrl },
+      select: {
+        name: true,
+        identifier: true,
+        email: true,
+        telephone: true,
+        role: true,
+        avatar_url: true,
+        created_at: true,
+        updated_at: true,
+        last_action: true,
+      },
+    });
+    return updatedUser;
   }
 }

@@ -43,7 +43,6 @@
             {{ isSubmitting ? "Entrando..." : "Entrar" }}
           </v-btn>
 
-          <!-- Modal para erros (conta não encontrada) -->
           <Modal
             :value="showErrorModal"
             @input="showErrorModal = $event"
@@ -52,12 +51,14 @@
             :button="modalButton"
           />
 
-          <!-- Modal 2FA para autenticação -->
-          <v-dialog v-model="show2FAModal" width="400">
+          <v-dialog v-model="show2FAModal" width="460">
             <v-card>
-              <v-card-title>Autenticação 2FA</v-card-title>
+              <v-card-title
+                >Por favor, verifique seu e-mail para o código de
+                verificação.</v-card-title
+              >
               <v-card-text>
-                <v-text-field
+                <v-otp-input
                   v-model="otpCode"
                   label="Digite o código 2FA"
                   outlined
@@ -94,14 +95,14 @@ export default {
     return {
       inputEmail: "",
       inputPassword: "",
-      otpCode: "", // Código 2FA inserido pelo usuário
+      otpCode: "",
       showPassword: false,
       modalTitle: "",
       modalText: "",
       modalButton: false,
       showErrorModal: false,
-      show2FAModal: false, // Modal de autenticação 2FA
-      userId: null, // ID do usuário para a validação do código 2FA
+      show2FAModal: false,
+      userId: null,
       isSubmitting: false,
     };
   },
@@ -122,7 +123,6 @@ export default {
       try {
         console.log("Iniciando o login...");
 
-        // Simula o recaptcha token
         const token = await grecaptcha.execute(
           process.env.VUE_APP_RECAPTCHA_SITE_KEY,
           { action: "login" }
@@ -157,26 +157,16 @@ export default {
       }
     },
 
-    async submitOtpCode() {
-      const requestBody = {
-        code: this.otpCode,
-        user_id: this.userId,
-      };
-      try {
-        console.log("Enviando código 2FA:", requestBody);
-        const response = await this.$store.dispatch(
-          "auth/verifyTwoFactor",
-          requestBody
-        );
-        console.log("Resposta da verificação do código 2FA:", response);
-        // Redireciona o usuário para a página Home após a verificação bem-sucedida
-        this.$router.push("/");
-        return response;
-        // O `getProfile` será chamado automaticamente após o redirecionamento
-      } catch (error) {
-        console.error("Erro durante a verificação do código 2FA:", error);
-        this.$emit("erroOtp", "O código inserido é inválido.");
-      }
+    submitOtpCode() {
+      this.$store
+        .dispatch("auth/verifyTwoFactor", {
+          code: this.otpCode,
+          user_id: this.userId,
+        })
+
+        .catch((error) => {
+          console.error("Erro durante a verificação do código 2FA:", error);
+        });
     },
 
     openErrorModal(title, text) {

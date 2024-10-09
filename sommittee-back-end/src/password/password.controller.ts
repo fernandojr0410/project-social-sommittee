@@ -18,29 +18,6 @@ export class PasswordController {
     private readonly userService: UserService,
   ) {}
 
-  // @UseGuards(AuthGuard)
-  // @Patch('generate/:id')
-  // async generatePasswordAndSendEmail(@Param('id') id: string) {
-  //   const user = await this.userService.findOne(id)
-
-  //   if (!user) {
-  //     throw new NotFoundException('Usuário não encontrado');
-  //   }
-
-  //   const newPassword = this.passwordService.generateRandomPassword();
-
-  //   await this.passwordService.updatePassword(id, { password: newPassword });
-
-  //   const emailSent = await this.emailService.sendPasswordByEmail(
-  //     user.email,
-  //     user.name,
-  //     user.surname,
-  //     newPassword,
-  //   );
-
-  //   return emailSent
-  // }
-
   @Patch('generate/:id')
   async generatePasswordAndSendEmail(@Param('id') id: string) {
     const newPassword = this.passwordService.generateRandomPassword();
