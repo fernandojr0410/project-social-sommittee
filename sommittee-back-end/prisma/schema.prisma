@@ -19,6 +19,8 @@ model User {
   avatar_url      String?
    two_factor_secret String?
    is_two_factor_enabled Boolean @default(false)
+   sms_verification_code String?
+   is_verification_code Boolean @default(false)
     failed_attempts Int      @default(0)
   account_locked  Boolean  @default(false)
   created_at  DateTime     @default(now())

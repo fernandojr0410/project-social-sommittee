@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class VerifyTwoFactorDto {
+export class VerifyTwoFactorEmail {
   @IsNotEmpty()
   @IsString()
   code: string;

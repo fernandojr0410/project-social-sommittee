@@ -15,6 +15,8 @@ import { UploadService } from 'src/photo/upload/photo-upload.service';
 import { ReCaptchaService } from './recaptcha.service';
 import { ConfigModule } from '@nestjs/config';
 import { EmailModule } from 'src/email/email.module';
+import { SmsService } from './sms/sms.service';
+import { HttpModule, HttpService } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -29,6 +31,7 @@ import { EmailModule } from 'src/email/email.module';
     }),
     UserModule,
     EmailModule,
+    HttpModule
   ],
   providers: [
     AuthService,
@@ -40,6 +43,7 @@ import { EmailModule } from 'src/email/email.module';
     UserService,
     UploadService,
     ReCaptchaService,
+    SmsService,
   ],
   controllers: [AuthController],
   exports: [AuthService, AuthGuard],

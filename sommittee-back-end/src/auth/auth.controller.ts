@@ -9,12 +9,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { UpdatePasswordDto } from './dto/updatePassword-auth-dto';
+import { UpdatePasswordDto } from './dto/updatePassword-auth.dto';
 import { AuthGuard } from './auth.guard';
 import { UpdateUserDto } from '../user/dto/update-user.dto';
 import { LoginDto } from './dto/login-auth.dto';
-import { VerifyTwoFactorDto } from './dto/VerifyTwoFactorDto.auth.dto';
+
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { VerifyTwoFactorEmail } from './dto/verifyTwoFactorEmail.auth-dto';
+import { SendSmsDto, VerifySmsDto } from './dto/verifyTwoFactorSms-auth.dto';
 
 @Controller('users/auth')
 export class AuthController {
@@ -32,9 +34,21 @@ export class AuthController {
   }
 
   @Post('verify-2fa')
-  async verifyTwoFactor(@Body() verifyTwoFactorDto: VerifyTwoFactorDto) {
-    const { code, user_id } = verifyTwoFactorDto;
+  async verifyTwoFactor(@Body() verifyTwoFactorEmail: VerifyTwoFactorEmail) {
+    const { code, user_id } = verifyTwoFactorEmail;
     return this.authService.verifyTwoFactorCode(code, user_id);
+  }
+
+  @Post('send-sms')
+  async sendSms(@Body() sendSmsDto: SendSmsDto) {
+    const { user_id } = sendSmsDto;
+    return this.authService.sendSmsCode(user_id);
+  }
+
+  @Post('verify-sms')
+  async verifySms(@Body() verifySmsDto: VerifySmsDto) {
+    const { smsCode, user_id } = verifySmsDto;
+    return this.authService.verifySmsCode(smsCode, user_id);
   }
 
   @UseGuards(AuthGuard)

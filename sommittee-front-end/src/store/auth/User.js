@@ -42,24 +42,38 @@ const actions = {
     try {
       const response = await API.auth.verifyTwoFactor(requestBody);
 
-      const { access_token } = response;
+      await API.auth.sendSms({ user_id: requestBody.user_id });
 
-      localStorage.setItem("@sommittee.access_token", access_token);
-
-      axios.defaults.headers.common["Authorization"] = `Bearer ${access_token}`;
-
-      router.push("/");
-
-      const user = await API.auth.profile();
-      commit("SET_USER", user);
-
-      return user;
+      return { success: true };
     } catch (error) {
       console.error("Erro durante a verificação 2FA:", error);
       throw new Error("Erro na verificação do código 2FA");
     }
   },
 
+  async verifySmsCode({ commit }, requestBody) {
+    try {
+      const response = await API.auth.verifySmsCode(requestBody);
+
+      const { access_token } = response;
+
+      if (access_token) {
+        localStorage.setItem("@sommittee.access_token", access_token);
+        axios.defaults.headers.common["Authorization"] =
+          `Bearer ${access_token}`;
+
+        const user = await API.auth.profile();
+        commit("SET_USER", user);
+
+        return { success: true };
+      } else {
+        throw new Error("Token não encontrado");
+      }
+    } catch (error) {
+      console.error("Erro na verificação do código SMS:", error);
+      throw error;
+    }
+  },
   async fetchUserProfile({ commit }) {
     const user = await API.auth.profile();
     commit("SET_USER", user);

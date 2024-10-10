@@ -23,6 +23,8 @@ import { CepService } from './cep/cep.service';
 import { CepModule } from './cep/cep.module';
 import { HttpModule } from '@nestjs/axios';
 import { UploadModule } from './photo/upload/photo-upload.module';
+import { SmsController } from './auth/sms/sms.controller';
+import { SmsService } from './auth/sms/sms.service';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -45,8 +47,8 @@ import { UploadModule } from './photo/upload/photo-upload.module';
     CepModule,
     UploadModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, PrismaService, CepService],
+  controllers: [AppController, SmsController],
+  providers: [AppService, PrismaService, CepService, SmsService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

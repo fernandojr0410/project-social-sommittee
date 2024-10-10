@@ -11,13 +11,14 @@ import { EmailService } from '../email/email.service';
 import * as speakeasy from 'speakeasy';
 import * as fs from 'fs';
 import * as path from 'path';
-import { UpdatePasswordDto } from './dto/updatePassword-auth-dto';
+import { UpdatePasswordDto } from './dto/updatePassword-auth.dto';
 import { UpdateUserDto } from '../user/dto/update-user.dto';
 import { UserRepository } from '../user/repositories/user.repository';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { ReCaptchaService } from './recaptcha.service';
 import { User } from '@prisma/client';
 import { PasswordService } from 'src/password/password.service';
+import { SmsService } from './sms/sms.service';
 
 @Injectable()
 export class AuthService {
@@ -28,6 +29,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
     private readonly recaptchaService: ReCaptchaService,
+    private readonly smsService: SmsService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -86,7 +88,7 @@ export class AuthService {
 
     await this.generateTwoFactorCode(user.email, user.name, user.id);
 
-    return { two_factor: true, user_id: user.id }; // Retorna true para 2FA
+    return { two_factor: true, user_id: user.id };
   }
 
   // async generateTwoFactorCode(
@@ -157,10 +159,15 @@ export class AuthService {
   async verifyTwoFactorCode(
     code: string,
     user_id: string,
-  ): Promise<{ access_token: string }> {
+  ): Promise<{ smsCodeSent: boolean }> {
     const user = await this.prisma.user.findFirst({
       where: { id: user_id },
-      select: { two_factor_secret: true, email: true, name: true },
+      select: {
+        two_factor_secret: true,
+        email: true,
+        name: true,
+        telephone: true,
+      },
     });
 
     if (!user || !user.two_factor_secret) {
@@ -179,8 +186,57 @@ export class AuthService {
       throw new UnauthorizedException('Código 2FA inválido.');
     }
 
-    const payload = { id: user_id, email: user.email, name: user.name };
+    const smsCode = Math.floor(1000 + Math.random() * 9000).toString();
 
+    await this.prisma.user.update({
+      where: { id: user_id },
+      data: { sms_verification_code: smsCode },
+    });
+
+    const message = `Seu código de verificação é: ${smsCode}`;
+    await this.smsService.sendSms(user.telephone, message);
+
+    return { smsCodeSent: true };
+  }
+
+  async sendSmsCode(userId: string): Promise<{ smsCodeSent: boolean }> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user || !user.telephone) {
+      throw new NotFoundException(
+        'Usuário não encontrado ou telefone não cadastrado.',
+      );
+    }
+
+    const smsCode = Math.floor(1000 + Math.random() * 9000).toString();
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { sms_verification_code: smsCode },
+    });
+
+    const message = `Seu código de verificação é: ${smsCode}`;
+    await this.smsService.sendSms(user.telephone, message);
+
+    return { smsCodeSent: true };
+  }
+
+  async verifySmsCode(
+    smsCode: string,
+    userId: string,
+  ): Promise<{ access_token: string }> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { sms_verification_code: true, email: true, name: true },
+    });
+
+    if (!user || user.sms_verification_code !== smsCode) {
+      throw new NotFoundException('Código SMS inválido.');
+    }
+
+    const payload = { id: userId, email: user.email, name: user.name };
     const accessToken = await this.jwtService.signAsync(payload, {
       expiresIn: '5d',
       secret: Buffer.from(process.env.JWT_SECRET, 'base64').toString(),
@@ -190,7 +246,7 @@ export class AuthService {
     await this.prisma.token.create({
       data: {
         access_token: accessToken,
-        user_id: user_id,
+        user_id: userId,
       },
     });
 

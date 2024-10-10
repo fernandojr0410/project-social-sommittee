@@ -51,6 +51,7 @@
             :button="modalButton"
           />
 
+          <!-- Modal para código de verificação 2FA via email -->
           <v-dialog v-model="show2FAModal" width="460">
             <v-card>
               <v-card-title>
@@ -70,7 +71,32 @@
                   block
                   :disabled="isSubmitting"
                 >
-                  Validar Código
+                  Validar
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+
+          <!-- Modal para código de verificação via SMS -->
+          <v-dialog v-model="showSmsModal" width="460">
+            <v-card>
+              <v-card-title>Verificação por SMS</v-card-title>
+              <v-card-text>
+                <v-otp-input
+                  v-model="smsCode"
+                  label="Digite o código enviado via SMS"
+                  :length="4"
+                  outlined
+                />
+              </v-card-text>
+              <v-card-actions>
+                <v-btn
+                  @click="submitSmsCode"
+                  color="primary"
+                  block
+                  :disabled="isSubmitting"
+                >
+                  Validar
                 </v-btn>
               </v-card-actions>
             </v-card>
@@ -95,12 +121,14 @@ export default {
       inputEmail: "",
       inputPassword: "",
       otpCode: "",
+      smsCode: "",
       showPassword: false,
       modalTitle: "",
       modalText: "",
       modalButton: false,
       showErrorModal: false,
       show2FAModal: false,
+      showSmsModal: false,
       userId: null,
       isSubmitting: false,
       loginAttempts: 0,
@@ -114,6 +142,7 @@ export default {
     resetModals() {
       this.showErrorModal = false;
       this.show2FAModal = false;
+      this.showSmsModal = false;
     },
 
     async handleLogin() {
@@ -192,6 +221,7 @@ export default {
         this.isSubmitting = false;
       }
     },
+
     async submitOtpCode() {
       this.isSubmitting = true;
 
@@ -201,14 +231,48 @@ export default {
           user_id: this.userId,
         });
 
-        if (response.success) {
-          router.push({ name: "dashboard" });
+        if (response && response.success) {
+          this.show2FAModal = false;
+          this.showSmsModal = true;
+          console.log("response.success", response.success);
         } else {
           this.openErrorModal(
             "Erro de autenticação",
-            "Código inválido. Tente novamente."
+            "Código 2FA inválido. Tente novamente."
           );
         }
+      } catch (error) {
+        this.openErrorModal(
+          "Erro de autenticação",
+          "Ocorreu um erro ao verificar o código 2FA."
+        );
+      } finally {
+        this.isSubmitting = false;
+      }
+    },
+
+    async submitSmsCode() {
+      this.isSubmitting = true;
+
+      try {
+        const response = await this.$store.dispatch("auth/verifySmsCode", {
+          user_id: this.userId,
+          smsCode: this.smsCode,
+        });
+
+        if (response.success) {
+          router.push("/");
+        } else {
+          this.openErrorModal(
+            "Erro de autenticação",
+            "Código SMS inválido. Tente novamente."
+          );
+        }
+      } catch (error) {
+        this.openErrorModal(
+          "Erro de autenticação",
+          "Ocorreu um erro ao verificar o código SMS."
+        );
       } finally {
         this.isSubmitting = false;
       }

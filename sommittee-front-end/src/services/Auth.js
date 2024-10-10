@@ -18,6 +18,15 @@ class Auth extends Http {
     axios.defaults.headers.Authorization = `Bearer ${access_token}`;
     return { access_token };
   }
+
+  async sendSms(data) {
+    return await this.post("send-sms", data);
+  }
+
+  async verifySmsCode(data) {
+    return await this.post("verify-sms", data);
+  }
+
   async profile() {
     return await this.get("profile");
   }
