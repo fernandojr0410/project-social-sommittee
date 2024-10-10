@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -26,16 +27,6 @@ export class UserController {
     return await this.userService.create(createUserDto);
   }
 
-  // @UseGuards(AuthGuard)
-  // @Get()
-  // async findAll(@Req() request) {
-  //   const userEmail = request.user.email;
-  //   const user = await this.userService.findProfile(userEmail);
-  //   await this.userService.updateLastAction(user.id, 'findAll');
-  //   const dataUsers = await this.userService.findAll();
-  //   return { userEmail, dataUsers };
-  // }
-
   @UseGuards(AuthGuard)
   @Get()
   async findAll(@Query() query: QueryUserDto) {
@@ -53,7 +44,24 @@ export class UserController {
   @UseGuards(AuthGuard)
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return await this.userService.update(id, updateUserDto);
+    console.log('updateUserDto controller:', updateUserDto);
+
+    const { email, name, password, ...otherData } = updateUserDto;
+
+    if (!password) {
+      throw new Error('A senha é necessária para a atualização do perfil.');
+    }
+
+    const response = await this.userService.updateUserProfileAndPassword(
+      id,
+      email,
+      name,
+      password,
+      otherData,
+    );
+
+    console.log('Response no controller:', response);
+    return response;
   }
 
   @UseGuards(AuthGuard)

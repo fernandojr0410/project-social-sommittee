@@ -1,6 +1,19 @@
 import Vue from "vue";
 import { format } from "date-fns";
 
+export const statusUser = [
+  { text: "Sim", value: true },
+  { text: "Não", value: false },
+];
+
+Vue.filter("statusUser", (value) => {
+  const statusUserMap = {
+    true: "Sim",
+    false: "Não",
+  };
+  return statusUserMap[value] || value;
+});
+
 export const roleUser = [
   { text: "Administrador", value: "ADMIN" },
   { text: "Gerenete", value: "MANAGER" },

@@ -32,6 +32,10 @@
             <span>{{ item.role | roleUser }}</span>
           </template>
 
+          <template v-slot:[`item.account_locked`]="{ item }">
+            <span>{{ item.account_locked | statusUser }}</span>
+          </template>
+
           <template v-slot:[`item.actions`]="{ item }">
             <v-icon
               class="mr-2"
@@ -175,6 +179,40 @@
                 />
               </v-col>
             </v-row>
+
+            <v-row>
+              <v-col>
+                <v-text-field
+                  v-if="selectedUser"
+                  v-model="selectedUser.failed_attempts"
+                  label="Tentativas de login"
+                  class="mr-3"
+                  type="number"
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+
+              <v-col>
+                <v-select
+                  v-if="selectedUser"
+                  v-model="selectedUser.account_locked"
+                  label="Conta bloqueada"
+                  class="mr-3"
+                  :items="[
+                    { value: true, text: 'Sim' },
+                    { value: false, text: 'Não' },
+                  ]"
+                  item-value="value"
+                  item-text="text"
+                  readonly
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+            </v-row>
           </v-card>
         </v-card-text>
       </v-card>
@@ -215,6 +253,7 @@ export default {
         { text: "CPF", value: "identifier" },
         { text: "Telefone", value: "telephone" },
         { text: "Tipo acesso", value: "role" },
+        { text: "Conta bloqueada", value: "account_locked" },
         { text: "Ações", value: "actions" },
       ],
       formatDate,
@@ -267,6 +306,7 @@ export default {
           "userColaborator/update",
           updatedUser
         );
+        console.log("saveUpdatedUser", response);
         this.loadData();
         this.editDialog = false;
         return response;

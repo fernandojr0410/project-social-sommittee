@@ -4,15 +4,12 @@ import { UserController } from './user.controller';
 import { UserRepository } from './repositories/user.repository';
 import { PrismaService } from '../prisma/prisma.service';
 import { PasswordModule } from 'src/password/password.module';
+import { EmailModule } from 'src/email/email.module';
 
 @Module({
-  imports: [PasswordModule],
+  imports: [PasswordModule, EmailModule],
   controllers: [UserController],
-  providers: [
-    UserService,
-    UserRepository,
-    PrismaService,
-
-  ],
+  providers: [UserService, UserRepository, PrismaService],
+  exports: [UserService],
 })
-export class UserModule { }
+export class UserModule {}

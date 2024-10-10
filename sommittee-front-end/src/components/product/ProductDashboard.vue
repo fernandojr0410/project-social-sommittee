@@ -55,6 +55,7 @@ export default {
         });
       } catch (error) {
         console.error("Erro ao buscar dados da dashboard:", error);
+        throw error;
       }
     },
 
@@ -70,7 +71,7 @@ export default {
 
     renderChart() {
       const canvas = this.$refs.doughnutChart;
-      console.log("Canvas:", canvas);
+
       if (!canvas) {
         console.error("Canvas não encontrado!");
         return;

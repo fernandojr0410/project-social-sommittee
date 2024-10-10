@@ -53,10 +53,9 @@
 
           <v-dialog v-model="show2FAModal" width="460">
             <v-card>
-              <v-card-title
-                >Por favor, verifique seu e-mail para o código de
-                verificação.</v-card-title
-              >
+              <v-card-title>
+                Por favor, verifique seu e-mail para o código de verificação.
+              </v-card-title>
               <v-card-text>
                 <v-otp-input
                   v-model="otpCode"
@@ -104,6 +103,7 @@ export default {
       show2FAModal: false,
       userId: null,
       isSubmitting: false,
+      loginAttempts: 0,
     };
   },
   methods: {
@@ -121,13 +121,10 @@ export default {
       this.resetModals();
 
       try {
-        console.log("Iniciando o login...");
-
         const token = await grecaptcha.execute(
           process.env.VUE_APP_RECAPTCHA_SITE_KEY,
           { action: "login" }
         );
-        console.log("Token reCAPTCHA gerado:", token);
 
         const requestBody = {
           email: this.inputEmail,
@@ -135,38 +132,86 @@ export default {
           recaptchaToken: token,
         };
 
-        console.log("Enviando dados de login para o servidor:", requestBody);
         const response = await this.$store.dispatch("auth/login", requestBody);
+
+        if (response && response.accountLocked) {
+          this.openErrorModal(
+            "Conta bloqueada",
+            "Sua conta foi bloqueada devido a várias tentativas de login mal-sucedidas. Por favor, entre em contato com o administrador."
+          );
+          return;
+        }
 
         if (response && response.two_factor) {
           this.userId = response.user_id;
           this.show2FAModal = true;
+          this.loginAttempts = 0;
         } else {
-          console.error(
-            "Erro: Resposta inválida no fluxo de 2FA ou ID de usuário não encontrado."
-          );
+          router.push({ name: "dashboard" });
         }
       } catch (error) {
-        console.error("Erro durante o login:", error);
-        this.openErrorModal(
-          "Erro de autenticação!",
-          "Você não está autorizado. Tente novamente."
-        );
+        if (error.response && error.response.status === 404) {
+          const errorMessage = error.response.data.message;
+
+          if (errorMessage === "Usuário não encontrado!") {
+            this.openErrorModal(
+              "Usuário não encontrado",
+              "O e-mail informado não corresponde a nenhuma conta. Verifique o e-mail e tente novamente."
+            );
+            this.loginAttempts = 0;
+          } else if (errorMessage === "Credenciais inválidas!") {
+            this.loginAttempts += 1;
+
+            if (this.loginAttempts >= 3) {
+              this.openErrorModal(
+                "Conta bloqueada",
+                "Sua conta foi bloqueada devido a várias tentativas de login mal-sucedidas. Por favor, entre em contato com o administrador."
+              );
+            } else {
+              this.openErrorModal(
+                "Credenciais inválidas",
+                "A senha informada está incorreta. Por favor, tente novamente."
+              );
+            }
+          } else if (
+            errorMessage ===
+            "Conta bloqueada. Entre em contato com o administrador."
+          ) {
+            this.openErrorModal(
+              "Conta bloqueada",
+              "Sua conta foi bloqueada devido a várias tentativas de login mal-sucedidas. Por favor, entre em contato com o administrador."
+            );
+          }
+        } else {
+          this.openErrorModal(
+            "Erro de autenticação",
+            "Houve um problema ao tentar fazer login. Tente novamente mais tarde."
+          );
+        }
       } finally {
         this.isSubmitting = false;
       }
     },
+    async submitOtpCode() {
+      this.isSubmitting = true;
 
-    submitOtpCode() {
-      this.$store
-        .dispatch("auth/verifyTwoFactor", {
+      try {
+        const response = await this.$store.dispatch("auth/verifyTwoFactor", {
           code: this.otpCode,
           user_id: this.userId,
-        })
-
-        .catch((error) => {
-          console.error("Erro durante a verificação do código 2FA:", error);
         });
+
+        if (response.success) {
+          router.push({ name: "dashboard" });
+        } else {
+          this.openErrorModal(
+            "Erro de autenticação",
+            "Código inválido. Tente novamente."
+          );
+        }
+      } finally {
+        this.isSubmitting = false;
+      }
     },
 
     openErrorModal(title, text) {

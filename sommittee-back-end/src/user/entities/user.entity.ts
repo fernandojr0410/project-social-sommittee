@@ -10,6 +10,8 @@ export class UserEntity implements User {
   avatar_url: string;
   two_factor_secret: string;
   is_two_factor_enabled: boolean;
+  failed_attempts: number;
+  account_locked: boolean;
   created_at: Date;
   updated_at: Date;
   last_action: string;

@@ -135,6 +135,40 @@
               <v-col>
                 <v-text-field
                   v-if="createdUser"
+                  v-model="createdUser.failed_attempts"
+                  label="Tentativas de login"
+                  class="mr-3"
+                  type="number"
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+
+              <v-col>
+                <v-select
+                  v-if="createdUser"
+                  v-model="createdUser.account_locked"
+                  label="Conta bloqueada"
+                  class="mr-3"
+                  :items="[
+                    { value: true, text: 'Sim' },
+                    { value: false, text: 'Não' },
+                  ]"
+                  item-value="value"
+                  item-text="text"
+                  outlined
+                  dense
+                  hide-details
+                />
+              </v-col>
+            </v-row>
+
+            <v-row>
+              <v-col>
+                <v-text-field
+                  v-if="createdUser"
+                  readonly
                   outlined
                   dense
                   hide-details
@@ -196,6 +230,8 @@ export default {
         email: "",
         telephone: "",
         role: "",
+        failed_attempts: 0,
+        account_locked: false,
         password: "",
       };
     },
@@ -223,6 +259,8 @@ export default {
         email: this.createdUser.email,
         telephone: this.createdUser.telephone.replace(/[^0-9]/g, ""),
         role: this.createdUser.role,
+        failed_attempts: this.createdUser.failed_attempts,
+        account_locked: this.createdUser.account_locked,
         password: this.createdUser.password,
       };
 

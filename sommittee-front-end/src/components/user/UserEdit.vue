@@ -113,7 +113,37 @@
           <v-row>
             <v-col>
               <v-text-field
-                readonly
+                v-model="updatedUser.failed_attempts"
+                label="Tentativas de login"
+                class="mr-3"
+                type="number"
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+
+            <v-col>
+              <v-select
+                v-model="updatedUser.account_locked"
+                label="Conta bloqueada"
+                class="mr-3"
+                :items="[
+                  { value: true, text: 'Sim' },
+                  { value: false, text: 'Não' },
+                ]"
+                item-value="value"
+                item-text="text"
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col>
+              <v-text-field
                 outlined
                 dense
                 hide-details
@@ -164,6 +194,9 @@ export default {
       updatedUser: this.getUser(),
       loading: false,
       showPassword: false,
+      passwordGenerated: false,
+      failed_attempts: 0,
+      account_locked: false,
     };
   },
 
@@ -182,11 +215,17 @@ export default {
           this.updatedUser.telephone = this.formatTelephone(
             this.updatedUser.telephone
           );
+
           this.updatedUser.password = this.generatePassword(
             this.updatedUser.password
           );
         }
       },
+    },
+    "updatedUser.account_locked": function (newVal) {
+      if (newVal === false) {
+        this.updatedUser.failed_attempts = 0;
+      }
     },
   },
   methods: {
@@ -215,6 +254,8 @@ export default {
         email: "",
         telephone: this.formatTelephone(""),
         role: "",
+        failed_attempts: "",
+        account_locked: "",
         password: "",
       };
     },
@@ -228,26 +269,34 @@ export default {
       return password;
     },
     closeDialog() {
+      this.passwordGenerated = false;
       this.$emit("input", false);
     },
     async saveChanges() {
       try {
-        const userId = this.id;
+        if (this.updatedUser.account_locked === false) {
+          this.updatedUser.failed_attempts = 0;
+        }
+
         const updateData = {
-          id: userId,
-          payload: {
-            name: this.updatedUser.name,
-            identifier: this.updatedUser.identifier.replace(/\D/g, ""),
-            email: this.updatedUser.email,
-            telephone: this.updatedUser.telephone.replace(/[^0-9]/g, ""),
-            role: this.updatedUser.role,
-            password: this.updatedUser.password,
-          },
+          email: this.updatedUser.email,
+          name: this.updatedUser.name,
+          failed_attempts: this.updatedUser.failed_attempts,
+          account_locked: this.updatedUser.account_locked,
+          password: this.updatedUser.password,
+          identifier: this.updatedUser.identifier.replace(/\D/g, ""),
+          telephone: this.updatedUser.telephone.replace(/[^0-9]/g, ""),
+          role: this.updatedUser.role,
         };
-        const response = await this.$store.dispatch(
-          "userColaborator/update",
-          updateData
-        );
+
+        console.log("Payload enviado ao backend:", updateData);
+
+        const response = await this.$store.dispatch("userColaborator/update", {
+          id: this.id,
+          payload: updateData,
+        });
+
+        console.log("updated:", response);
         this.$success("Registro atualizado!");
         this.closeDialog();
         return response;

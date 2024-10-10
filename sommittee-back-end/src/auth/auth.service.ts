@@ -45,20 +45,48 @@ export class AuthService {
     email: string,
     password: string,
     recaptchaToken: string,
-  ): Promise<{ two_factor: boolean; user_id?: string }> {
+  ): Promise<{
+    two_factor: boolean;
+    user_id?: string;
+    accountLocked?: boolean;
+  }> {
     await this.recaptchaService.verifyToken(recaptchaToken, 'login');
+
     const user = await this.userRepository.findUserByEmail(email);
+
     if (!user) {
       throw new NotFoundException('Usuário não encontrado!');
     }
 
-    const isPasswordValid = await this.verifyUserPassword(email, password);
-    if (!isPasswordValid) {
-      throw new NotFoundException('Senha inválida!');
+    if (user.account_locked) {
+      return { two_factor: false, accountLocked: true };
     }
 
+    const isPasswordValid = await this.userRepository.verifyUserPassword(
+      email,
+      password,
+    );
+
+    if (!isPasswordValid) {
+      await this.userRepository.incrementFailedAttempts(user.id);
+
+      const updatedUser = await this.userRepository.findUserByEmail(email);
+
+      if (updatedUser.failed_attempts >= 3) {
+        await this.userRepository.lockAccount(user.id);
+        throw new NotFoundException(
+          'Conta bloqueada. Entre em contato com o administrador.',
+        );
+      }
+
+      throw new NotFoundException('Credenciais inválidas!');
+    }
+
+    await this.userRepository.resetFailedAttempts(user.id);
+
     await this.generateTwoFactorCode(user.email, user.name, user.id);
-    return { two_factor: true, user_id: user.id };
+
+    return { two_factor: true, user_id: user.id }; // Retorna true para 2FA
   }
 
   // async generateTwoFactorCode(
@@ -229,6 +257,8 @@ export class AuthService {
         email: true,
         telephone: true,
         role: true,
+        failed_attempts: true,
+        account_locked: true,
         avatar_url: true,
       },
     });

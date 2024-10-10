@@ -4,9 +4,20 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { NotFoundError } from '../common/errors/types/notFoundError';
 import { QueryUserDto } from './dto/query-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import * as bcrypt from 'bcryptjs';
+import { UserEntity } from './entities/user.entity';
+import { PasswordService } from 'src/password/password.service';
+import { EmailService } from 'src/email/email.service';
 @Injectable()
 export class UserService {
-  constructor(private readonly repository: UserRepository) {}
+  constructor(
+    private readonly repository: UserRepository,
+    passwordService: PasswordService,
+  ) {}
+
+  async unlockUserAccount(userId: string): Promise<void> {
+    await this.repository.unlockAccount(userId);
+  }
 
   async create(createUserDto: CreateUserDto) {
     return this.repository.create(createUserDto);
@@ -43,16 +54,25 @@ export class UserService {
     return result;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
-    return this.repository.update(id, updateUserDto);
-  }
+  async updateUserProfileAndPassword(
+    user_id: string,
+    email: string,
+    name: string,
+    password: string,
+    updateUserDto: UpdateUserDto,
+  ) {
+    console.log('Senha recebida no serviço:', password);
 
-  async findProfile(email: string) {
-    const userEmail = await this.repository.findProfile(email);
-    if (!userEmail) {
-      throw new NotFoundException('Usuário não encontrado!');
-    }
-    return userEmail;
+    const response = await this.repository.updateUserProfileAndPassword(
+      user_id,
+      email,
+      name,
+      password,
+      updateUserDto,
+    );
+
+    console.log('Response no serviço:', response);
+    return response;
   }
 
   async remove(id: string) {

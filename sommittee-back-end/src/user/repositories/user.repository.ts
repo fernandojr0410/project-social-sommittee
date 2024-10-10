@@ -4,41 +4,121 @@ import { UserEntity } from '../entities/user.entity';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { PasswordService } from 'src/password/password.service';
+import { EmailService } from 'src/email/email.service';
+import * as bcrypt from 'bcryptjs';
+import * as path from 'path';
+import * as fs from 'fs';
 
 @Injectable()
 export class UserRepository {
   constructor(
     private readonly prisma: PrismaService,
     private readonly passwordService: PasswordService,
+    private readonly emailService: EmailService,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<any> {
-    let generatedPassword = '';
+  // async create(createUserDto: CreateUserDto): Promise<any> {
+  //   let generatedPassword = '';
+
+  //   if (!createUserDto.password) {
+  //     generatedPassword = this.passwordService.generateRandomPassword();
+  //     createUserDto.password = generatedPassword;
+  //   }
+
+  //   const validationErrors = this.passwordService.validatePassword(
+  //     createUserDto.password,
+  //   );
+  //   if (validationErrors.length) {
+  //     throw new UnauthorizedException('Senha inválida');
+  //   }
+
+  //   createUserDto.password = await this.passwordService.hashPassword(
+  //     createUserDto.password,
+  //   );
+
+  //   const newUser = await this.prisma.user.create({
+  //     data: createUserDto,
+  //   });
+
+  //   return {
+  //     ...newUser,
+  //     plainPassword: generatedPassword,
+  //   };
+  // }
+  // async create(createUserDto: CreateUserDto): Promise<UserEntity> {
+  //   console.log(`Senha recebida no repositório: ${createUserDto.password}`);
+
+  //   if (!createUserDto.password) {
+  //     throw new Error('A senha é necessária para criar o usuário.');
+  //   }
+
+  //   // Gera o hash da senha recebida
+  //   const hashedPassword = await bcrypt.hash(
+  //     createUserDto.password,
+  //     await bcrypt.genSalt(),
+  //   );
+
+  //   const originalPassword = createUserDto.password;
+  //   createUserDto.password = hashedPassword;
+
+  //   const newUser = await this.prisma.user.create({
+  //     data: createUserDto,
+  //   });
+
+  //   console.log(`Usuário criado: ${newUser.name}`);
+  //   console.log(`Senha original: ${originalPassword}`);
+
+  //   const templatePath = path.resolve(
+  //     process.cwd(),
+  //     'src',
+  //     'email',
+  //     'html',
+  //     'NewUser.html',
+  //   );
+
+  //   const template = fs.readFileSync(templatePath, 'utf8');
+
+  //   const htmlContent = template
+  //     .replace('{{name}}', newUser.name)
+  //     .replace('{{newPassword}}', originalPassword);
+
+  //   try {
+  //     await this.emailService.sendEmailUser(
+  //       newUser.email,
+  //       'Sua conta foi criada com sucesso!',
+  //       htmlContent,
+  //     );
+  //     console.log('E-mail enviado com sucesso!');
+  //   } catch (error) {
+  //     console.error('Erro ao enviar o e-mail:', error);
+  //   }
+
+  //   return newUser;
+  // }
+
+  async create(createUserDto: CreateUserDto): Promise<UserEntity> {
+    console.log(`Senha recebida no repositório: ${createUserDto.password}`);
 
     if (!createUserDto.password) {
-      generatedPassword = this.passwordService.generateRandomPassword();
-      createUserDto.password = generatedPassword;
+      throw new Error('A senha é necessária para criar o usuário.');
     }
 
-    const validationErrors = this.passwordService.validatePassword(
+    const hashedPassword = await bcrypt.hash(
       createUserDto.password,
+      await bcrypt.genSalt(),
     );
-    if (validationErrors.length) {
-      throw new UnauthorizedException('Senha inválida');
-    }
 
-    createUserDto.password = await this.passwordService.hashPassword(
-      createUserDto.password,
-    );
+    const originalPassword = createUserDto.password;
+    createUserDto.password = hashedPassword;
 
     const newUser = await this.prisma.user.create({
       data: createUserDto,
     });
 
-    return {
-      ...newUser,
-      plainPassword: generatedPassword,
-    };
+    console.log(`Usuário criado: ${newUser.name}`);
+    console.log(`Senha original: ${originalPassword}`);
+
+    return newUser;
   }
 
   async findAll(query: any): Promise<UserEntity[]> {
@@ -81,6 +161,45 @@ export class UserRepository {
     });
   }
 
+  async incrementFailedAttempts(userId: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        failed_attempts: {
+          increment: 1,
+        },
+      },
+    });
+  }
+
+  async resetFailedAttempts(userId: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        failed_attempts: 0,
+      },
+    });
+  }
+
+  async lockAccount(userId: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        account_locked: true,
+      },
+    });
+  }
+
+  async unlockAccount(userId: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        account_locked: false,
+        failed_attempts: 0,
+      },
+    });
+  }
+
   async findUserByEmail(email: string): Promise<UserEntity | null> {
     return this.prisma.user.findFirst({
       where: {
@@ -89,11 +208,97 @@ export class UserRepository {
     });
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<UserEntity> {
-    return this.prisma.user.update({
-      where: { id },
-      data: updateUserDto,
+  async verifyUserPassword(email: string, password: string): Promise<boolean> {
+    const user = await this.findUserByEmail(email);
+    if (!user) return false;
+    return bcrypt.compare(password, user.password);
+  }
+
+  // async updateUserProfileAndPassword(
+  //   user_id: string,
+  //   email: string,
+  //   name: string,
+  //   password: string,
+  //   updateUserDto: UpdateUserDto,
+  // ): Promise<UserEntity> {
+  //   console.log(`Senha recebida no repositório: ${password}`);
+
+  //   if (!password) {
+  //     throw new Error('Senha é necessária para atualização.');
+  //   }
+
+  //   const hashedPassword = await bcrypt.hash(password, await bcrypt.genSalt());
+
+  //   const updatedUser = await this.prisma.user.update({
+  //     where: { id: user_id },
+  //     data: {
+  //       password: hashedPassword,
+  //       email: email,
+  //       name: name,
+  //       ...updateUserDto,
+  //     },
+  //   });
+
+  //   console.log(`Usuário atualizado: ${updatedUser.name}`);
+  //   console.log(`Nova senha: ${password}`);
+
+  //   const templatePath = path.resolve(
+  //     process.cwd(),
+  //     'src',
+  //     'email',
+  //     'html',
+  //     'NewPassword.html',
+  //   );
+
+  //   const template = fs.readFileSync(templatePath, 'utf8');
+
+  //   const htmlContent = template
+  //     .replace('{{name}}', name)
+  //     .replace('{{newPassword}}', password);
+
+  //   try {
+  //     await this.emailService.sendEmailUser(
+  //       email,
+  //       'Sua senha foi alterada',
+  //       htmlContent,
+  //     );
+  //     console.log('E-mail enviado com sucesso!');
+  //   } catch (error) {
+  //     console.error('Erro ao enviar o e-mail:', error);
+  //   }
+
+  //   return updatedUser;
+  // }
+
+  async updateUserProfileAndPassword(
+    user_id: string,
+    email: string,
+    name: string,
+    password: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UserEntity> {
+    console.log(`Senha recebida no repositório: ${password}`);
+
+    if (!password) {
+      throw new Error('Senha é necessária para atualização.');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, await bcrypt.genSalt());
+
+    const updatedUser = await this.prisma.user.update({
+      where: { id: user_id },
+      data: {
+        password: hashedPassword,
+        email: email,
+        name: name,
+        ...updateUserDto,
+      },
     });
+
+    console.log(`Usuário atualizado: ${updatedUser.name}`);
+    console.log(`Nova senha: ${password}`);
+
+    return updatedUser;
   }
 
   async remove(id: string): Promise<UserEntity> {
