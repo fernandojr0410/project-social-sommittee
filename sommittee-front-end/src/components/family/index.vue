@@ -32,29 +32,33 @@
           </template>
 
           <template v-slot:[`item.name`]="{ item }">
-            <span>
-              {{ item.people.name }}
-            </span>
-          </template>
-
-          <template v-slot:[`item.identifier`]="{ item }">
-            <span>{{ item.people.identifier | cpf }}</span>
+            <div v-if="item.people_family && item.people_family.length > 0">
+              <div
+                v-for="(familyMember, index) in item.people_family"
+                :key="index"
+              >
+                <span>{{
+                  familyMember.people?.name || "Nome não definido"
+                }}</span>
+              </div>
+            </div>
+            <span v-else>Sem membros cadastrados</span>
           </template>
 
           <template v-slot:[`item.zip_code`]="{ item }">
-            <span>{{ item.address.zip_code | cep }}</span>
+            <span>{{ item.address?.zip_code | cep }}</span>
           </template>
 
           <template v-slot:[`item.street`]="{ item }">
-            <span>{{ item.address.street }}</span>
+            <span>{{ item.address?.street }}</span>
           </template>
 
           <template v-slot:[`item.number`]="{ item }">
-            <span>{{ item.address.number }}</span>
+            <span>{{ item.address?.number }}</span>
           </template>
 
           <template v-slot:[`item.neighborhood`]="{ item }">
-            <span>{{ item.address.neighborhood }}</span>
+            <span>{{ item.address?.neighborhood }}</span>
           </template>
 
           <template v-slot:[`item.actions`]="{ item }">
@@ -272,7 +276,6 @@ export default {
       headers: [
         { text: "Data criação", value: "created_at" },
         { text: "Nome", value: "name" },
-        { text: "CPF", value: "identifier" },
         { text: "Função", value: "function" },
         { text: "CEP", value: "zip_code" },
         { text: "Rua", value: "street" },
@@ -337,34 +340,32 @@ export default {
     async handleSearch(search) {
       this.search = search;
     },
+
     showDetails(item) {
       this.selectedPeopleFamily = item;
 
       if (item.people_family && item.people_family.length > 0) {
-        this.familyMembers = item.people_family.map((personFamily) => ({
-          name: item.people.name,
-          function: personFamily.function,
-          address: item.address,
-        }));
+        this.familyMembers = item.people_family.map((personFamily) => {
+          return {
+            name: personFamily.people?.name || "Nome não definido",
+            function: personFamily.function || "Função não definida",
+            address: item.address || {},
+          };
+        });
       } else {
         this.familyMembers = [];
       }
 
       this.dialog = true;
     },
-    editItem(item) {
-      console.log("item.people_family:", item.people_family);
 
+    editItem(item) {
       if (item.people_family && item.people_family.length > 0) {
         this.familyMembers = item.people_family.map((personFamily) => {
-          const personName = personFamily.people?.name || "Nome não definido";
-          const personFunction = personFamily.function || "Função não definida";
-          const personAddress = item.address ? { ...item.address } : {};
-
           return {
-            name: personName,
-            function: personFunction,
-            address: personAddress,
+            name: personFamily.people?.name || "Nome não definido",
+            function: personFamily?.function || "Função não definida",
+            address: item.address || {},
           };
         });
       } else {
@@ -385,6 +386,7 @@ export default {
       console.log("updatedFamily:", this.updatedFamily);
       console.log("selectedFunction:", this.selectedFunction);
     },
+
     async saveUpdatedFamily(updatedFamily) {
       try {
         await this.$store.dispatch("family/update", updatedFamily);

@@ -46,18 +46,9 @@ export class UserController {
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     console.log('updateUserDto controller:', updateUserDto);
 
-    const { email, name, password, ...otherData } = updateUserDto;
-
-    if (!password) {
-      throw new Error('A senha é necessária para a atualização do perfil.');
-    }
-
     const response = await this.userService.updateUserProfileAndPassword(
       id,
-      email,
-      name,
-      password,
-      otherData,
+      updateUserDto,
     );
 
     console.log('Response no controller:', response);

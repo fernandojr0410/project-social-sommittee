@@ -51,7 +51,6 @@
             :button="modalButton"
           />
 
-          <!-- Modal para código de verificação 2FA via email -->
           <v-dialog v-model="show2FAModal" width="460">
             <v-card>
               <v-card-title>
@@ -77,7 +76,6 @@
             </v-card>
           </v-dialog>
 
-          <!-- Modal para código de verificação via SMS -->
           <v-dialog v-model="showSmsModal" width="460">
             <v-card>
               <v-card-title>Verificação por SMS</v-card-title>
@@ -85,7 +83,6 @@
                 <v-otp-input
                   v-model="smsCode"
                   label="Digite o código enviado via SMS"
-                  :length="4"
                   outlined
                 />
               </v-card-text>

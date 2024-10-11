@@ -56,18 +56,12 @@ export class UserService {
 
   async updateUserProfileAndPassword(
     user_id: string,
-    email: string,
-    name: string,
-    password: string,
     updateUserDto: UpdateUserDto,
   ) {
-    console.log('Senha recebida no serviço:', password);
+    console.log('Dados recebidos no serviço:', updateUserDto);
 
     const response = await this.repository.updateUserProfileAndPassword(
       user_id,
-      email,
-      name,
-      password,
       updateUserDto,
     );
 

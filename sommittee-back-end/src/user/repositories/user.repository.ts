@@ -223,10 +223,6 @@ export class UserRepository {
   // ): Promise<UserEntity> {
   //   console.log(`Senha recebida no repositório: ${password}`);
 
-  //   if (!password) {
-  //     throw new Error('Senha é necessária para atualização.');
-  //   }
-
   //   const hashedPassword = await bcrypt.hash(password, await bcrypt.genSalt());
 
   //   const updatedUser = await this.prisma.user.update({
@@ -271,34 +267,31 @@ export class UserRepository {
   // }
 
   async updateUserProfileAndPassword(
-    user_id: string,
-    email: string,
-    name: string,
-    password: string,
+    userId: string,
     updateUserDto: UpdateUserDto,
   ): Promise<UserEntity> {
-    console.log(`Senha recebida no repositório: ${password}`);
+    const { password, ...restOfUpdates } = updateUserDto;
 
-    if (!password) {
-      throw new Error('Senha é necessária para atualização.');
+    let hashedPassword: string | undefined = undefined;
+
+    if (password) {
+      hashedPassword = await bcrypt.hash(password, 10);
+      console.log('Senha recebida no repositório:', password);
+    } else {
+      console.log('Nenhuma senha fornecida, mantendo a senha atual.');
     }
 
-    const hashedPassword = await bcrypt.hash(password, await bcrypt.genSalt());
+    const updateData = {
+      ...restOfUpdates,
+      ...(hashedPassword && { password: hashedPassword }),
+    };
 
-    const updatedUser = await this.prisma.user.update({
-      where: { id: user_id },
-      data: {
-        password: hashedPassword,
-        email: email,
-        name: name,
-        ...updateUserDto,
-      },
+    console.log('Dados atualizados enviados para o banco:', updateData);
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: updateData,
     });
-
-    console.log(`Usuário atualizado: ${updatedUser.name}`);
-    console.log(`Nova senha: ${password}`);
-
-    return updatedUser;
   }
 
   async remove(id: string): Promise<UserEntity> {

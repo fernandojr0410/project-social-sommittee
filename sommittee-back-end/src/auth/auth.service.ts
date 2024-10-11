@@ -210,7 +210,7 @@ export class AuthService {
       );
     }
 
-    const smsCode = Math.floor(1000 + Math.random() * 9000).toString();
+    const smsCode = Math.floor(100000 + Math.random() * 900000).toString();
 
     await this.prisma.user.update({
       where: { id: userId },

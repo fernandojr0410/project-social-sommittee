@@ -16,7 +16,7 @@
           <v-row>
             <v-col>
               <v-autocomplete
-                v-model="updatedFamily"
+                v-model="selectedPerson"
                 :items="peopleList"
                 item-text="name"
                 item-value="id"
@@ -58,8 +58,9 @@
                 @click="addPersonToFamily"
                 color="green"
                 style="color: white; font-weight: bold; margin-right: 16px"
-                >Adicionar Pessoa</v-btn
               >
+                Adicionar Pessoa
+              </v-btn>
             </v-col>
           </v-row>
         </v-card>
@@ -222,6 +223,7 @@ export default {
       peopleList: [],
       familyMembers: [],
       selectedFunction: "",
+      selectedPerson: null,
       loading: false,
       rules: {
         required: (value) => !!value || "Campo obrigatório.",
@@ -246,9 +248,8 @@ export default {
           ) {
             this.familyMembers = this.updatedFamily.people_family.map(
               (personFamily) => {
-                const person = this.updatedFamily.people;
                 return {
-                  name: person?.name,
+                  name: personFamily.people?.name || "Nome não definido",
                   function: personFamily.function,
                   address: { ...this.updatedFamily.address },
                 };
@@ -257,9 +258,6 @@ export default {
           } else {
             this.familyMembers = [];
           }
-
-          this.selectedFunction =
-            this.updatedFamily.people_family?.[0]?.function || "";
         }
       },
     },
@@ -314,42 +312,99 @@ export default {
     },
 
     addPersonToFamily() {
-      if (this.updatedFamily && this.selectedFunction) {
-        const person = this.updatedFamily.people;
-        this.familyMembers.push({
-          id: person.id,
-          name: person?.name || "Nome não definido",
-          function: this.selectedFunction,
-          address: this.updatedFamily.address,
-        });
+      const selectedPerson = this.selectedPerson;
 
-        this.familyMembers = [...this.familyMembers];
-
-        this.selectedFunction = null;
+      if (!selectedPerson || !selectedPerson.id) {
+        this.$error("Selecione uma pessoa válida para adicionar à família.");
+        return;
       }
+
+      const existingPerson = this.familyMembers.find(
+        (member) => member.id === selectedPerson.id
+      );
+
+      if (existingPerson) {
+        this.$error("Essa pessoa já foi adicionada à família.");
+        return;
+      }
+
+      this.familyMembers.push({
+        id: selectedPerson.id,
+        name: selectedPerson.name || "Nome não definido",
+        function: this.selectedFunction,
+        address: this.updatedFamily.address,
+      });
+
+      this.familyMembers = [...this.familyMembers];
+      this.selectedFunction = null;
+      this.selectedPerson = null;
     },
 
     removePerson(index) {
       this.familyMembers.splice(index, 1);
     },
+
     async saveChanges() {
       try {
         const familyId = this.id;
+        console.log("familyId", familyId);
+
+        if (this.familyMembers.length === 0) {
+          this.$error("Adicione pelo menos um membro à família.");
+          return;
+        }
+
         const updateData = {
-          id: familyId,
-          payload: {
-            people_id: this.updatedFamily.id,
-            address_id: this.updatedFamily.address_id,
-            function: this.selectedFunction,
-          },
+          members: this.familyMembers.map((member) => ({
+            people_id: member.id || member.people_id,
+            address_id: member.address?.id || member.address_id,
+            address: {
+              zip_code: member.address?.zip_code || "",
+              street: member.address?.street || "",
+              number: member.address?.number || "",
+              complement: member.address?.complement || "",
+              neighborhood: member.address?.neighborhood || "",
+              city: member.address?.city || "",
+              state: member.address?.state || "",
+            },
+            people_family: {
+              function: member.function || "",
+            },
+            people: {
+              name: member.name || "",
+              identifier: member.identifier || "",
+              email: member.email || "",
+              birth_date: member.birth_date || "",
+              gender: member.gender || "",
+              telephone: member.telephone || "",
+              education: member.education || "",
+              work: member.work || false,
+            },
+          })),
         };
 
-        await this.$store.dispatch("family/update", updateData);
-        this.$success("Registro atualizado!");
-        this.$emit("input", false);
+        console.log("updateData", updateData);
+
+        if (!updateData.members || updateData.members.length === 0) {
+          this.$error("O payload de membros está vazio.");
+          return;
+        }
+
+        const response = await this.$store.dispatch("family/update", {
+          id: familyId,
+          ...updateData,
+        });
+
+        console.log("family/update", response);
+
+        if (response) {
+          this.$success("Registro atualizado com sucesso!");
+          this.$emit("input", false);
+          return response;
+        }
       } catch (error) {
-        this.$error("Erro ao atualizar!");
-        throw error;
+        this.$error("Erro ao atualizar o registro!");
+        console.error("Erro ao atualizar:", error);
       }
     },
     searchPeople(search) {

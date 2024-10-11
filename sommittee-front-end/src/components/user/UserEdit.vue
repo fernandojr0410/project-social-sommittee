@@ -3,6 +3,8 @@
     :value="value"
     @input="(value) => $emit('input', value)"
     max-width="900px"
+    @close="resetPasswordEdit"
+    @open="resetPasswordEdit"
   >
     <v-card>
       <v-card-title class="d-flex justify-space-between items-center">
@@ -112,29 +114,10 @@
 
           <v-row>
             <v-col>
-              <v-text-field
-                v-model="updatedUser.failed_attempts"
-                label="Tentativas de login"
-                class="mr-3"
-                type="number"
-                outlined
-                dense
-                hide-details
-              />
-            </v-col>
-
-            <v-col>
-              <v-select
-                v-model="updatedUser.account_locked"
-                label="Conta bloqueada"
-                class="mr-3"
-                :items="[
-                  { value: true, text: 'Sim' },
-                  { value: false, text: 'Não' },
-                ]"
-                item-value="value"
-                item-text="text"
-                outlined
+              <v-checkbox
+                v-model="enablePasswordEdit"
+                label="Habilitar edição da senha"
+                @change="handlePasswordEditToggle"
                 dense
                 hide-details
               />
@@ -152,6 +135,7 @@
                 v-model="updatedUser.password"
                 label="Senha"
                 @click:append="togglePasswordVisibility"
+                :disabled="!enablePasswordEdit"
                 style="width: 98.5%"
               />
             </v-col>
@@ -194,9 +178,7 @@ export default {
       updatedUser: this.getUser(),
       loading: false,
       showPassword: false,
-      passwordGenerated: false,
-      failed_attempts: 0,
-      account_locked: false,
+      enablePasswordEdit: false,
     };
   },
 
@@ -216,9 +198,8 @@ export default {
             this.updatedUser.telephone
           );
 
-          this.updatedUser.password = this.generatePassword(
-            this.updatedUser.password
-          );
+          this.updatedUser.password = "*****";
+          this.enablePasswordEdit = false;
         }
       },
     },
@@ -247,6 +228,17 @@ export default {
     togglePasswordVisibility() {
       this.showPassword = !this.showPassword;
     },
+    handlePasswordEditToggle() {
+      if (this.enablePasswordEdit) {
+        this.updatedUser.password = this.generatePassword();
+      } else {
+        this.updatedUser.password = "*****";
+      }
+    },
+    resetPasswordEdit() {
+      this.enablePasswordEdit = false;
+      this.updatedUser.password = "*****";
+    },
     getUser() {
       return {
         name: "",
@@ -256,7 +248,7 @@ export default {
         role: "",
         failed_attempts: "",
         account_locked: "",
-        password: "",
+        password: "*****",
       };
     },
     generatePassword() {
@@ -269,8 +261,8 @@ export default {
       return password;
     },
     closeDialog() {
-      this.passwordGenerated = false;
       this.$emit("input", false);
+      this.resetPasswordEdit();
     },
     async saveChanges() {
       try {
@@ -283,7 +275,9 @@ export default {
           name: this.updatedUser.name,
           failed_attempts: this.updatedUser.failed_attempts,
           account_locked: this.updatedUser.account_locked,
-          password: this.updatedUser.password,
+          password: this.enablePasswordEdit
+            ? this.updatedUser.password
+            : undefined,
           identifier: this.updatedUser.identifier.replace(/\D/g, ""),
           telephone: this.updatedUser.telephone.replace(/[^0-9]/g, ""),
           role: this.updatedUser.role,

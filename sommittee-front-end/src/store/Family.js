@@ -5,12 +5,13 @@ const state = {
 }
 
 const mutations = {
-  CREATE_FAMILY(state, newFamily) {
-    state.family.push(newFamily)
-  },
 
   SET_FAMILY(state, family) {
     state.family = family
+  },
+
+  CREATE_FAMILY(state, newFamily) {
+    state.family.push(newFamily)
   },
 
   UPDATE_FAMILY(state, updatedFamily) {

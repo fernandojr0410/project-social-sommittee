@@ -38,6 +38,7 @@
                     dense
                     hide-details
                     @update:search-input="searchPeople"
+                    @change="updateAddressFields"
                   />
                 </v-col>
 
@@ -96,7 +97,7 @@
                     inactive
                   >
                     <v-list-item-content>
-                      <v-list-item-title>
+                      <v-list-item-title v-if="person.name">
                         <strong>Nome:</strong> {{ person.name }}
                       </v-list-item-title>
                       <v-list-item-subtitle>
@@ -127,27 +128,25 @@
               <v-row>
                 <v-col>
                   <v-text-field
-                    v-if="selectedPeople && selectedPeople.address"
-                    v-model="selectedPeople.address.zip_code"
+                    v-model="addressFields.zip_code"
                     class="mr-3"
                     label="CEP"
                     v-mask="'#####-###'"
-                    readonly
                     outlined
                     dense
                     hide-details
+                    :readonly="!!selectedPeople.address"
                   />
                 </v-col>
                 <v-col>
                   <v-text-field
-                    v-if="selectedPeople && selectedPeople.address"
-                    v-model="selectedPeople.address.street"
+                    v-model="addressFields.street"
                     label="Rua"
                     class="mr-3"
-                    readonly
                     outlined
                     dense
                     hide-details
+                    :readonly="!!selectedPeople.address"
                   />
                 </v-col>
               </v-row>
@@ -155,26 +154,24 @@
               <v-row>
                 <v-col>
                   <v-text-field
-                    v-if="selectedPeople && selectedPeople.address"
-                    v-model="selectedPeople.address.number"
+                    v-model="addressFields.number"
                     label="Número"
                     class="mr-3"
-                    readonly
                     outlined
                     dense
                     hide-details
+                    :readonly="!!selectedPeople.address"
                   />
                 </v-col>
                 <v-col>
                   <v-text-field
-                    v-if="selectedPeople && selectedPeople.address"
-                    v-model="selectedPeople.address.neighborhood"
+                    v-model="addressFields.neighborhood"
                     label="Bairro"
                     class="mr-3"
-                    readonly
                     outlined
                     dense
                     hide-details
+                    :readonly="!!selectedPeople.address"
                   />
                 </v-col>
               </v-row>
@@ -182,14 +179,13 @@
               <v-row>
                 <v-col>
                   <v-text-field
-                    v-if="selectedPeople && selectedPeople.address"
-                    v-model="selectedPeople.address.complement"
+                    v-model="addressFields.complement"
                     label="Complemento"
                     class="mr-3"
-                    readonly
                     outlined
                     dense
                     hide-details
+                    :readonly="!!selectedPeople.address"
                   />
                 </v-col>
               </v-row>
@@ -197,12 +193,13 @@
               <v-row>
                 <v-col>
                   <v-text-field
-                    v-if="selectedPeople && selectedPeople.address"
                     v-model="cityAndState"
                     label="Cidade"
                     outlined
                     dense
                     hide-details
+                    readonly
+                    style="width: 98.5%"
                   />
                 </v-col>
               </v-row>
@@ -232,8 +229,6 @@
 </template>
 
 <script>
-import { states } from "@/assets/state";
-
 export default {
   name: "FamilyCreate",
   data() {
@@ -244,45 +239,32 @@ export default {
       peopleList: [],
       familyMembers: [],
       loading: false,
+      addressFields: {
+        zip_code: "",
+        street: "",
+        number: "",
+        complement: "",
+        neighborhood: "",
+      },
       rules: {
         required: (value) => !!value || "Campo obrigatório.",
       },
-      states,
     };
   },
   computed: {
     cityAndState() {
-      const city = this.selectedPeople.address.city || "";
-      const state = this.selectedPeople.address.state || "";
+      const city =
+        this.selectedPeople.address?.city || this.addressFields.city || "";
+      const state =
+        this.selectedPeople.address?.state || this.addressFields.state || "";
       return city && state ? `${city}, ${state}` : city || state;
     },
   },
   methods: {
-    getPeople() {
-      return {
-        name: "",
-        identifier: "",
-        birth_date: "",
-        email: "",
-        telephone: "",
-        gender: "",
-        work: "",
-        education: "",
-        address: {
-          zip_code: "",
-          street: "",
-          number: "",
-          complement: "",
-          neighborhood: "",
-          city: "",
-          state: "",
-        },
-        people_family: [],
-      };
-    },
     openDialog() {
       this.dialog = true;
-      this.selectedPeople = this.getPeople();
+      this.clearAddressFields();
+      this.selectedPeople = {};
       this.selectedFunction = "";
     },
     closeDialog() {
@@ -292,8 +274,9 @@ export default {
     async fetchPeople(search = "") {
       this.loading = true;
       try {
-        const response = await this.findAll(search);
-
+        const response = await this.$store.dispatch("people/findAll", {
+          search,
+        });
         this.peopleList = response;
       } catch (error) {
         this.$error("Erro ao carregar dados!");
@@ -302,76 +285,116 @@ export default {
         this.loading = false;
       }
     },
-    async findAll(search) {
-      return await this.$store.dispatch("people/findAll", { search });
-    },
+
     addPersonToFamily() {
       if (this.selectedPeople && this.selectedFunction) {
-        this.familyMembers.push({
-          id: this.selectedPeople.id,
+        const person = {
+          people_id: String(this.selectedPeople.id),
           name: this.selectedPeople.name,
+          identifier: this.selectedPeople.identifier,
+          email: this.selectedPeople.email,
+          birth_date: this.selectedPeople.birth_date,
+          gender: this.selectedPeople.gender,
+          telephone: this.selectedPeople.telephone,
+          education: this.selectedPeople.education,
+          work: this.selectedPeople.work,
+          address_id: this.selectedPeople.address_id,
+          address: {
+            zip_code: this.selectedPeople.address.zip_code || "",
+            street: this.selectedPeople.address.street || "",
+            number: this.selectedPeople.address.number || "",
+            complement: this.selectedPeople.address.complement || "",
+            neighborhood: this.selectedPeople.address.neighborhood || "",
+            city: this.selectedPeople.address.city || "",
+            state: this.selectedPeople.address.state || "",
+          },
           function: this.selectedFunction,
-          address: this.selectedPeople.address,
-        });
+        };
+
+        const existingPerson = this.familyMembers.find(
+          (member) => member.people_id === person.people_id
+        );
+
+        if (!existingPerson) {
+          this.familyMembers.push(person);
+        } else {
+          this.$error("Essa pessoa já foi adicionada à família.");
+        }
 
         this.selectedFunction = null;
+        this.selectedPeople = {};
+        this.peopleList = [];
       }
     },
+
+    clearAddressFields() {
+      this.addressFields = {
+        zip_code: "",
+        street: "",
+        number: "",
+        complement: "",
+        neighborhood: "",
+        city: "",
+        state: "",
+      };
+    },
+
+    updateAddressFields() {
+      if (this.selectedPeople && this.selectedPeople.address) {
+        this.addressFields = {
+          zip_code: this.selectedPeople.address.zip_code || "",
+          street: this.selectedPeople.address.street || "",
+          number: this.selectedPeople.address.number || "",
+          complement: this.selectedPeople.address.complement || "",
+          neighborhood: this.selectedPeople.address.neighborhood || "",
+          city: this.selectedPeople.address.city || "",
+          state: this.selectedPeople.address.state || "",
+        };
+      } else {
+        this.clearAddressFields();
+      }
+    },
+
     removePerson(index) {
       this.familyMembers.splice(index, 1);
     },
 
-    // async createFamily() {
-    //   if (!this.familyMembers.length) {
-    //     this.$error("Adicione pelo menos uma pessoa à família.");
-    //     return;
-    //   }
-
-    //   const familyData = this.familyMembers.map((person) => ({
-    //     people_id: person.id,
-    //     address_id: this.selectedPeople?.address_id,
-    //     function: person.function,
-    //   }));
-
-    //   try {
-    //     for (const familyMember of familyData) {
-    //       const response = await this.$store.dispatch(
-    //         "family/create",
-    //         familyMember
-    //       );
-    //       if (response) {
-    //         this.$success("Família criada com sucesso!");
-    //         this.$store.dispatch("family/findAll");
-    //         this.closeDialog();
-    //         this.selectedFunction = "";
-    //         this.familyMembers = [];
-    //         this.selectedPeople = this.getPeople();
-    //       } else {
-    //         this.$error("Erro ao criar a família!");
-    //       }
-    //     }
-    //   } catch (error) {
-    //     this.$error("Erro ao criar a família!");
-    //     throw error;
-    //   }
-    // },
     async createFamily() {
       if (!this.familyMembers.length) {
         this.$error("Adicione pelo menos uma pessoa à família.");
         return;
       }
 
-      // Criação do objeto da família com endereço e dados de pessoas
       const familyData = {
-        address_id: this.selectedPeople?.address_id, // ID do endereço associado
         members: this.familyMembers.map((person) => ({
-          people_id: person.id,
-          function: person.function,
+          people_id: String(person.people_id),
+          address_id: String(person.address_id),
+          address: {
+            zip_code: person.address.zip_code,
+            street: person.address.street,
+            number: person.address.number,
+            complement: person.address.complement,
+            neighborhood: person.address.neighborhood,
+            city: person.address.city,
+            state: person.address.state,
+          },
+          people: {
+            name: person.name,
+            identifier: person.identifier,
+            email: person.email,
+            birth_date: person.birth_date,
+            gender: person.gender,
+            telephone: person.telephone,
+            education: person.education,
+            work: person.work,
+          },
+          people_family: {
+            function: person.function,
+          },
         })),
       };
 
       try {
-        // Criar a família uma vez e associar todos os membros
         const response = await this.$store.dispatch(
           "family/create",
           familyData
@@ -383,7 +406,7 @@ export default {
           this.closeDialog();
           this.selectedFunction = "";
           this.familyMembers = [];
-          this.selectedPeople = this.getPeople();
+          this.selectedPeople = {};
         } else {
           this.$error("Erro ao criar a família!");
         }
@@ -392,11 +415,12 @@ export default {
         throw error;
       }
     },
+
     searchPeople(search) {
+      this.peopleList = [];
+
       if (search && search.length > 2) {
         this.fetchPeople(search);
-      } else {
-        this.peopleList = [];
       }
     },
   },
