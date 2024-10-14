@@ -89,7 +89,11 @@
                   </v-list-item-title>
                   <v-list-item-subtitle>
                     <strong>Função:</strong>
-                    {{ person.function | functionFamily }}
+                    {{
+                      person.people_family && person.people_family.function
+                        ? person.people_family.function
+                        : "Não definida" | functionFamily
+                    }}
                   </v-list-item-subtitle>
                 </v-list-item-content>
                 <v-list-item-action>
@@ -242,6 +246,10 @@ export default {
             id
           );
 
+          if (!this.updatedFamily.address_id) {
+            this.$error("O endereço da família não está definido.");
+          }
+
           if (
             this.updatedFamily.people_family &&
             this.updatedFamily.people_family.length > 0
@@ -249,9 +257,15 @@ export default {
             this.familyMembers = this.updatedFamily.people_family.map(
               (personFamily) => {
                 return {
+                  people_id: personFamily.people_id || "",
                   name: personFamily.people?.name || "Nome não definido",
-                  function: personFamily.function,
-                  address: { ...this.updatedFamily.address },
+                  people_family: {
+                    function: personFamily.function || "Não definida",
+                  },
+                  address: {
+                    address_id: this.updatedFamily.address_id || "Not defined",
+                    ...this.updatedFamily.address,
+                  },
                 };
               }
             );
@@ -319,8 +333,15 @@ export default {
         return;
       }
 
+      const addressId = this.updatedFamily?.address_id || null;
+
+      if (!addressId) {
+        this.$error("O endereço não está definido para a família.");
+        return;
+      }
+
       const existingPerson = this.familyMembers.find(
-        (member) => member.id === selectedPerson.id
+        (member) => member.people_id === selectedPerson.id
       );
 
       if (existingPerson) {
@@ -329,25 +350,34 @@ export default {
       }
 
       this.familyMembers.push({
-        id: selectedPerson.id,
+        people_id: selectedPerson.id,
+        address_id: addressId,
+        people_family: {
+          function: this.selectedFunction || "Função não definida",
+        },
         name: selectedPerson.name || "Nome não definido",
-        function: this.selectedFunction,
-        address: this.updatedFamily.address,
+        address: this.updatedFamily.address || {},
       });
 
-      this.familyMembers = [...this.familyMembers];
       this.selectedFunction = null;
       this.selectedPerson = null;
     },
 
     removePerson(index) {
+      const memberToRemove = this.familyMembers[index];
+      if (memberToRemove.people_id) {
+        if (!this.removedMembers) {
+          this.removedMembers = [];
+        }
+        this.removedMembers.push({ people_id: memberToRemove.people_id });
+      }
+
       this.familyMembers.splice(index, 1);
     },
 
     async saveChanges() {
       try {
         const familyId = this.id;
-        console.log("familyId", familyId);
 
         if (this.familyMembers.length === 0) {
           this.$error("Adicione pelo menos um membro à família.");
@@ -355,58 +385,57 @@ export default {
         }
 
         const updateData = {
-          members: this.familyMembers.map((member) => ({
-            people_id: member.id || member.people_id,
-            address_id: member.address?.id || member.address_id,
-            address: {
-              zip_code: member.address?.zip_code || "",
-              street: member.address?.street || "",
-              number: member.address?.number || "",
-              complement: member.address?.complement || "",
-              neighborhood: member.address?.neighborhood || "",
-              city: member.address?.city || "",
-              state: member.address?.state || "",
-            },
-            people_family: {
-              function: member.function || "",
-            },
-            people: {
-              name: member.name || "",
-              identifier: member.identifier || "",
-              email: member.email || "",
-              birth_date: member.birth_date || "",
-              gender: member.gender || "",
-              telephone: member.telephone || "",
-              education: member.education || "",
-              work: member.work || false,
-            },
-          })),
+          members: this.familyMembers.map((member, index) => {
+            const addressId =
+              member.address_id || this.updatedFamily.address_id;
+
+            if (!addressId) {
+              this.$error(`Endereço não definido para o membro ${index + 1}.`);
+              throw new Error(`address_id ausente para o membro ${index + 1}`);
+            }
+
+            return {
+              people_id: member.people_id || "",
+              address_id: addressId,
+              people_family: {
+                function:
+                  member.people_family?.function || "Função não definida",
+              },
+              address: {
+                zip_code: member.address?.zip_code || "",
+                street: member.address?.street || "",
+                number: member.address?.number || "",
+                complement: member.address?.complement || "",
+                neighborhood: member.address?.neighborhood || "",
+                city: member.address?.city || "",
+                state: member.address?.state || "",
+              },
+            };
+          }),
+          removedMembers: this.removedMembers || [],
         };
 
-        console.log("updateData", updateData);
-
-        if (!updateData.members || updateData.members.length === 0) {
-          this.$error("O payload de membros está vazio.");
-          return;
-        }
+        console.log("Payload para atualização", updateData);
 
         const response = await this.$store.dispatch("family/update", {
           id: familyId,
-          ...updateData,
+          payload: updateData,
         });
-
-        console.log("family/update", response);
 
         if (response) {
           this.$success("Registro atualizado com sucesso!");
           this.$emit("input", false);
-          return response;
         }
+
+        this.selectedFunction = null;
+        this.selectedPerson = null;
+        this.removedMembers = [];
       } catch (error) {
-        this.$error("Erro ao atualizar o registro!");
         console.error("Erro ao atualizar:", error);
+        this.$error("Erro ao atualizar o registro!");
       }
     },
+
     searchPeople(search) {
       if (search && search.length > 2) {
         this.fetchPeople(search);

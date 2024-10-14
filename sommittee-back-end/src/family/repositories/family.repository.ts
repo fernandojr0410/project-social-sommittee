@@ -142,10 +142,33 @@ export class FamilyRepository {
     return await this.prisma.family.findFirst({
       where: { id },
       include: {
-        address: true,
+        address: {
+          select: {
+            zip_code: true,
+            street: true,
+            number: true,
+            complement: true,
+            neighborhood: true,
+            city: true,
+            state: true,
+          },
+        },
         people_family: {
-          include: {
-            people: true,
+          select: {
+            function: true,
+            people_id: true,
+            people: {
+              select: {
+                name: true,
+                identifier: true,
+                email: true,
+                birth_date: true,
+                gender: true,
+                telephone: true,
+                work: true,
+                education: true,
+              },
+            },
           },
         },
       },
@@ -156,7 +179,7 @@ export class FamilyRepository {
     id: string,
     updateFamilyDto: Partial<UpdateFamilyDto>,
   ): Promise<FamilyEntity> {
-    const { members } = updateFamilyDto;
+    const { members, removedMembers } = updateFamilyDto;
 
     return await this.prisma.$transaction(async (prisma) => {
       const updatedFamily = await prisma.family.update({
@@ -182,37 +205,66 @@ export class FamilyRepository {
           },
         });
 
-        await prisma.people_Family.updateMany({
-          where: { family_id: id, people_id: people_id },
-          data: {
-            function: people_family?.function,
+        const existingMember = await prisma.people_Family.findFirst({
+          where: {
+            people_id: people_id,
+            family_id: id,
           },
         });
+
+        if (existingMember) {
+          await prisma.people_Family.update({
+            where: { id: existingMember.id },
+            data: {
+              function: people_family?.function,
+            },
+          });
+        } else {
+          await prisma.people_Family.create({
+            data: {
+              family_id: id,
+              people_id: people_id,
+              function: people_family?.function,
+            },
+          });
+        }
+      }
+
+      if (removedMembers && removedMembers.length > 0) {
+        for (const member of removedMembers) {
+          await prisma.people_Family.deleteMany({
+            where: {
+              people_id: member.people_id,
+              family_id: id,
+            },
+          });
+        }
       }
 
       const familyWithMembers = await prisma.family.findUnique({
         where: { id: updatedFamily.id },
         include: {
+          address: true,
           people_family: {
             include: {
               people: true,
             },
           },
-          address: true,
         },
       });
 
       return {
         id: familyWithMembers.id,
-        people_id: familyWithMembers.people_family[0]?.people.id,
-        address_id: familyWithMembers.address.id,
         created_at: familyWithMembers.created_at,
         updated_at: familyWithMembers.updated_at,
+        address_id: familyWithMembers.address.id,
         address: familyWithMembers.address,
-        members: familyWithMembers.people_family.map((pf) => ({
-          people_id: pf.people.id,
-          address_id: familyWithMembers.address.id,
-          address: familyWithMembers.address,
+        people_id:
+          familyWithMembers.people_family.length > 0
+            ? familyWithMembers.people_family[0].people.id
+            : null,
+        people_family: familyWithMembers.people_family.map((pf) => ({
+          function: pf.function,
           people: {
             name: pf.people.name,
             identifier: pf.people.identifier,
@@ -220,11 +272,8 @@ export class FamilyRepository {
             birth_date: pf.people.birth_date,
             gender: pf.people.gender,
             telephone: pf.people.telephone,
-            education: pf.people.education,
             work: pf.people.work,
-          },
-          people_family: {
-            function: pf.function,
+            education: pf.people.education,
           },
         })),
       };

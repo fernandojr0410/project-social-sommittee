@@ -33,14 +33,16 @@
 
           <template v-slot:[`item.name`]="{ item }">
             <div v-if="item.people_family && item.people_family.length > 0">
-              <div
-                v-for="(familyMember, index) in item.people_family"
-                :key="index"
-              >
-                <span>{{
-                  familyMember.people?.name || "Nome não definido"
-                }}</span>
-              </div>
+              <span>
+                {{
+                  item.people_family
+                    .map(
+                      (familyMember) =>
+                        familyMember.people?.name || "Nome não definido"
+                    )
+                    .join(" | ")
+                }}
+              </span>
             </div>
             <span v-else>Sem membros cadastrados</span>
           </template>
@@ -381,10 +383,6 @@ export default {
       };
 
       this.editDialog = true;
-
-      console.log("familyMembers:", this.familyMembers);
-      console.log("updatedFamily:", this.updatedFamily);
-      console.log("selectedFunction:", this.selectedFunction);
     },
 
     async saveUpdatedFamily(updatedFamily) {
