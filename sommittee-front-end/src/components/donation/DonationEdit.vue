@@ -33,7 +33,7 @@
                   >
                     <template v-slot:activator="{ on, attrs }">
                       <v-text-field
-                        v-model="dateFormatted"
+                        v-model="d"
                         label="Data de entrega"
                         prepend-icon="mdi-calendar"
                         v-bind="attrs"

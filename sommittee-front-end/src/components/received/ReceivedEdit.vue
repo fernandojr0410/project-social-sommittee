@@ -37,7 +37,7 @@
                     label="Data recebimento"
                     prepend-icon="mdi-calendar"
                     v-bind="attrs"
-                    @blur="updateBirthDate"
+                    @blur="updateDate"
                     v-on="on"
                     outlined
                     dense
@@ -78,9 +78,7 @@
                 </template>
 
                 <template v-slot:selection="{ item }">
-                  <span class="caption">
-                    {{ item.name }}
-                  </span>
+                  <span class="caption">{{ item.name }}</span>
                 </template>
               </v-autocomplete>
             </v-col>
@@ -205,6 +203,7 @@
                 outlined
                 dense
                 hide-details
+                style="width: 98.5%"
               />
             </v-col>
           </v-row>
@@ -364,6 +363,8 @@ export default {
     id: {
       immediate: true,
       handler: async function (id) {
+        this.fetchUser();
+        this.fetchDonor();
         if (id) {
           this.updatedReceived = await this.$store.dispatch(
             "received/findById",
@@ -371,7 +372,21 @@ export default {
           );
 
           if (this.updatedReceived.user) {
-            this.selectedUser = this.updatedReceived.user;
+            this.selectedUser = {
+              ...this.updatedReceived.user,
+              id: this.updatedReceived.user_id,
+            };
+          }
+
+          if (this.updatedReceived.donor) {
+            this.selectedDonor = {
+              ...this.updatedReceived.donor,
+              id: this.updatedReceived.donor_id,
+            };
+          }
+
+          if (this.updatedReceived.date) {
+            this.dateFormatted = this.formatDate(this.updatedReceived.date);
           }
 
           if (this.updatedReceived.products) {
@@ -380,26 +395,16 @@ export default {
         }
       },
     },
-    selectedUser(newValue) {
-      if (newValue) {
-        this.updatedReceived.user = { ...newValue };
-      } else {
-        this.updatedReceived.user = this.getReceived().user;
-      }
-    },
-
-    selectedDonor(newValue) {
-      if (newValue) {
-        this.updatedReceived.donor = { ...newValue };
-      } else {
-        this.updatedReceived.donor = this.getReceived().donor;
-      }
-    },
+    // search: function (search) {
+    //   clearTimeout(this.timeout)
+    //   this.timeout = setTimeout(() => this.fetchUser(search), 500);
+    // }
   },
+
   methods: {
     getReceived() {
       return {
-        date: new Date().toISOString().split("T")[0],
+        date: "",
         condition_product: "",
         description: "",
         products: [],
@@ -427,24 +432,33 @@ export default {
     updateFormattedDate(date) {
       if (date) {
         const adjustedDate = new Date(date);
+
         adjustedDate.setHours(
           adjustedDate.getHours() + adjustedDate.getTimezoneOffset() / 60
         );
+
         this.updatedReceived.date = adjustedDate.toISOString().split("T")[0];
+
         this.dateFormatted = this.formatDate(adjustedDate);
       }
       this.menu1 = false;
     },
 
-    updateBirthDate() {
+    updateDate() {
       this.updatedReceived.date = this.parseDate(this.dateFormatted);
     },
 
     formatDate(date) {
-      const d = new Date(date);
-      if (isNaN(d.getTime())) return "";
-      const options = { year: "numeric", month: "2-digit", day: "2-digit" };
-      return new Intl.DateTimeFormat("pt-BR", options).format(d);
+      if (date instanceof Date) {
+        date = date.toISOString();
+      }
+
+      if (typeof date === "string") {
+        const [year, month, day] = date.split("T")[0].split("-");
+        return `${day.padStart(2, "0")}/${month.padStart(2, "0")}/${year}`;
+      }
+
+      return "";
     },
 
     parseDate(date) {
@@ -492,9 +506,12 @@ export default {
         });
         return responseDonor;
       } else if (type === "user") {
-        const responseUser = await this.$store.dispatch("user/findAll", {
-          search,
-        });
+        const responseUser = await this.$store.dispatch(
+          "userColaborator/findAll",
+          {
+            search,
+          }
+        );
         return responseUser;
       }
     },
@@ -503,7 +520,10 @@ export default {
       this.userList = [];
       try {
         const response = await this.findAll(search, "user");
-        if (
+
+        if (response && Array.isArray(response)) {
+          this.userList = response;
+        } else if (
           response &&
           response.dataUsers &&
           Array.isArray(response.dataUsers)
@@ -511,7 +531,7 @@ export default {
           this.userList = response.dataUsers;
         }
       } catch (error) {
-        this.error("Erro ao selecionar doador!");
+        this.$error("Erro ao selecionar usuário!");
         throw error;
       }
     },
@@ -531,7 +551,7 @@ export default {
 
     async saveChanges() {
       const updateData = {
-        date: this.date,
+        date: this.updatedReceived.date,
         condition_product: this.updatedReceived.condition_product,
         description: this.updatedReceived.description || "",
         user_id: this.selectedUser?.id,
@@ -549,14 +569,17 @@ export default {
           amount: Number(item.amount),
         })),
       };
-
+      console.log("updateData", updateData);
       try {
         const response = await this.$store.dispatch("received/update", {
           id: this.id,
           payload: updateData,
         });
 
+        console.log("payload", response);
+
         if (response) {
+          console.log("registro atualizado!", response);
           this.$success("Registro atualizado!");
           this.$emit("input", false);
           this.selectedProduct = "";
@@ -585,10 +608,6 @@ export default {
         this.donorList = [];
       }
     },
-  },
-  mounted() {
-    const today = new Date();
-    this.dateFormatted = this.formatDate(today);
   },
 };
 </script>

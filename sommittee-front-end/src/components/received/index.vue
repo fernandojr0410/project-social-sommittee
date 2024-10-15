@@ -17,12 +17,13 @@
             'show-current-page': true,
           }"
         >
-          <template v-slot:[`item.created_at`]="{ item }">
-            <span>{{ formatDate(item.created_at) }}</span>
+          <template v-slot:[`item.date`]="{ item }">
+            <span>{{ formatDate(item.date) }}</span>
           </template>
 
           <template v-slot:[`item.name`]="{ item }">
-            <span>{{ item.donor.name }}</span>
+            <span v-if="item.donor">{{ item.donor.name }}</span>
+            <span v-else>Nome doador não definido</span>
           </template>
 
           <template v-slot:[`item.telephone`]="{ item }">
@@ -34,7 +35,14 @@
           </template>
 
           <template v-slot:[`item.type`]="{ item }">
-            <span>{{ item.products[0].product.type | productCategory }}</span>
+            <span
+              v-if="
+                item.products && item.products[0] && item.products[0].product
+              "
+            >
+              {{ item.products[0].product.type | productCategory }}
+            </span>
+            <span v-else>Tipo não definido</span>
           </template>
 
           <template v-slot:[`item.condition_product`]="{ item }">
@@ -59,6 +67,7 @@
             </v-icon>
           </template>
         </v-data-table>
+
         <ReceivedEdit
           v-model="editDialog"
           :id="updatedReceivedId"
@@ -144,29 +153,18 @@
           <v-card class="elevation-4" style="padding: 16px; margin-top: 30px">
             <div style="padding-bottom: 20px">
               <span color="primary" style="font-weight: bold; font-size: 16px">
-                Informações dos produtos:
+                Informações dos produtos doados:
               </span>
             </div>
 
-            <div
+            <v-list
               v-if="selectedReceived && selectedReceived.products.length > 0"
-              class="d-flex flex-column"
-              style="gap: 16px"
             >
               <v-list-item-group
                 v-for="(item, index) in selectedReceived.products"
                 :key="index"
-                class="d-flex flex-column"
-                style="gap: 16px"
               >
-                <div
-                  class="d-flex"
-                  style="
-                    padding: 6px;
-                    border-radius: 2px;
-                    border: 1px gray solid;
-                  "
-                >
+                <v-list-item>
                   <v-list-item-content style="gap: 6px">
                     <v-list-item-title>
                       <span style="font-weight: bold">Produto:</span>
@@ -188,9 +186,9 @@
                       {{ item.amount }}
                     </v-list-item-subtitle>
                   </v-list-item-content>
-                </div>
+                </v-list-item>
               </v-list-item-group>
-            </div>
+            </v-list>
 
             <v-alert v-else type="info">Nenhum produto encontrado.</v-alert>
           </v-card>
@@ -272,6 +270,7 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+
     <ReceivedCreate
       :value="createDialog"
       @close="createDialog = false"
@@ -281,7 +280,6 @@
 </template>
 
 <script>
-import { formatDate } from "@/filters";
 import ReceivedCreate from "./ReceivedCreate.vue";
 import ReceivedEdit from "./ReceivedEdit.vue";
 import ReceivedDelete from "./ReceivedDelete.vue";
@@ -308,7 +306,7 @@ export default {
       deleteDialog: false,
       itemToDelete: null,
       headers: [
-        { text: "Data criação", value: "created_at" },
+        { text: "Data recebimento", value: "date" },
         { text: "Nome doador", value: "name" },
         { text: "Contato doador", value: "telephone" },
         { text: "Tipo doador", value: "type_donor" },
@@ -316,7 +314,6 @@ export default {
         { text: "Condição", value: "condition_product" },
         { text: "Ações", value: "actions" },
       ],
-      formatDate,
     };
   },
   computed: {
@@ -328,6 +325,13 @@ export default {
     this.loadData();
   },
   methods: {
+    formatDate(date) {
+      if (!date) return "";
+
+      const [year, month, day] = date.split("T")[0].split("-");
+
+      return `${day.padStart(2, "0")}/${month.padStart(2, "0")}/${year}`;
+    },
     async loadData() {
       this.loading = true;
       try {
@@ -339,16 +343,20 @@ export default {
         this.loading = false;
       }
     },
+
     async findAll() {
       await this.$store.dispatch("received/findAll");
     },
+
     async handleSearch(search) {
       this.search = search;
     },
+
     showDetails(item) {
       this.selectedReceived = item;
       this.dialog = true;
     },
+
     editItem(item) {
       this.updatedReceivedId = item.id;
       this.editDialog = true;
@@ -380,16 +388,20 @@ export default {
         throw error;
       }
     },
+
     closeDialog() {
       this.dialog = false;
     },
+
     isSelected(item) {
       return this.updatedReceivedId === item.id;
     },
+
     confirmDelete(item) {
       this.itemToDelete = item.id;
       this.deleteDialog = true;
     },
+
     handleDeleteClose() {
       this.deleteDialog = false;
       this.itemToDelete = null;

@@ -34,14 +34,7 @@
           <template v-slot:[`item.name`]="{ item }">
             <div v-if="item.people_family && item.people_family.length > 0">
               <span>
-                {{
-                  item.people_family
-                    .map(
-                      (familyMember) =>
-                        familyMember.people?.name || "Nome não definido"
-                    )
-                    .join(" | ")
-                }}
+                {{ item.people_family[0]?.people?.name || "Nome não definido" }}
               </span>
             </div>
             <span v-else>Sem membros cadastrados</span>

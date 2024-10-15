@@ -415,9 +415,10 @@ export default {
     },
     selectedUser(newValue) {
       if (newValue) {
-        this.createdReceived.user = { ...newValue };
+        this.createdReceived.userColaborator = { ...newValue };
       } else {
-        this.createdReceived.user = this.getReceived().user;
+        this.createdReceived.userColaborator =
+          this.getReceived().userColaborator;
       }
     },
     selectedDonor(newValue) {
@@ -436,7 +437,7 @@ export default {
         condition_product: "",
         description: "",
         products: [],
-        user: {},
+        userColaborator: {},
         stock: {
           amount: "",
         },
@@ -533,9 +534,13 @@ export default {
         });
         return responseDonor;
       } else if (type === "user") {
-        const responseUser = await this.$store.dispatch("user/findAll", {
-          search,
-        });
+        const responseUser = await this.$store.dispatch(
+          "userColaborator/findAll",
+          {
+            search,
+          }
+        );
+
         return responseUser;
       }
     },
@@ -544,7 +549,10 @@ export default {
       this.userList = [];
       try {
         const response = await this.findAll(search, "user");
-        if (
+
+        if (response && Array.isArray(response)) {
+          this.userList = response;
+        } else if (
           response &&
           response.dataUsers &&
           Array.isArray(response.dataUsers)
@@ -552,11 +560,10 @@ export default {
           this.userList = response.dataUsers;
         }
       } catch (error) {
-        this.error("Erro ao selecionar doador!");
+        this.$error("Erro ao selecionar usuário!");
         throw error;
       }
     },
-
     async fetchDonor(search = "") {
       this.loading = true;
       try {

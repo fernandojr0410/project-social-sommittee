@@ -199,11 +199,11 @@ export class ReceivedRepository {
     id: string,
     updateReceivedDto: UpdateReceivedDto,
   ): Promise<ReceivedEntity> {
-    const { date, description, condition_product, donor, products } =
+    const { description, condition_product, donor, products } =
       updateReceivedDto;
 
     const updateData: Prisma.ReceivedUpdateInput = {
-      date: date ? new Date(date).toISOString() : undefined,
+      date: updateReceivedDto.date,
       description,
       condition_product,
       donor: donor
@@ -269,7 +269,6 @@ export class ReceivedRepository {
   }
 
   async remove(id: string): Promise<ReceivedEntity> {
-    // Busca o recebimento e inclui os produtos relacionados
     const receivedItem = await this.prisma.received.findUnique({
       where: { id },
       include: {
