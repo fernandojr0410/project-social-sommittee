@@ -38,12 +38,12 @@
                     dense
                     hide-details
                     @update:search-input="searchPeople"
+                    @change="updateAddressFields"
                   />
                 </v-col>
 
                 <v-col>
                   <v-select
-                    v-if="selectedPeople"
                     v-model="selectedFunction"
                     :rules="[rules.required]"
                     :items="[
@@ -58,148 +58,63 @@
                     item-value="value"
                     item-text="text"
                     label="Função - Mãe, Pai, Filho(a), Vó..."
+                    outlined
+                    dense
+                    hide-details
                   />
+                </v-col>
+
+                <v-col>
+                  <v-btn
+                    @click="addPersonToFamily"
+                    color="green"
+                    style="color: white; font-weight: bold; margin-right: 16px"
+                    >Adicionar Pessoa</v-btn
+                  >
                 </v-col>
               </v-row>
             </v-card>
 
-            <v-card class="elevation-4" style="padding: 16px; margin-top: 30px">
+            <v-card class="elevation" style="margin-top: 30px; padding: 16px">
               <div style="padding-bottom: 16px">
                 <span
                   color="primary"
                   style="font-weight: bold; font-size: 16px"
                 >
-                  Informações da pessoa:
+                  Adicionar pessoas à família:
                 </span>
               </div>
 
-              <v-row>
-                <v-col>
-                  <v-text-field
-                    v-model="selectedPeople.name"
-                    label="Nome completo"
-                    class="mr-3"
-                    outlined
+              <v-list>
+                <v-list-item-group>
+                  <v-list-item
+                    v-for="(person, index) in familyMembers"
+                    :key="index"
+                    class="elevation-2 mb-2"
+                    style="border: 1px solid #ccc; padding: 10px"
+                    :ripple="false"
                     dense
-                    hide-details
-                  />
-                </v-col>
-                <v-col>
-                  <v-text-field
-                    v-model="selectedPeople.identifier"
-                    label="CPF"
-                    class="mr-3"
-                    v-mask="'###.###.###-##'"
-                    outlined
-                    dense
-                    hide-details
-                  />
-                </v-col>
-              </v-row>
-
-              <v-row>
-                <v-col>
-                  <v-menu
-                    v-model="menu2"
-                    :close-on-content-click="false"
-                    :nudge-right="40"
-                    transition="scale-transition"
-                    offset-y
-                    min-width="auto"
+                    inactive
                   >
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-text-field
-                        v-model="selectedPeople.birth_date"
-                        label="Data de nascimento"
-                        prepend-icon="mdi-calendar"
-                        readonly
-                        v-bind="attrs"
-                        v-on="on"
-                        outlined
-                        dense
-                        hide-details
-                        style="width: 97.5%"
-                      ></v-text-field>
-                    </template>
-                    <v-date-picker
-                      color="secondary"
-                      v-model="selectedPeople.birth_date"
-                      locale="pt"
-                      @input="menu2 = false"
-                    ></v-date-picker>
-                  </v-menu>
-                </v-col>
-                <v-col>
-                  <v-text-field
-                    v-model="selectedPeople.email"
-                    label="E-mail"
-                    class="mr-3"
-                    outlined
-                    dense
-                    hide-details
-                  />
-                </v-col>
-              </v-row>
-
-              <v-row>
-                <v-col>
-                  <v-text-field
-                    v-model="selectedPeople.telephone"
-                    label="Telefone"
-                    class="mr-3"
-                    v-mask="'(##) #####-####'"
-                    outlined
-                    dense
-                    hide-details
-                  />
-                </v-col>
-                <v-col>
-                  <v-select
-                    v-model="selectedPeople.gender"
-                    :items="[
-                      { text: 'Masculino', value: 'MALE' },
-                      { text: 'Feminino', value: 'FEMALE' },
-                    ]"
-                    item-value="value"
-                    item-text="text"
-                    class="mr-3"
-                    label="Sexo"
-                    outlined
-                    dense
-                    hide-details
-                  />
-                </v-col>
-              </v-row>
-
-              <v-row>
-                <v-col>
-                  <v-select
-                    v-model="selectedPeople.work"
-                    :items="[
-                      { text: 'Sim', value: true },
-                      { text: 'Não', value: false },
-                    ]"
-                    item-value="value"
-                    item-text="text"
-                    class="mr-3"
-                    label="Trabalha?"
-                    outlined
-                    dense
-                    hide-details
-                  />
-                </v-col>
-                <v-col>
-                  <v-text-field
-                    v-model="selectedPeople.education"
-                    label="Educação"
-                    class="mr-3"
-                    outlined
-                    dense
-                    hide-details
-                  />
-                </v-col>
-              </v-row>
+                    <v-list-item-content>
+                      <v-list-item-title v-if="person.name">
+                        <strong>Nome:</strong> {{ person.name }}
+                      </v-list-item-title>
+                      <v-list-item-subtitle>
+                        <strong>Função:</strong>
+                        {{ person.function | functionFamily }}
+                      </v-list-item-subtitle>
+                    </v-list-item-content>
+                    <v-list-item-action>
+                      <v-btn @click="removePerson(index)" icon color="red">
+                        <v-icon>mdi-delete</v-icon>
+                      </v-btn>
+                    </v-list-item-action>
+                  </v-list-item>
+                </v-list-item-group>
+              </v-list>
             </v-card>
+
             <v-card class="elevation-4" style="padding: 16px; margin-top: 30px">
               <div style="padding-bottom: 16px">
                 <span
@@ -213,27 +128,25 @@
               <v-row>
                 <v-col>
                   <v-text-field
-                    v-if="selectedPeople && selectedPeople.address"
-                    v-model="selectedPeople.address.zip_code"
+                    v-model="addressFields.zip_code"
                     class="mr-3"
                     label="CEP"
                     v-mask="'#####-###'"
-                    readonly
                     outlined
                     dense
                     hide-details
+                    :readonly="!!selectedPeople.address"
                   />
                 </v-col>
                 <v-col>
                   <v-text-field
-                    v-if="selectedPeople && selectedPeople.address"
-                    v-model="selectedPeople.address.street"
+                    v-model="addressFields.street"
                     label="Rua"
                     class="mr-3"
-                    readonly
                     outlined
                     dense
                     hide-details
+                    :readonly="!!selectedPeople.address"
                   />
                 </v-col>
               </v-row>
@@ -241,26 +154,24 @@
               <v-row>
                 <v-col>
                   <v-text-field
-                    v-if="selectedPeople && selectedPeople.address"
-                    v-model="selectedPeople.address.number"
+                    v-model="addressFields.number"
                     label="Número"
                     class="mr-3"
-                    readonly
                     outlined
                     dense
                     hide-details
+                    :readonly="!!selectedPeople.address"
                   />
                 </v-col>
                 <v-col>
                   <v-text-field
-                    v-if="selectedPeople && selectedPeople.address"
-                    v-model="selectedPeople.address.neighborhood"
+                    v-model="addressFields.neighborhood"
                     label="Bairro"
                     class="mr-3"
-                    readonly
                     outlined
                     dense
                     hide-details
+                    :readonly="!!selectedPeople.address"
                   />
                 </v-col>
               </v-row>
@@ -268,14 +179,13 @@
               <v-row>
                 <v-col>
                   <v-text-field
-                    v-if="selectedPeople && selectedPeople.address"
-                    v-model="selectedPeople.address.complement"
+                    v-model="addressFields.complement"
                     label="Complemento"
                     class="mr-3"
-                    readonly
                     outlined
                     dense
                     hide-details
+                    :readonly="!!selectedPeople.address"
                   />
                 </v-col>
               </v-row>
@@ -283,29 +193,13 @@
               <v-row>
                 <v-col>
                   <v-text-field
-                    v-if="selectedPeople && selectedPeople.address"
-                    v-model="selectedPeople.address.city"
+                    v-model="cityAndState"
                     label="Cidade"
-                    class="mr-3"
-                    readonly
                     outlined
                     dense
                     hide-details
-                  />
-                </v-col>
-                <v-col>
-                  <v-select
-                    v-if="selectedPeople && selectedPeople.address"
-                    v-model="selectedPeople.address.state"
-                    :items="states"
-                    item-value="acronym"
-                    item-text="name"
-                    class="mr-3"
-                    label="Estado"
                     readonly
-                    outlined
-                    dense
-                    hide-details
+                    style="width: 98.5%"
                   />
                 </v-col>
               </v-row>
@@ -335,59 +229,54 @@
 </template>
 
 <script>
-import { states } from "@/assets/state";
-
 export default {
   name: "FamilyCreate",
   data() {
     return {
       dialog: false,
-      selectedPeople: this.getPeople(),
+      selectedPeople: {},
       selectedFunction: "",
       peopleList: [],
+      familyMembers: [],
       loading: false,
-      valid: false,
-      menu2: false,
+      addressFields: {
+        zip_code: "",
+        street: "",
+        number: "",
+        complement: "",
+        neighborhood: "",
+      },
       rules: {
         required: (value) => !!value || "Campo obrigatório.",
       },
-      states,
     };
   },
-  methods: {
-    getPeople() {
-      return {
-        name: "",
-        identifier: "",
-        birth_date: new Date().toISOString().substr(0, 10),
-        email: "",
-        telephone: "",
-        gender: "",
-        work: "",
-        education: "",
-        address: {
-          zip_code: "",
-          street: "",
-          number: "",
-          complement: "",
-          neighborhood: "",
-          city: "",
-          state: "",
-        },
-        people_family: [],
-      };
+  computed: {
+    cityAndState() {
+      const city =
+        this.selectedPeople.address?.city || this.addressFields.city || "";
+      const state =
+        this.selectedPeople.address?.state || this.addressFields.state || "";
+      return city && state ? `${city}, ${state}` : city || state;
     },
+  },
+  methods: {
     openDialog() {
       this.dialog = true;
+      this.clearAddressFields();
+      this.selectedPeople = {};
+      this.selectedFunction = "";
     },
     closeDialog() {
       this.dialog = false;
     },
+
     async fetchPeople(search = "") {
       this.loading = true;
       try {
-        const response = await this.findAll(search);
-
+        const response = await this.$store.dispatch("people/findAll", {
+          search,
+        });
         this.peopleList = response;
       } catch (error) {
         this.$error("Erro ao carregar dados!");
@@ -396,16 +285,113 @@ export default {
         this.loading = false;
       }
     },
-    async findAll(search) {
-      return await this.$store.dispatch("people/findAll", { search });
+
+    addPersonToFamily() {
+      if (this.selectedPeople && this.selectedFunction) {
+        const person = {
+          people_id: String(this.selectedPeople.id),
+          name: this.selectedPeople.name,
+          identifier: this.selectedPeople.identifier,
+          email: this.selectedPeople.email,
+          birth_date: this.selectedPeople.birth_date,
+          gender: this.selectedPeople.gender,
+          telephone: this.selectedPeople.telephone,
+          education: this.selectedPeople.education,
+          work: this.selectedPeople.work,
+          address_id: this.selectedPeople.address_id,
+          address: {
+            zip_code: this.selectedPeople.address.zip_code || "",
+            street: this.selectedPeople.address.street || "",
+            number: this.selectedPeople.address.number || "",
+            complement: this.selectedPeople.address.complement || "",
+            neighborhood: this.selectedPeople.address.neighborhood || "",
+            city: this.selectedPeople.address.city || "",
+            state: this.selectedPeople.address.state || "",
+          },
+          function: this.selectedFunction,
+        };
+
+        const existingPerson = this.familyMembers.find(
+          (member) => member.people_id === person.people_id
+        );
+
+        if (!existingPerson) {
+          this.familyMembers.push(person);
+        } else {
+          this.$error("Essa pessoa já foi adicionada à família.");
+        }
+
+        this.selectedFunction = null;
+        this.selectedPeople = {};
+        this.peopleList = [];
+      }
+    },
+
+    clearAddressFields() {
+      this.addressFields = {
+        zip_code: "",
+        street: "",
+        number: "",
+        complement: "",
+        neighborhood: "",
+        city: "",
+        state: "",
+      };
+    },
+
+    updateAddressFields() {
+      if (this.selectedPeople && this.selectedPeople.address) {
+        this.addressFields = {
+          zip_code: this.selectedPeople.address.zip_code || "",
+          street: this.selectedPeople.address.street || "",
+          number: this.selectedPeople.address.number || "",
+          complement: this.selectedPeople.address.complement || "",
+          neighborhood: this.selectedPeople.address.neighborhood || "",
+          city: this.selectedPeople.address.city || "",
+          state: this.selectedPeople.address.state || "",
+        };
+      } else {
+        this.clearAddressFields();
+      }
+    },
+
+    removePerson(index) {
+      this.familyMembers.splice(index, 1);
     },
 
     async createFamily() {
+      if (!this.familyMembers.length) {
+        this.$error("Adicione pelo menos uma pessoa à família.");
+        return;
+      }
+
       const familyData = {
-        address_id: this.selectedPeople?.address_id,
-        people_id: this.selectedPeople?.id,
-        people_family: this.selectedPeople.people_family,
-        function: this.selectedFunction,
+        members: this.familyMembers.map((person) => ({
+          people_id: String(person.people_id),
+          address_id: String(person.address_id),
+          address: {
+            zip_code: person.address.zip_code,
+            street: person.address.street,
+            number: person.address.number,
+            complement: person.address.complement,
+            neighborhood: person.address.neighborhood,
+            city: person.address.city,
+            state: person.address.state,
+          },
+          people: {
+            name: person.name,
+            identifier: person.identifier,
+            email: person.email,
+            birth_date: person.birth_date,
+            gender: person.gender,
+            telephone: person.telephone,
+            education: person.education,
+            work: person.work,
+          },
+          people_family: {
+            function: person.function,
+          },
+        })),
       };
 
       try {
@@ -413,25 +399,28 @@ export default {
           "family/create",
           familyData
         );
+
         if (response) {
-          this.$success("Registro criado!");
+          this.$success("Família criada com sucesso!");
           this.$store.dispatch("family/findAll");
-          this.selectedFunction = "";
           this.closeDialog();
-          this.selectedPeople = this.getPeople();
+          this.selectedFunction = "";
+          this.familyMembers = [];
+          this.selectedPeople = {};
         } else {
           this.$error("Erro ao criar a família!");
         }
       } catch (error) {
-        this.$error("Erro ao criar registro!");
+        this.$error("Erro ao criar a família!");
         throw error;
       }
     },
+
     searchPeople(search) {
+      this.peopleList = [];
+
       if (search && search.length > 2) {
         this.fetchPeople(search);
-      } else {
-        this.peopleList = [];
       }
     },
   },

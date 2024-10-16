@@ -1,11 +1,10 @@
 import { IsNotEmpty, IsOptional, IsString, IsArray } from 'class-validator';
 import { Type } from 'class-transformer';
-import { Condition_product } from '@prisma/client';
 
 export class CreateDonationDto {
   @IsString()
   @IsNotEmpty()
-  description: string;
+  date_delivery: string;
 
   @IsString()
   @IsNotEmpty()
@@ -17,10 +16,6 @@ export class CreateDonationDto {
 
   @IsString()
   @IsNotEmpty()
-  date_delivery: string;
-
-  @IsString()
-  @IsNotEmpty()
   donor_id: string;
 
   @IsArray()
@@ -29,14 +24,9 @@ export class CreateDonationDto {
   products: {
     product_id: string;
     amount: number;
-    condition_product: Condition_product;
   }[];
 
   @IsNotEmpty()
   @IsString()
   people_id: string;
-
-  @IsNotEmpty()
-  @IsString()
-  family_id: string;
 }

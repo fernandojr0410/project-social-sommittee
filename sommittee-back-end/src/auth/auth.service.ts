@@ -1,17 +1,24 @@
-import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
-import { UpdatePasswordDto } from "./dto/updatePassword-auth-dto";
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
-import { UpdateUserDto } from "../user/dto/update-user.dto";
-import { UserRepository } from "../user/repositories/user.repository";
-import { NotFoundError } from "../common/errors/types/notFoundError";
-import { JwtService } from "@nestjs/jwt";
-import { jwtConstants } from "./jwtConstants";
-import { CreateUserDto } from "../user/dto/create-user.dto";
-import { PasswordService } from '../password/password.service';
-import { User } from "@prisma/client";
-import { join } from 'path';
-import { promises as fs } from 'fs';
+import { JwtService } from '@nestjs/jwt';
+import { jwtConstants } from './jwtConstants';
+import { EmailService } from '../email/email.service';
+import * as speakeasy from 'speakeasy';
+import * as fs from 'fs';
+import * as path from 'path';
+import { UpdatePasswordDto } from './dto/updatePassword-auth.dto';
+import { UpdateUserDto } from '../user/dto/update-user.dto';
+import { UserRepository } from '../user/repositories/user.repository';
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { ReCaptchaService } from './recaptcha.service';
+import { User } from '@prisma/client';
+import { PasswordService } from 'src/password/password.service';
+import { SmsService } from './sms/sms.service';
 
 @Injectable()
 export class AuthService {
@@ -20,34 +27,254 @@ export class AuthService {
     private readonly userRepository: UserRepository,
     private readonly passwordService: PasswordService,
     private readonly jwtService: JwtService,
-  ) { }
+    private readonly emailService: EmailService,
+    private readonly recaptchaService: ReCaptchaService,
+    private readonly smsService: SmsService,
+  ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const hashedPassword = await bcrypt.hash(createUserDto.password, await bcrypt.genSalt());
-    createUserDto.password = hashedPassword
+    const hashedPassword = await bcrypt.hash(
+      createUserDto.password,
+      await bcrypt.genSalt(),
+    );
+    createUserDto.password = hashedPassword;
     const newUser = await this.userRepository.create(createUserDto);
-    newUser.password = undefined // apaga a propriedade password do objeto
-    return newUser
+    newUser.password = undefined;
+    return newUser;
   }
 
+  async login(
+    email: string,
+    password: string,
+    recaptchaToken: string,
+  ): Promise<{
+    two_factor: boolean;
+    user_id?: string;
+    accountLocked?: boolean;
+  }> {
+    await this.recaptchaService.verifyToken(recaptchaToken, 'login');
+
+    const user = await this.userRepository.findUserByEmail(email);
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado!');
+    }
+
+    if (user.account_locked) {
+      return { two_factor: false, accountLocked: true };
+    }
+
+    const isPasswordValid = await this.userRepository.verifyUserPassword(
+      email,
+      password,
+    );
+
+    if (!isPasswordValid) {
+      await this.userRepository.incrementFailedAttempts(user.id);
+
+      const updatedUser = await this.userRepository.findUserByEmail(email);
+
+      if (updatedUser.failed_attempts >= 3) {
+        await this.userRepository.lockAccount(user.id);
+        throw new NotFoundException(
+          'Conta bloqueada. Entre em contato com o administrador.',
+        );
+      }
+
+      throw new NotFoundException('Credenciais inválidas!');
+    }
+
+    await this.userRepository.resetFailedAttempts(user.id);
+
+    await this.generateTwoFactorCode(user.email, user.name, user.id);
+
+    return { two_factor: true, user_id: user.id };
+  }
+
+  // async generateTwoFactorCode(
+  //   email: string,
+  //   name: string,
+  //   user_id: string,
+  // ): Promise<string> {
+  //   const secret = speakeasy.generateSecret({ name: 'YourAppName' });
+  //   await this.prisma.user.update({
+  //     where: { id: user_id },
+  //     data: {
+  //       two_factor_secret: secret.base32,
+  //       is_two_factor_enabled: true,
+  //     },
+  //   });
+
+  //   const code = speakeasy.totp({
+  //     secret: secret.base32,
+  //     encoding: 'base32',
+  //     step: 300,
+  //   });
+
+  //   const templatePath = path.resolve(
+  //     process.cwd(),
+  //     'src',
+  //     'email',
+  //     'html',
+  //     '2FA.html',
+  //   );
+  //   const template = fs.readFileSync(templatePath, 'utf8');
+  //   const htmlContent = template
+  //     .replace('{{name}}', name)
+  //     .replace('{{code}}', code);
+
+  //   await this.emailService.sendEmailUser(
+  //     email,
+  //     'Seu código de verificação 2FA',
+  //     htmlContent,
+  //   );
+
+  //   return code;
+  // }
+  async generateTwoFactorCode(
+    email: string,
+    name: string,
+    user_id: string,
+  ): Promise<string> {
+    const secret = speakeasy.generateSecret({ name: 'YourAppName' });
+    await this.prisma.user.update({
+      where: { id: user_id },
+      data: {
+        two_factor_secret: secret.base32,
+        is_two_factor_enabled: true,
+      },
+    });
+
+    const code = speakeasy.totp({
+      secret: secret.base32,
+      encoding: 'base32',
+      step: 300,
+    });
+
+    console.log(`Código de autenticação 2FA para ${email}: ${code}`);
+
+    return code;
+  }
+
+  async verifyTwoFactorCode(
+    code: string,
+    user_id: string,
+  ): Promise<{ smsCodeSent: boolean }> {
+    const user = await this.prisma.user.findFirst({
+      where: { id: user_id },
+      select: {
+        two_factor_secret: true,
+        email: true,
+        name: true,
+        telephone: true,
+      },
+    });
+
+    if (!user || !user.two_factor_secret) {
+      throw new UnauthorizedException('Usuário ou segredo 2FA não encontrado.');
+    }
+
+    const verified = speakeasy.totp.verify({
+      secret: user.two_factor_secret,
+      encoding: 'base32',
+      token: code,
+      window: 1,
+      step: 300,
+    });
+
+    if (!verified) {
+      throw new UnauthorizedException('Código 2FA inválido.');
+    }
+
+    const smsCode = Math.floor(1000 + Math.random() * 9000).toString();
+
+    await this.prisma.user.update({
+      where: { id: user_id },
+      data: { sms_verification_code: smsCode },
+    });
+
+    const message = `Seu código de verificação é: ${smsCode}`;
+    await this.smsService.sendSms(user.telephone, message);
+
+    return { smsCodeSent: true };
+  }
+
+  async sendSmsCode(userId: string): Promise<{ smsCodeSent: boolean }> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user || !user.telephone) {
+      throw new NotFoundException(
+        'Usuário não encontrado ou telefone não cadastrado.',
+      );
+    }
+
+    const smsCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { sms_verification_code: smsCode },
+    });
+
+    const message = `Seu código de verificação é: ${smsCode}`;
+    await this.smsService.sendSms(user.telephone, message);
+
+    return { smsCodeSent: true };
+  }
+
+  async verifySmsCode(
+    smsCode: string,
+    userId: string,
+  ): Promise<{ access_token: string }> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { sms_verification_code: true, email: true, name: true },
+    });
+
+    if (!user || user.sms_verification_code !== smsCode) {
+      throw new NotFoundException('Código SMS inválido.');
+    }
+
+    const payload = { id: userId, email: user.email, name: user.name };
+    const accessToken = await this.jwtService.signAsync(payload, {
+      expiresIn: '5d',
+      secret: Buffer.from(process.env.JWT_SECRET, 'base64').toString(),
+      algorithm: 'HS256',
+    });
+
+    await this.prisma.token.create({
+      data: {
+        access_token: accessToken,
+        user_id: userId,
+      },
+    });
+
+    return { access_token: accessToken };
+  }
 
   async getProfile(id: string) {
     const user = await this.prisma.user.findFirst({
       where: { id: id },
+      select: {
+        name: true,
+        identifier: true,
+        email: true,
+        telephone: true,
+        avatar_url: true,
+        role: true,
+        created_at: true,
+        updated_at: true,
+        last_action: true,
+      },
     });
-    if (!user) {
-      throw new NotFoundException('Usuário não encontrado teste!');
-    }
+    console.log(user);
     return user;
   }
 
   async updatePassword(id: string, updatePasswordDto: UpdatePasswordDto) {
     const { oldPassword, newPassword } = updatePasswordDto;
-    const user = await this.prisma.user.findFirst({
-      where: {
-        id: id
-      }
-    });
+    const user = await this.prisma.user.findFirst({ where: { id } });
     if (!user) {
       throw new NotFoundException('Usuário não encontrado!');
     }
@@ -57,34 +284,47 @@ export class AuthService {
       throw new NotFoundException('Senha antiga incorreta!');
     }
 
-    const hashedPassword = await bcrypt.hash(newPassword, await bcrypt.genSalt());
-
+    const hashedPassword = await bcrypt.hash(
+      newPassword,
+      await bcrypt.genSalt(),
+    );
     await this.prisma.user.update({
-      where: {
-        id: id
-      },
-      data: {
-        password: hashedPassword
-      }
+      where: { id },
+      data: { password: hashedPassword },
     });
   }
 
-  async changeProfile(id: string, updateUserDto: UpdateUserDto) {
-    const user = await this.prisma.user.findFirst({
-      where: { id },
-    })
-    if (!user) {
-      throw new NotFoundException('Usúario não t!')
-    }
-    const updatedUser = await this.prisma.user.update({
-      where: { id },
-      data: updateUserDto
-    })
-    return updatedUser
+  async verifyUserPassword(email: string, password: string): Promise<boolean> {
+    const user = await this.userRepository.findUserByEmail(email);
+    if (!user) return false;
+    return bcrypt.compare(password, user.password);
   }
 
-  async createUserWithHashedPassword(createUserDto: CreateUserDto): Promise<User> {
-    const hashedPassword = await this.passwordService.hashPassword(createUserDto.password);
+  async changeProfile(id: string, updateUserDto: UpdateUserDto) {
+    const user = await this.prisma.user.findFirst({ where: { id } });
+    if (!user) throw new NotFoundException('Usuário não encontrado!');
+
+    return this.prisma.user.update({
+      where: { id },
+      data: updateUserDto,
+      select: {
+        name: true,
+        identifier: true,
+        email: true,
+        telephone: true,
+        role: true,
+        failed_attempts: true,
+        account_locked: true,
+        avatar_url: true,
+      },
+    });
+  }
+  async createUserWithHashedPassword(
+    createUserDto: CreateUserDto,
+  ): Promise<User> {
+    const hashedPassword = await this.passwordService.hashPassword(
+      createUserDto.password,
+    );
     const user = await this.prisma.user.create({
       data: {
         ...createUserDto,
@@ -94,65 +334,25 @@ export class AuthService {
     return user;
   }
 
-  async verifyUserPassword(email: string, password: string) {
-    const user = await this.userRepository.findProfile(email);
+  async signIn(
+    email: string,
+    password: string,
+  ): Promise<{ access_token: string }> {
+    const user = await this.userRepository.findUserByEmail(email);
     if (!user) {
-      return false;
-    }
-    return await bcrypt.compare(password, user.password);
-  }
-
-  async findUserEmailPassword(email: string, password: string) {
-    const user = await this.userRepository.findProfile(email)
-    if (!user) {
-      throw new NotFoundError('Usuário não encontrado!')
-    }
-
-    const userPassword = await bcrypt.compare(password, user.password)
-    if (!userPassword) {
-      throw new NotFoundError('Email ou senha incorretos!')
-    }
-    return user
-  }
-
-  async signIn(email: string, password: string): Promise<{ access_token: string }> {
-    const user = await this.userRepository.findUserByEmail(email)
-    if (!user) {
-      throw new NotFoundException('Usuário não encontrado!')
+      throw new NotFoundException('Usuário não encontrado!');
     }
     const isPasswordValid = await this.verifyUserPassword(email, password);
     if (!isPasswordValid) {
-      throw new NotFoundException('Senha inválida!')
+      throw new NotFoundException('Senha inválida!');
     }
 
-    await this.userRepository.updateLastAction(user.id, 'login')
+    await this.userRepository.updateLastAction(user.id, 'login');
     const payload = { id: user.id, name: user.name, email: user.email };
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: jwtConstants.secret,
     });
     return { access_token: accessToken };
-
-  }
-
-  async login(email: string, password: string) {
-    const user = await this.validateUser(email, password);
-    if (!user) {
-      throw new Error('Credenciais Inválidas!');
-    }
-
-    const payload = { email: user.email, id: user.id };
-    const accessToken = this.jwtService.sign(payload, { secret: jwtConstants.secret });
-
-    await this.prisma.token.create({
-      data: {
-        access_token: accessToken,
-        user_id: user.id,
-      },
-    });
-
-    return {
-      access_token: accessToken,
-    };
   }
 
   async logout(userId: string) {
@@ -163,27 +363,41 @@ export class AuthService {
       },
       data: {
         is_revoked: true,
-      }
+      },
     });
   }
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.prisma.user.findFirst({ where: { email } });
-    if (user && await bcrypt.compare(password, user.password)) {
+    if (user && (await bcrypt.compare(password, user.password))) {
       return user;
     }
     return null;
   }
 
-  // async updateAvatar(userId: string, avatarPath: string) {
-  //   const user = await this.prisma.user.findFirst({ where: { id: userId } });
-  //   if (!user) {
-  //     throw new NotFoundException('User not found');
-  //   }
-
-  //   return this.prisma.user.update({
-  //     where: { id: userId },
-  //     data: { avatar: avatarPath },
-  //   });
-  // }
+  async updateAvatar(
+    userId: string,
+    avatarUrl: string,
+  ): Promise<Partial<User>> {
+    const user = await this.prisma.user.findFirst({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    const updatedUser = await this.prisma.user.update({
+      where: { id: userId },
+      data: { avatar_url: avatarUrl },
+      select: {
+        name: true,
+        identifier: true,
+        email: true,
+        telephone: true,
+        role: true,
+        avatar_url: true,
+        created_at: true,
+        updated_at: true,
+        last_action: true,
+      },
+    });
+    return updatedUser;
+  }
 }

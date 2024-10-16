@@ -40,6 +40,9 @@
               type="number"
               label="Quantidade"
               class="mr-3"
+              outlined
+              dense
+              hide-details
             />
           </v-col>
         </v-row>

@@ -12,18 +12,19 @@
         </v-btn>
       </v-card-title>
       <v-card-text>
-        <v-card style="padding: 16px">
+        <v-card class="elevation-4" style="padding: 16px">
           <v-row>
             <v-col>
               <span color="primary" style="font-weight: 500; font-size: 16px">
-                Recebimento
+                Informações do recebimento:
               </span>
             </v-col>
           </v-row>
           <v-row>
             <v-col>
               <v-menu
-                v-model="menu2"
+                ref="menu1"
+                v-model="menu1"
                 :close-on-content-click="false"
                 :nudge-right="40"
                 transition="scale-transition"
@@ -32,19 +33,23 @@
               >
                 <template v-slot:activator="{ on, attrs }">
                   <v-text-field
-                    v-model="date"
+                    v-model="dateFormatted"
                     label="Data recebimento"
                     prepend-icon="mdi-calendar"
-                    readonly
                     v-bind="attrs"
+                    @blur="updateDate"
                     v-on="on"
+                    outlined
+                    dense
+                    hide-details
                   ></v-text-field>
                 </template>
                 <v-date-picker
                   color="secondary"
-                  v-model="date"
+                  v-model="updatedReceived.date"
                   locale="pt"
-                  @input="menu2 = false"
+                  @input="updateFormattedDate"
+                  :title="formattedDateTitle"
                 ></v-date-picker>
               </v-menu>
             </v-col>
@@ -73,9 +78,7 @@
                 </template>
 
                 <template v-slot:selection="{ item }">
-                  <span class="caption">
-                    {{ item.name }}
-                  </span>
+                  <span class="caption">{{ item.name }}</span>
                 </template>
               </v-autocomplete>
             </v-col>
@@ -88,9 +91,12 @@
                   { text: 'Usado', value: 'USED' },
                   { text: 'Danificado', value: 'DAMAGED' },
                 ]"
-                label="Condição do produto"
+                label="Condição produto"
                 class="mr-3"
                 :rules="[rules.required]"
+                outlined
+                dense
+                hide-details
               />
             </v-col>
           </v-row>
@@ -99,19 +105,86 @@
               <v-textarea
                 v-if="updatedReceived"
                 v-model="updatedReceived.description"
-                label="Descrição"
+                label="Descrição (opcional)"
                 class="mr-3"
-                :rules="[rules.required]"
+                outlined
+                dense
+                hide-details
               />
             </v-col>
           </v-row>
         </v-card>
 
-        <v-card style="padding: 14px; margin-top: 30px">
+        <v-card class="elevation-4" style="padding: 14px; margin-top: 30px">
+          <v-container class="d-flex justify-space-between">
+            <div v-if="products.length === 0">
+              <span color="primary" style="font-weight: 500; font-size: 16px">
+                Nenhum produto adicionado
+              </span>
+            </div>
+            <v-container v-else>
+              <v-row>
+                <v-col>
+                  <span
+                    color="primary"
+                    style="font-weight: 500; font-size: 16px"
+                  >
+                    Informações do produto:
+                  </span>
+                </v-col>
+              </v-row>
+              <v-list>
+                <v-list-item-group class="d-flex flex-column" style="gap: 16px">
+                  <div
+                    v-for="(item, index) in products"
+                    :key="item.id"
+                    class="d-flex"
+                    style="
+                      padding: 6px;
+                      border-radius: 2px;
+                      border: 1px gray solid;
+                    "
+                  >
+                    <v-list-item-content>
+                      <v-list-item-title>
+                        {{ item.product.name }}
+                      </v-list-item-title>
+                      <v-list-item-subtitle>
+                        {{ item.product.description }} (Quantidade:
+                        {{ item.amount }})
+                      </v-list-item-subtitle>
+                    </v-list-item-content>
+                    <v-list-item-action :disabled="false">
+                      <v-btn icon color="blue" @click.stop="editProduct(index)">
+                        <v-icon>mdi-pencil</v-icon>
+                      </v-btn>
+                      <v-btn
+                        icon
+                        color="red"
+                        @click.stop="removeProduct(index)"
+                      >
+                        <v-icon>mdi-delete</v-icon>
+                      </v-btn>
+                    </v-list-item-action>
+                  </div>
+                </v-list-item-group>
+              </v-list>
+            </v-container>
+            <v-btn
+              color="green"
+              @click="openProductDialog"
+              style="color: white; font-weight: bold"
+            >
+              ADICIONAR
+            </v-btn>
+          </v-container>
+        </v-card>
+
+        <v-card class="elevation-4" style="padding: 14px; margin-top: 30px">
           <v-row>
             <v-col>
               <span color="primary" style="font-weight: 500; font-size: 16px">
-                Doador
+                Informações do doador:
               </span>
             </v-col>
           </v-row>
@@ -130,6 +203,7 @@
                 outlined
                 dense
                 hide-details
+                style="width: 98.5%"
               />
             </v-col>
           </v-row>
@@ -206,65 +280,18 @@
             </v-col>
           </v-row>
         </v-card>
-
-        <v-card style="padding: 14px; margin-top: 30px">
-          <v-container class="d-flex justify-space-between">
-            <div v-if="products.length === 0">
-              <span color="primary" style="font-weight: 500; font-size: 16px">
-                Nenhum produto adicionado
-              </span>
-            </div>
-            <v-container v-else>
-              <v-row>
-                <v-col>
-                  <span
-                    color="primary"
-                    style="font-weight: 500; font-size: 16px"
-                  >
-                    Produto
-                  </span>
-                </v-col>
-              </v-row>
-              <v-list>
-                <v-list-item-group>
-                  <v-list-item v-for="(item, index) in products" :key="item.id">
-                    <v-list-item-content style="border-bottom: 1px solid">
-                      <v-list-item-title>
-                        {{ item.product.name }}
-                      </v-list-item-title>
-                      <v-list-item-subtitle>
-                        {{ item.product.description }} (Quantidade:
-                        {{ item.amount }})
-                      </v-list-item-subtitle>
-                    </v-list-item-content>
-                    <v-list-item-action>
-                      <v-btn icon @click="editProduct(index)">
-                        <v-icon>mdi-pencil</v-icon>
-                      </v-btn>
-                      <v-btn icon @click="removeProduct(index)">
-                        <v-icon>mdi-delete</v-icon>
-                      </v-btn>
-                    </v-list-item-action>
-                  </v-list-item>
-                </v-list-item-group>
-              </v-list>
-            </v-container>
-            <v-btn
-              color="green"
-              @click="openProductDialog"
-              style="color: white; font-weight: bold"
-            >
-              ADICIONAR
-            </v-btn>
-          </v-container>
-        </v-card>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn
           text
           @click="saveChanges"
-          style="background-color: #007fff; color: white; font-weight: bold"
+          style="
+            background-color: #007fff;
+            color: white;
+            font-weight: bold;
+            margin-right: 10px;
+          "
         >
           SALVAR ALTERAÇÕES
         </v-btn>
@@ -295,7 +322,7 @@ export default {
   },
   data() {
     return {
-      updatedReceived: this.getReceived(),
+      updatedReceived: {},
       productDialog: false,
       selectedProduct: null,
       selectedDonor: null,
@@ -305,20 +332,11 @@ export default {
       productList: [],
       donorList: [],
       editingIndex: null,
-      conditionProduct: [
-        { text: "Novo", value: "NEW" },
-        { text: "Usado", value: "USED" },
-        { text: "Danificado", value: "DAMAGED" },
-      ],
       search: "",
       items: [],
       loading: false,
-      date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
-        .toISOString()
-        .substr(0, 10),
-      menu: false,
-      modal: false,
-      menu2: false,
+      dateFormatted: "",
+      menu1: false,
       rules: {
         required: (value) => !!value || "Campo obrigatório.",
       },
@@ -333,12 +351,20 @@ export default {
         identifier: user.identifier,
       }));
     },
+    formattedDateTitle() {
+      const date = new Date(this.updatedReceived.date);
+      if (isNaN(date.getTime())) return "";
+      const options = { day: "numeric", weekday: "short", month: "long" };
+      return date.toLocaleDateString("pt-BR", options);
+    },
   },
 
   watch: {
     id: {
       immediate: true,
       handler: async function (id) {
+        this.fetchUser();
+        this.fetchDonor();
         if (id) {
           this.updatedReceived = await this.$store.dispatch(
             "received/findById",
@@ -346,7 +372,21 @@ export default {
           );
 
           if (this.updatedReceived.user) {
-            this.selectedUser = this.updatedReceived.user;
+            this.selectedUser = {
+              ...this.updatedReceived.user,
+              id: this.updatedReceived.user_id,
+            };
+          }
+
+          if (this.updatedReceived.donor) {
+            this.selectedDonor = {
+              ...this.updatedReceived.donor,
+              id: this.updatedReceived.donor_id,
+            };
+          }
+
+          if (this.updatedReceived.date) {
+            this.dateFormatted = this.formatDate(this.updatedReceived.date);
           }
 
           if (this.updatedReceived.products) {
@@ -355,22 +395,12 @@ export default {
         }
       },
     },
-    selectedUser(newValue) {
-      if (newValue) {
-        this.updatedReceived.user = { ...newValue };
-      } else {
-        this.updatedReceived.user = this.getReceived().user;
-      }
-    },
-
-    selectedDonor(newValue) {
-      if (newValue) {
-        this.updatedReceived.donor = { ...newValue };
-      } else {
-        this.updatedReceived.donor = this.getReceived().donor;
-      }
-    },
+    // search: function (search) {
+    //   clearTimeout(this.timeout)
+    //   this.timeout = setTimeout(() => this.fetchUser(search), 500);
+    // }
   },
+
   methods: {
     getReceived() {
       return {
@@ -397,6 +427,44 @@ export default {
     formatCPF(identifier) {
       if (!identifier) return "";
       return identifier.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+    },
+
+    updateFormattedDate(date) {
+      if (date) {
+        const adjustedDate = new Date(date);
+
+        adjustedDate.setHours(
+          adjustedDate.getHours() + adjustedDate.getTimezoneOffset() / 60
+        );
+
+        this.updatedReceived.date = adjustedDate.toISOString().split("T")[0];
+
+        this.dateFormatted = this.formatDate(adjustedDate);
+      }
+      this.menu1 = false;
+    },
+
+    updateDate() {
+      this.updatedReceived.date = this.parseDate(this.dateFormatted);
+    },
+
+    formatDate(date) {
+      if (date instanceof Date) {
+        date = date.toISOString();
+      }
+
+      if (typeof date === "string") {
+        const [year, month, day] = date.split("T")[0].split("-");
+        return `${day.padStart(2, "0")}/${month.padStart(2, "0")}/${year}`;
+      }
+
+      return "";
+    },
+
+    parseDate(date) {
+      if (!date) return null;
+      const [day, month, year] = date.split("/");
+      return new Date(year, month - 1, day).toISOString().split("T")[0];
     },
 
     addProductToList(product) {
@@ -438,9 +506,12 @@ export default {
         });
         return responseDonor;
       } else if (type === "user") {
-        const responseUser = await this.$store.dispatch("user/findAll", {
-          search,
-        });
+        const responseUser = await this.$store.dispatch(
+          "userColaborator/findAll",
+          {
+            search,
+          }
+        );
         return responseUser;
       }
     },
@@ -449,7 +520,10 @@ export default {
       this.userList = [];
       try {
         const response = await this.findAll(search, "user");
-        if (
+
+        if (response && Array.isArray(response)) {
+          this.userList = response;
+        } else if (
           response &&
           response.dataUsers &&
           Array.isArray(response.dataUsers)
@@ -457,7 +531,7 @@ export default {
           this.userList = response.dataUsers;
         }
       } catch (error) {
-        this.error("Erro ao selecionar doador!");
+        this.$error("Erro ao selecionar usuário!");
         throw error;
       }
     },
@@ -477,11 +551,11 @@ export default {
 
     async saveChanges() {
       const updateData = {
-        date: this.date,
+        date: this.updatedReceived.date,
         condition_product: this.updatedReceived.condition_product,
-        description: this.updatedReceived.description,
-        user_id: this.selectedUser.id,
-        donor_id: this.selectedDonor.id,
+        description: this.updatedReceived.description || "",
+        user_id: this.selectedUser?.id,
+        donor_id: this.selectedDonor?.id,
         donor: {
           name: this.updatedReceived.donor.name,
           identifier: this.updatedReceived.donor.identifier,
@@ -495,19 +569,22 @@ export default {
           amount: Number(item.amount),
         })),
       };
-
+      console.log("updateData", updateData);
       try {
         const response = await this.$store.dispatch("received/update", {
           id: this.id,
           payload: updateData,
         });
 
+        console.log("payload", response);
+
         if (response) {
-          this.$success("Registro atualizado com sucesso!");
+          console.log("registro atualizado!", response);
+          this.$success("Registro atualizado!");
+          this.$emit("input", false);
           this.selectedProduct = "";
           this.selectedDonor = "";
-          this.$emit("input", false);
-          this.createdReceived = this.getReceived();
+          return response;
         } else {
           this.$error("Erro ao atualizar recebimento!");
         }

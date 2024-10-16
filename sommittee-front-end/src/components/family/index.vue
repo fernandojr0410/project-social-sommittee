@@ -21,7 +21,7 @@
             <span>{{ formatDate(item.created_at) }}</span>
           </template>
 
-          <template v-slot:item.function="{ item }">
+          <template v-slot:[`item.function`]="{ item }">
             {{
               item.people_family && item.people_family.length > 0
                 ? $options.filters.functionFamily(
@@ -32,29 +32,28 @@
           </template>
 
           <template v-slot:[`item.name`]="{ item }">
-            <span>
-              {{ item.people.name }}
-            </span>
-          </template>
-
-          <template v-slot:[`item.identifier`]="{ item }">
-            <span>{{ item.people.identifier | cpf }}</span>
+            <div v-if="item.people_family && item.people_family.length > 0">
+              <span>
+                {{ item.people_family[0]?.people?.name || "Nome não definido" }}
+              </span>
+            </div>
+            <span v-else>Sem membros cadastrados</span>
           </template>
 
           <template v-slot:[`item.zip_code`]="{ item }">
-            <span>{{ item.address.zip_code | cep }}</span>
+            <span>{{ item.address?.zip_code | cep }}</span>
           </template>
 
           <template v-slot:[`item.street`]="{ item }">
-            <span>{{ item.address.street }}</span>
+            <span>{{ item.address?.street }}</span>
           </template>
 
           <template v-slot:[`item.number`]="{ item }">
-            <span>{{ item.address.number }}</span>
+            <span>{{ item.address?.number }}</span>
           </template>
 
           <template v-slot:[`item.neighborhood`]="{ item }">
-            <span>{{ item.address.neighborhood }}</span>
+            <span>{{ item.address?.neighborhood }}</span>
           </template>
 
           <template v-slot:[`item.actions`]="{ item }">
@@ -76,9 +75,8 @@
           </template>
         </v-data-table>
         <FamilyEdit
-          :dialog="editDialog"
+          v-model="editDialog"
           :id="updatedFamilyId"
-          @close="editDialog = false"
           @save="saveUpdatedFamily"
         />
 
@@ -99,155 +97,42 @@
           </v-btn>
         </v-card-title>
         <v-card-text>
-          <v-card class="elevation-4" style="padding: 16px">
+          <v-card class="elevation" style="margin-top: 30px; padding: 16px">
             <div style="padding-bottom: 16px">
               <span color="primary" style="font-weight: bold; font-size: 16px">
-                Informações da pessoa:
+                Pessoas adicionadas à família:
               </span>
             </div>
 
-            <v-row>
-              <v-col>
-                <v-text-field
-                  v-if="selectedPeopleFamily?.people"
-                  v-model="selectedPeopleFamily.people.name"
-                  label="Nome completo"
-                  class="mr-3"
-                  readonly
-                  outlined
+            <v-list v-if="familyMembers.length > 0">
+              <v-list-item-group>
+                <v-list-item
+                  v-for="(person, index) in familyMembers"
+                  :key="index"
+                  class="elevation-2 mb-2"
+                  style="border: 1px solid #ccc; padding: 10px"
+                  :ripple="false"
                   dense
-                  hide-details
-                />
-              </v-col>
-              <v-col>
-                <v-text-field
-                  v-if="selectedPeopleFamily?.people"
-                  v-model="selectedPeopleFamily.people.identifier"
-                  label="CPF"
-                  class="mr-3"
-                  v-mask="'###.###.###-##'"
-                  readonly
-                  outlined
-                  dense
-                  hide-details
-                />
-              </v-col>
-            </v-row>
-
-            <v-row>
-              <v-col>
-                <v-menu
-                  v-model="menu2"
-                  :close-on-content-click="false"
-                  :nudge-right="40"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
-                  readonly
+                  inactive
                 >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      v-if="selectedPeopleFamily?.people"
-                      v-model="selectedPeopleFamily.people.birth_date"
-                      label="Data de nascimento"
-                      prepend-icon="mdi-calendar"
-                      v-bind="attrs"
-                      v-on="on"
-                      readonly
-                      outlined
-                      dense
-                      hide-details
-                      style="width: 96%"
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker
-                    color="secondary"
-                    v-model="selectedPeopleFamily.people.birth_date"
-                    locale="pt"
-                    @input="menu2 = false"
-                  ></v-date-picker>
-                </v-menu>
-              </v-col>
-              <v-col>
-                <v-text-field
-                  v-if="selectedPeopleFamily?.people"
-                  v-model="selectedPeopleFamily.people.email"
-                  label="E-mail"
-                  class="mr-3"
-                  readonly
-                  outlined
-                  dense
-                  hide-details
-                />
-              </v-col>
-            </v-row>
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      <strong>Nome:</strong> {{ person.name }}
+                    </v-list-item-title>
+                    <v-list-item-subtitle>
+                      <strong>Função:</strong>
+                      {{ person.function | functionFamily }}
+                    </v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list-item-group>
+            </v-list>
 
-            <v-row>
-              <v-col>
-                <v-text-field
-                  v-if="selectedPeopleFamily?.people"
-                  v-model="selectedPeopleFamily.people.telephone"
-                  label="Telefone"
-                  class="mr-3"
-                  v-mask="'(##) #####-####'"
-                  readonly
-                  outlined
-                  dense
-                  hide-details
-                />
-              </v-col>
-              <v-col>
-                <v-select
-                  v-if="selectedPeopleFamily?.people"
-                  v-model="selectedPeopleFamily.people.gender"
-                  :items="[
-                    { text: 'Masculino', value: 'MALE' },
-                    { text: 'Feminino', value: 'FEMALE' },
-                  ]"
-                  item-value="value"
-                  item-text="text"
-                  class="mr-3"
-                  label="Sexo"
-                  readonly
-                  outlined
-                  dense
-                  hide-details
-                />
-              </v-col>
-            </v-row>
-
-            <v-row>
-              <v-col>
-                <v-select
-                  v-if="selectedPeopleFamily?.people"
-                  v-model="selectedPeopleFamily.people.work"
-                  :items="[
-                    { text: 'Sim', value: true },
-                    { text: 'Não', value: false },
-                  ]"
-                  item-value="value"
-                  item-text="text"
-                  class="mr-3"
-                  label="Trabalha?"
-                  readonly
-                  outlined
-                  dense
-                  hide-details
-                />
-              </v-col>
-              <v-col>
-                <v-text-field
-                  v-if="selectedPeopleFamily?.people"
-                  v-model="selectedPeopleFamily.people.education"
-                  label="Educação"
-                  class="mr-3"
-                  readonly
-                  outlined
-                  dense
-                  hide-details
-                />
-              </v-col>
-            </v-row>
+            <div v-else>
+              <span color="primary" style="font-weight: bold; font-size: 16px">
+                Nenhuma pessoa adicionada à família
+              </span>
+            </div>
           </v-card>
 
           <v-card class="elevation-4" style="padding: 16px; margin-top: 30px">
@@ -330,60 +215,9 @@
               <v-col>
                 <v-text-field
                   v-if="selectedPeopleFamily && selectedPeopleFamily.address"
-                  v-model="selectedPeopleFamily.address.city"
+                  v-model="cityAndState"
                   label="Cidade"
                   class="mr-3"
-                  readonly
-                  outlined
-                  dense
-                  hide-details
-                  style="width: 96%"
-                />
-              </v-col>
-              <v-col>
-                <v-select
-                  v-if="selectedPeopleFamily && selectedPeopleFamily.address"
-                  v-model="selectedPeopleFamily.address.state"
-                  :items="states"
-                  item-value="acronym"
-                  item-text="name"
-                  class="mr-3"
-                  label="Estado"
-                  readonly
-                  outlined
-                  dense
-                  hide-details
-                />
-              </v-col>
-            </v-row>
-          </v-card>
-
-          <v-card class="elevation-4" style="padding: 16px; margin-top: 30px">
-            <div style="padding-bottom: 16px">
-              <span color="primary" style="font-weight: bold; font-size: 16px">
-                Função da pessoa na família:
-              </span>
-            </div>
-
-            <v-row>
-              <v-col>
-                <v-select
-                  v-if="
-                    selectedPeopleFamily && selectedPeopleFamily.people_family
-                  "
-                  v-model="selectedPeopleFamily.people_family[0].function"
-                  :items="[
-                    { text: 'Mãe', value: 'mother' },
-                    { text: 'Pai', value: 'father' },
-                    { text: 'Filho(a)', value: 'child' },
-                    { text: 'Vó', value: 'grandMother' },
-                    { text: 'Vô', value: 'grandFather' },
-                    { text: 'Tio', value: 'uncle' },
-                    { text: 'Tio', value: 'aunt' },
-                  ]"
-                  item-value="value"
-                  item-text="text"
-                  label="Função"
                   readonly
                   outlined
                   dense
@@ -432,11 +266,11 @@ export default {
       updatedFamilyId: null,
       deleteDialog: false,
       itemToDelete: null,
+      familyMembers: [],
       search: "",
       headers: [
         { text: "Data criação", value: "created_at" },
         { text: "Nome", value: "name" },
-        { text: "CPF", value: "identifier" },
         { text: "Função", value: "function" },
         { text: "CEP", value: "zip_code" },
         { text: "Rua", value: "street" },
@@ -458,11 +292,31 @@ export default {
     family() {
       return this.$store.state.family.family;
     },
+    cityAndState() {
+      const city = this.selectedPeopleFamily?.address.city || "";
+      const state = this.selectedPeopleFamily?.address.state || "";
+      return city && state ? `${city}, ${state}` : city || state;
+    },
   },
   created() {
     this.loadData();
   },
   methods: {
+    addPersonToFamily() {
+      if (this.selectedPeople && this.selectedFunction) {
+        this.familyMembers.push({
+          id: this.selectedPeople.id,
+          name: this.selectedPeople.name,
+          function: this.selectedFunction,
+          address: this.selectedPeople.address,
+        });
+
+        this.familyMembers = [...this.familyMembers];
+
+        this.selectedFunction = null;
+      }
+    },
+
     async loadData() {
       this.loading = true;
       try {
@@ -481,14 +335,49 @@ export default {
     async handleSearch(search) {
       this.search = search;
     },
+
     showDetails(item) {
       this.selectedPeopleFamily = item;
+
+      if (item.people_family && item.people_family.length > 0) {
+        this.familyMembers = item.people_family.map((personFamily) => {
+          return {
+            name: personFamily.people?.name || "Nome não definido",
+            function: personFamily.function || "Função não definida",
+            address: item.address || {},
+          };
+        });
+      } else {
+        this.familyMembers = [];
+      }
+
       this.dialog = true;
     },
+
     editItem(item) {
+      if (item.people_family && item.people_family.length > 0) {
+        this.familyMembers = item.people_family.map((personFamily) => {
+          return {
+            name: personFamily.people?.name || "Nome não definido",
+            function: personFamily?.function || "Função não definida",
+            address: item.address || {},
+          };
+        });
+      } else {
+        this.familyMembers = [];
+      }
+
+      this.selectedFunction = item.people_family?.[0]?.function || "";
+
       this.updatedFamilyId = item.id;
+      this.updatedFamily = {
+        ...item,
+        address: { ...item.address },
+      };
+
       this.editDialog = true;
     },
+
     async saveUpdatedFamily(updatedFamily) {
       try {
         await this.$store.dispatch("family/update", updatedFamily);

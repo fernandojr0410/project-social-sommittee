@@ -25,15 +25,24 @@
         transition="scale-transition"
       >
         <template v-slot:activator="{ on, attrs }">
-          <v-icon size="45" class="mr-10" v-bind="attrs" v-on="on">
-            mdi-account-circle
-          </v-icon>
+          <v-avatar v-bind="attrs" v-on="on" size="56">
+            <v-img v-if="user.avatar_url" :src="user.avatar_url" alt="Avatar" />
+            <v-icon v-else size="56" color="white">mdi-account-circle</v-icon>
+          </v-avatar>
         </template>
-        <v-card class="user-card" style="width: 250px">
-          <div class="d-flex align-center">
-            <v-icon size="45" class="pl-2" color="#ffa500">
-              mdi-account-circle
-            </v-icon>
+
+        <v-card class="user-card" style="width: 300px">
+          <div class="d-flex align-center justify-center">
+            <v-avatar size="56">
+              <v-img
+                v-if="user.avatar_url"
+                :src="user.avatar_url"
+                alt="Avatar"
+              />
+              <v-icon v-else size="56" color="orange"
+                >mdi-account-circle</v-icon
+              >
+            </v-avatar>
             <div class="d-flex flex-column pr-10">
               <v-card-title>{{ user.name }}</v-card-title>
               <v-card-subtitle class="email-title">
@@ -126,25 +135,33 @@
           <v-list-item-title>Financeiro</v-list-item-title>
         </v-list-item>
 
-        <v-list-item>
+        <!-- <v-list-item>
           <v-list-item-icon>
             <v-icon>mdi-shopping</v-icon>
           </v-list-item-icon>
           <v-list-item-title>Compras</v-list-item-title>
-        </v-list-item>
+        </v-list-item> -->
 
-        <v-list-group no-action prepend-icon="mdi-cog-outline" color="#FFF">
+        <v-list-group
+          v-if="user.role === 'ADMIN' || user.role === 'MANAGER'"
+          no-action
+          prepend-icon="mdi-cog-outline"
+          color="#FFF"
+        >
           <template v-slot:activator>
             <v-list-item-content>
               <v-list-item-title>Configurações</v-list-item-title>
             </v-list-item-content>
           </template>
-          <v-list-item>
+          <v-list-item
+            :to="{ path: '/users' }"
+            v-if="user.role === 'ADMIN' || user.role === 'MANAGER'"
+          >
             <v-list-item-content>
               <v-list-item-title>Usuários</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
-          <v-list-item>
+          <v-list-item :to="{ path: '/logger' }" v-if="user.role === 'ADMIN'">
             <v-list-item-content>
               <v-list-item-title>Logs</v-list-item-title>
             </v-list-item-content>
@@ -156,24 +173,24 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState } from "vuex";
 
 export default {
-  name: 'Header',
+  name: "Header",
   components: {},
   data() {
     return {
-      path: '',
-      pageName: 'Dashboard',
-      imgSoon: require('../../assets/img/soon.png'),
-      altSoon: 'Imagem Logo',
-      name: '',
-      identifier: '',
-      email: '',
+      path: "",
+      pageName: "Dashboard",
+      imgSoon: require("../../assets/img/soon.png"),
+      altSoon: "Imagem Logo",
+      name: "",
+      identifier: "",
+      email: "",
       drawer: true,
       mini: true,
       expand: false,
-    }
+    };
   },
   computed: {
     ...mapState({
@@ -181,72 +198,95 @@ export default {
     }),
   },
   watch: {
-    '$route.path': {
+    "$route.path": {
       immediate: true,
       handler: function (path) {
         switch (path) {
-          case '/':
-            document.title = `Sommittee | Dashboard`
-            this.pageName = 'Dashboard'
-            break
-          case '/my-data':
-            document.title = `Sommittee | Meu perfil`
-            this.pageName = 'Meu perfil'
-            break
-          case '/received':
-            document.title = `Sommittee | Recebimento`
-            this.pageName = 'Recebimentos'
-            break
-          case '/people':
-            document.title = `Sommittee | Pessoas`
-            this.pageName = 'Pessoas'
-            break
-          case '/family':
-            document.title = `Sommittee | Famílias`
-            this.pageName = 'Famílias'
-            break
-          case '/donor':
-            document.title = `Sommittee | Doadores`
-            this.pageName = 'Doadores'
-            break
-          case '/donation':
-            document.title = `Sommittee | Entregas`
-            this.pageName = 'Entregas'
-            break
-          case '/product':
-            document.title = `Sommittee | Produtos`
-            this.pageName = 'Produtos'
-            break
+          case "/":
+            document.title = `Sommittee | Dashboard`;
+            this.pageName = "Dashboard";
+            break;
+          case "/my-data":
+            document.title = `Sommittee | Meu perfil`;
+            this.pageName = "Meu perfil";
+            break;
+          case "/received":
+            document.title = `Sommittee | Recebimento`;
+            this.pageName = "Recebimentos";
+            break;
+          case "/people":
+            document.title = `Sommittee | Pessoas`;
+            this.pageName = "Pessoas";
+            break;
+          case "/family":
+            document.title = `Sommittee | Famílias`;
+            this.pageName = "Famílias";
+            break;
+          case "/donor":
+            document.title = `Sommittee | Doadores`;
+            this.pageName = "Doadores";
+            break;
+          case "/donation":
+            document.title = `Sommittee | Entregas`;
+            this.pageName = "Entregas";
+            break;
+          case "/product":
+            document.title = `Sommittee | Produtos`;
+            this.pageName = "Produtos";
+            break;
+          case "/users":
+            document.title = `Sommittee | Usuários`;
+            this.pageName = "Usuários";
+            break;
+          case "/logger":
+            document.title = `Sommittee | Logs`;
+            this.pageName = "Logs";
+            break;
         }
       },
     },
     $route(to, from) {
       if (to.query.noRedirect) {
-        this.$router.push(from.path)
+        this.$router.push(from.path);
       }
     },
   },
   methods: {
-    login() {
-      this.$router.push('/login-collaborator')
+    async logout() {
+      try {
+        await this.$store.dispatch("auth/logout");
+
+        this.$router.replace("/login");
+      } catch (error) {
+        console.error("Erro ao fazer logout:", error);
+        throw error;
+      }
+    },
+
+    async login() {
+      try {
+        await this.$store.dispatch("auth/login", this.credentials);
+
+        this.$router.push("/home");
+      } catch (error) {
+        this.$error("Erro ao realizar login.");
+      }
     },
     viewProfile() {
-      if (this.$route.path !== '/my-data') {
-        this.$router.push('/my-data')
+      if (this.$route.path !== "/my-data") {
+        this.$router.push("/my-data");
       }
     },
-    logout() {
-      this.$store.dispatch('auth/logout')
-    },
+
     handleMenuItemClick(item) {
       if (this.$route.path === item.to) {
-        return false
+        return false;
       }
-      this.$router.push(item.to)
+      this.$router.push(item.to);
     },
     toggleDrawer() {
-      ;(this.drawer = !this.drawer), (this.mini = !this.mini)
+      (this.drawer = !this.drawer), (this.mini = !this.mini);
     },
   },
-}
+};
 </script>

@@ -1,25 +1,54 @@
-import { Body, Controller, Get, NotFoundException, Param, Patch, Post, Req, UseGuards, UseInterceptors, UploadedFile, Res, BadRequestException, InternalServerErrorException } from "@nestjs/common";
-import { AuthService } from "./auth.service";
-import { UpdatePasswordDto } from "./dto/updatePassword-auth-dto";
-import { AuthGuard } from "./auth.guard";
-import { UpdateUserDto } from "../user/dto/update-user.dto";
-import { CreateUserDto } from "../user/dto/create-user.dto";
-import { FileInterceptor } from '@nestjs/platform-express';
-import { Request, Response } from 'express';
-import { diskStorage } from "multer";
-import { extname } from "path";
+import {
+  Body,
+  Controller,
+  Get,
+  NotFoundException,
+  Patch,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { AuthService } from './auth.service';
+import { UpdatePasswordDto } from './dto/updatePassword-auth.dto';
+import { AuthGuard } from './auth.guard';
+import { UpdateUserDto } from '../user/dto/update-user.dto';
+import { LoginDto } from './dto/login-auth.dto';
 
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { VerifyTwoFactorEmail } from './dto/verifyTwoFactorEmail.auth-dto';
+import { SendSmsDto, VerifySmsDto } from './dto/verifyTwoFactorSms-auth.dto';
 
 @Controller('users/auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-
-  ) { }
+  constructor(private readonly authService: AuthService) {}
 
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
-    return await this.authService.create(createUserDto)
+    return await this.authService.create(createUserDto);
+  }
+
+  @Post('login')
+  async login(@Body() loginDto: LoginDto) {
+    const { email, password, recaptchaToken } = loginDto;
+    return this.authService.login(email, password, recaptchaToken);
+  }
+
+  @Post('verify-2fa')
+  async verifyTwoFactor(@Body() verifyTwoFactorEmail: VerifyTwoFactorEmail) {
+    const { code, user_id } = verifyTwoFactorEmail;
+    return this.authService.verifyTwoFactorCode(code, user_id);
+  }
+
+  @Post('send-sms')
+  async sendSms(@Body() sendSmsDto: SendSmsDto) {
+    const { user_id } = sendSmsDto;
+    return this.authService.sendSmsCode(user_id);
+  }
+
+  @Post('verify-sms')
+  async verifySms(@Body() verifySmsDto: VerifySmsDto) {
+    const { smsCode, user_id } = verifySmsDto;
+    return this.authService.verifySmsCode(smsCode, user_id);
   }
 
   @UseGuards(AuthGuard)
@@ -27,31 +56,32 @@ export class AuthController {
   async getProfile(@Req() req) {
     const profile = await this.authService.getProfile(req.user.id);
     if (!profile) {
-      throw new NotFoundException('Profile not found')
+      throw new NotFoundException('Profile not found');
     }
-    return profile
+    return profile;
   }
 
   @UseGuards(AuthGuard)
   @Patch('password')
-  async updatePassword(@Req() req, @Body() updatePasswordDto: UpdatePasswordDto) {
-    return await this.authService.updatePassword(req.user.id, updatePasswordDto);
+  async updatePassword(
+    @Req() req,
+    @Body() updatePasswordDto: UpdatePasswordDto,
+  ) {
+    return this.authService.updatePassword(req.user.id, updatePasswordDto);
   }
 
   @UseGuards(AuthGuard)
   @Patch('profile')
   async changeProfile(@Req() req, @Body() updateUserDto: UpdateUserDto) {
-    const updateUser = await this.authService.changeProfile(req.user.id, updateUserDto)
-    if (!updateUser) {
-      throw new NotFoundException('Profile not found')
-    }
-    return updateUser
+    return this.authService.changeProfile(req.user.id, updateUserDto);
   }
 
-  @Post('login')
-  async login(@Body() body) {
-    const { email, password } = body;
-    return this.authService.login(email, password);
+  @UseGuards(AuthGuard)
+  @Patch('avatar')
+  async updateAvatar(@Req() req, @Body('url') avatarUrl: string) {
+    const userId = req.user.id;
+    const updatedUser = await this.authService.updateAvatar(userId, avatarUrl);
+    return updatedUser;
   }
 
   @UseGuards(AuthGuard)
@@ -60,41 +90,4 @@ export class AuthController {
     const userId = req.user.id;
     return await this.authService.logout(userId);
   }
-  // @UseGuards(AuthGuard)
-  // @Post('profile/avatar')
-  // @UseInterceptors(FileInterceptor('file', {
-  //   storage: diskStorage({
-  //     destination: './uploads/avatars',
-  //     filename: (req, file, callback) => {
-  //       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-  //       callback(null, uniqueSuffix + extname(file.originalname));
-  //     }
-  //   })
-  // }))
-  // async uploadAvatar(@Req() req, @UploadedFile() file: Express.Multer.File) {
-  //   console.log('Arquivo recebido:', file);
-
-  //   if (!file) {
-  //     throw new BadRequestException('File not uploaded');
-  //   }
-
-  //   console.log('Tipo do arquivo:', file.mimetype);
-  //   console.log('Tamanho do arquivo:', file.size);
-  //   console.log('Caminho do arquivo:', file.path);
-
-  //   const avatarPath = `/uploads/avatars/${file.filename}`;
-  //   console.log('Caminho do avatar:', avatarPath);
-
-  //   try {
-  //     await this.authService.updateAvatar(req.user.id, avatarPath);
-  //   } catch (error) {
-  //     console.error('Erro ao atualizar o avatar:', error);
-  //     throw new InternalServerErrorException('Error updating avatar');
-  //   }
-
-  //   return { avatar: avatarPath };
-  // }
-
-
-
-} 
+}

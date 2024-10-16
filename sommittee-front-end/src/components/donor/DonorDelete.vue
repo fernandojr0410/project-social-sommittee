@@ -11,10 +11,10 @@
 </template>
 
 <script>
-import Modal from '../modal/Modal.vue'
+import Modal from "../modal/Modal.vue";
 
 export default {
-  name: 'DonorDelete',
+  name: "DonorDelete",
   components: { Modal },
   props: {
     dialog: Boolean,
@@ -22,37 +22,40 @@ export default {
   },
   data() {
     return {
-      modalTitle: 'Confirmar Exclusão',
-      modalText: 'Tem certeza que deseja excluir esse registro?',
-      modalButtonText: 'Confirmar',
+      modalTitle: "Confirmar Exclusão",
+      modalText: "Tem certeza que deseja excluir esse registro?",
+      modalButtonText: "Confirmar",
       showModal: false,
-    }
+    };
   },
 
   watch: {
     dialog(val) {
-      this.showModal = val
+      this.showModal = val;
     },
   },
 
   methods: {
     async deleteData() {
       try {
-        const response = await this.$store.dispatch('donor/delete', this.id)
-        this.$success('Registro deletado!')
-        this.$emit('close')
-        return response
+        const response = await this.$store.dispatch("donor/delete", this.id);
+        this.$success("Registro deletado!");
+        this.$emit("close");
+        return response;
       } catch (error) {
-        this.$error('Erro ao deletar registro!')
-        throw error
-      } finally {
-        this.showModal = false
+        this.$error("Erro ao deletar registro!");
+        setTimeout(() => {
+          this.$error(
+            "Não foi possível deletar esse registro! O doador está vinculado a recebimentos e não pode ser removido enquanto esses vínculos existirem."
+          );
+        }, 2000);
+        throw error;
       }
     },
     handleCancel() {
-      this.showModal = false
-      this.$emit('close')
+      this.showModal = false;
+      this.$emit("close");
     },
   },
-}
+};
 </script>

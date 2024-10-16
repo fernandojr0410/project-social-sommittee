@@ -1,24 +1,22 @@
-import { IsInt, IsJSON, IsNotEmpty, IsOptional, IsString } from "class-validator";
-
+import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 export class CreateLogDto {
-
   @IsString()
   @IsOptional()
-  path: string
-
-  @IsJSON()
-  @IsOptional()
-  data: any
+  path: string;
 
   @IsInt()
   @IsNotEmpty()
-  status: number
+  status: number;
 
   @IsString()
   @IsOptional()
-  method: string
+  method: string;
 
   @IsString()
-  @IsNotEmpty()
-  user_id: string
+  @IsOptional()
+  payload: any;
+
+  @IsString()
+  @IsOptional()
+  user_id: string;
 }

@@ -9,6 +9,10 @@ const mutations = {
     state.received.push(newReceived);
   },
 
+  SET_LATEST_RECEIVED(state, received) {
+    state.received = received;
+  },
+
   SET_RECEIVED(state, received) {
     state.received = received;
   },
@@ -30,6 +34,10 @@ const getters = {
   getById: (state) => {
     return (id) => state.received.find((received) => received.id === id);
   },
+
+  latestReceived(state) {
+    return state.received;
+  },
 };
 
 const actions = {
@@ -37,6 +45,17 @@ const actions = {
     const response = await API.received.create(payload);
     commit("CREATE_RECEIVED", response);
     return response;
+  },
+
+  async fetchLatestReceived({ commit }) {
+    try {
+      const response = await API.received.getLatestReceived();
+      commit("SET_LATEST_RECEIVED", response);
+      return response;
+    } catch (error) {
+      console.error("Erro ao buscar os últimos recebimentos:", error);
+      throw error;
+    }
   },
 
   async findAll({ commit }, query) {

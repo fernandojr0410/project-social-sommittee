@@ -1,84 +1,132 @@
-import API from '@/services/module/API'
+import axios from "axios";
+import router from "@/router";
+import API from "@/services/module/API";
 
 const state = {
   user: null,
-  // user: [],
-}
+};
 
 const mutations = {
   SET_USER(state, payload) {
-    state.user = { ...state.user, ...payload }
+    state.user = { ...state.user, ...payload };
   },
-}
+
+  SET_TOKEN(state, token) {
+    state.token = token;
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    localStorage.setItem("@sommittee.access_token", token);
+  },
+};
 
 const getters = {
   getById: (state) => {
-    return (id) => state.users.find((user) => user.id === id)
+    return (id) => state.users.find((user) => user.id === id);
   },
-
-  avatarUrl: (state) => {
-    return state.user?.avatarUrl || ''
-  },
-}
+};
 
 const actions = {
   async login({ commit }, requestBody) {
-    await API.auth.login(requestBody)
-    const user = await API.auth.profile()
-    commit('SET_USER', user)
+    const response = await API.auth.login(requestBody);
+    console.log("Login response:", response);
+
+    if (response.two_factor) {
+      return response;
+    }
+
+    const user = await API.auth.profile();
+    commit("SET_USER", user);
+    return user;
+  },
+
+  async verifyTwoFactor({ commit }, requestBody) {
+    try {
+      const response = await API.auth.verifyTwoFactor(requestBody);
+
+      await API.auth.sendSms({ user_id: requestBody.user_id });
+
+      return { success: true };
+    } catch (error) {
+      console.error("Erro durante a verificação 2FA:", error);
+      throw new Error("Erro na verificação do código 2FA");
+    }
+  },
+
+  async verifySmsCode({ commit }, requestBody) {
+    try {
+      const response = await API.auth.verifySmsCode(requestBody);
+
+      const { access_token } = response;
+
+      if (access_token) {
+        localStorage.setItem("@sommittee.access_token", access_token);
+        axios.defaults.headers.common["Authorization"] =
+          `Bearer ${access_token}`;
+
+        const user = await API.auth.profile();
+        commit("SET_USER", user);
+
+        return { success: true };
+      } else {
+        throw new Error("Token não encontrado");
+      }
+    } catch (error) {
+      console.error("Erro na verificação do código SMS:", error);
+      throw error;
+    }
+  },
+  async fetchUserProfile({ commit }) {
+    const user = await API.auth.profile();
+    commit("SET_USER", user);
   },
 
   async fetchUsers({ commit }) {
     try {
-      const response = await API.user.getAll()
-      commit('SET_USERS', response.data)
+      const response = await API.user.getAll();
+      commit("SET_USERS", response.data);
     } catch (error) {
-      console.error('Erro ao buscar usuários:', error)
-      throw error
+      console.error("Erro ao buscar usuários:", error);
+      throw error;
     }
   },
 
   async fetchUser({ commit }) {
-    const user = await API.auth.profile()
-    commit('SET_USER', user)
+    const user = await API.auth.profile();
+    commit("SET_USER", user);
   },
 
   async logout({ commit }) {
-    await API.auth.logout()
-    commit('SET_USER', null)
-    localStorage.removeItem('@sommittee.access_token')
-    location.reload()
+    await API.auth.logout();
+    commit("SET_USER", null);
+    localStorage.removeItem("@sommittee.access_token");
+    location.reload();
   },
 
   async updateProfile({ commit }, payload) {
-    const user = await API.auth.updateProfile(payload)
-    commit('SET_USER', user)
+    const user = await API.auth.updateProfile(payload);
+    commit("SET_USER", user);
+    return user;
   },
 
   async updatePassword({ commit }, payload) {
-    const response = await API.auth.updatePassword(payload)
-    commit('SET_USER', response)
+    const response = await API.auth.updatePassword(payload);
+    commit("SET_USER", response);
   },
 
-  // async uploadAvatar({ commit, state }, formData) {
-  //   try {
-  //     const response = await API.auth.uploadAvatar(formData)
-  //     console.log('Resposta da API:', response)
+  async uploadAvatar({ commit }, imageFile) {
+    try {
+      const imageUrl = await API.uploadService.uploadImage(imageFile);
 
-  //     if (response && response.avatar) {
-  //       const avatarUrl = response.avatar
-  //       const updatedUser = { ...state.user, avatar: avatarUrl }
-  //       commit('SET_USER', updatedUser)
-  //       return response
-  //     } else {
-  //       throw new Error('avatar não encontrado na resposta')
-  //     }
-  //   } catch (error) {
-  //     console.error('Erro ao enviar o avatar:', error)
-  //     throw error
-  //   }
-  // },
-}
+      const updatedUser = await API.storageService.updateAvatar(imageUrl);
+
+      commit("SET_USER", updatedUser);
+
+      return updatedUser;
+    } catch (error) {
+      console.error("Erro ao fazer upload do avatar:", error);
+      throw error;
+    }
+  },
+};
 
 export default {
   namespaced: true,
@@ -86,4 +134,4 @@ export default {
   mutations,
   getters,
   actions,
-}
+};

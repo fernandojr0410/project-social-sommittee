@@ -26,7 +26,7 @@
           </template>
 
           <template v-slot:[`item.type`]="{ item }">
-            <span>{{ item.type }}</span>
+            <span>{{ item.type | productCategory }}</span>
           </template>
 
           <template v-slot:[`item.actions`]="{ item }">
@@ -106,7 +106,7 @@
               <v-col>
                 <v-text-field
                   v-if="selectedProduct"
-                  v-model="selectedProduct.type"
+                  :value="selectedProduct.type | productCategory"
                   label="Categoria"
                   class="mr-3"
                   readonly
@@ -129,15 +129,15 @@
 </template>
 
 <script>
-import { formatDate } from '@/filters'
-import ProductEdit from './ProductEdit.vue'
-import ProductCreate from './ProductCreate.vue'
-import ProductDelete from './ProductDelete.vue'
-import ProductSearch from './ProductSearch.vue'
-import ProductRefresh from './ProductRefresh.vue'
+import { formatDate } from "@/filters";
+import ProductEdit from "./ProductEdit.vue";
+import ProductCreate from "./ProductCreate.vue";
+import ProductDelete from "./ProductDelete.vue";
+import ProductSearch from "./ProductSearch.vue";
+import ProductRefresh from "./ProductRefresh.vue";
 
 export default {
-  name: 'index',
+  name: "index",
   components: {
     ProductEdit,
     ProductCreate,
@@ -156,88 +156,88 @@ export default {
       deleteDialog: false,
       itemToDelete: null,
       headers: [
-        { text: 'Data criação', value: 'created_at' },
-        { text: 'Produto', value: 'name' },
-        { text: 'Descrição', value: 'description' },
-        { text: 'Categoria', value: 'type' },
-        { text: 'Ações', value: 'actions' },
+        { text: "Data criação", value: "created_at" },
+        { text: "Produto", value: "name" },
+        { text: "Descrição", value: "description" },
+        { text: "Categoria", value: "type" },
+        { text: "Ações", value: "actions" },
       ],
       formatDate,
-    }
+    };
   },
   computed: {
     product() {
-      return this.$store.state.product.product
+      return this.$store.state.product.product;
     },
   },
   created() {
-    this.loadData()
+    this.loadData();
   },
   methods: {
     async loadData() {
-      this.loading = true
+      this.loading = true;
       try {
-        await this.findAll()
+        await this.findAll();
       } catch (error) {
-        this.$error('Erro ao carregar dados!')
-        throw error
+        this.$error("Erro ao carregar dados!");
+        throw error;
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
     async findAll() {
-      await this.$store.dispatch('product/findAll')
+      await this.$store.dispatch("product/findAll");
     },
     async handleSearch(search) {
-      this.search = search
+      this.search = search;
     },
     showDetails(item) {
-      this.selectedProduct = item
-      this.dialog = true
+      this.selectedProduct = item;
+      this.dialog = true;
     },
     editItem(item) {
-      this.updatedProductId = item.id
-      this.editDialog = true
+      this.updatedProductId = item.id;
+      this.editDialog = true;
     },
     async saveUpdatedProduct(updatedProduct) {
       try {
         const response = await this.$store.dispatch(
-          'product/update',
+          "product/update",
           updatedProduct
-        )
-        this.loadData()
-        this.editDialog = false
-        return response
+        );
+        this.loadData();
+        this.editDialog = false;
+        return response;
       } catch (error) {
-        this.$error('Erro ao atualizar registro!')
-        throw error
+        this.$error("Erro ao atualizar registro!");
+        throw error;
       }
     },
     async createdProduct(newProduct) {
       try {
-        await this.$store.dispatch('product/create', newProduct)
-        this.$success('Registro criado!')
-        this.loadData()
-        this.createDialog = false
+        await this.$store.dispatch("product/create", newProduct);
+        this.$success("Registro criado!");
+        this.loadData();
+        this.createDialog = false;
       } catch (error) {
-        this.$error('Erro ao criar registro!')
-        throw error
+        this.$error("Erro ao criar registro!");
+        throw error;
       }
     },
     isSelected(item) {
-      return this.updatedProductId === item.id
+      return this.updatedProductId === item.id;
     },
     closeDialog() {
-      this.dialog = false
+      this.dialog = false;
     },
     confirmDelete(item) {
-      this.itemToDelete = item.id
-      this.deleteDialog = true
+      this.itemToDelete = item.id;
+      this.deleteDialog = true;
     },
     handleDeleteClose() {
-      this.deleteDialog = false
-      this.itemToDelete = null
+      this.deleteDialog = false;
+      this.itemToDelete = null;
     },
   },
-}
+};
 </script>

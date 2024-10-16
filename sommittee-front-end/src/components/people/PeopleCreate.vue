@@ -33,7 +33,6 @@
                 <v-text-field
                   v-model="createdPeople.name"
                   label="Nome completo"
-                  class="mr-3"
                   outlined
                   dense
                   hide-details
@@ -47,7 +46,6 @@
                 <v-text-field
                   v-model="createdPeople.identifier"
                   label="CPF"
-                  class="mr-3"
                   v-mask="'###.###.###-##'"
                   outlined
                   dense
@@ -56,7 +54,8 @@
               </v-col>
               <v-col>
                 <v-menu
-                  v-model="menu2"
+                  ref="menu1"
+                  v-model="menu1"
                   :close-on-content-click="false"
                   :nudge-right="40"
                   transition="scale-transition"
@@ -65,11 +64,11 @@
                 >
                   <template v-slot:activator="{ on, attrs }">
                     <v-text-field
-                      v-model="createdPeople.birth_date"
+                      v-model="dateFormatted"
                       label="Data de nascimento"
                       prepend-icon="mdi-calendar"
-                      readonly
                       v-bind="attrs"
+                      @blur="updateBirthDate"
                       v-on="on"
                       outlined
                       dense
@@ -80,7 +79,8 @@
                     color="secondary"
                     v-model="createdPeople.birth_date"
                     locale="pt"
-                    @input="menu2 = false"
+                    @input="updateFormattedDate"
+                    :title="formattedDateTitle"
                   ></v-date-picker>
                 </v-menu>
               </v-col>
@@ -91,7 +91,6 @@
                 <v-text-field
                   v-model="createdPeople.email"
                   label="E-mail"
-                  class="mr-3"
                   outlined
                   dense
                   hide-details
@@ -123,7 +122,6 @@
                   outlined
                   dense
                   hide-details
-                  style="width: 96.6%"
                 />
               </v-col>
               <v-col>
@@ -148,7 +146,6 @@
                 <v-text-field
                   v-model="createdPeople.education"
                   label="Educação"
-                  class="mr-3"
                   outlined
                   dense
                   hide-details
@@ -171,7 +168,6 @@
                   v-if="createdPeople && createdPeople.address"
                   v-model="createdPeople.address.zip_code"
                   label="CEP"
-                  class="mr-3"
                   @blur="fetchAddress"
                   v-mask="'#####-###'"
                   outlined
@@ -197,7 +193,6 @@
                   v-if="createdPeople && createdPeople.address"
                   v-model="createdPeople.address.number"
                   label="Número"
-                  class="mr-3"
                   outlined
                   dense
                   hide-details
@@ -221,7 +216,6 @@
                   v-if="createdPeople && createdPeople.address"
                   v-model="createdPeople.address.complement"
                   label="Complemento"
-                  class="mr-3"
                   outlined
                   dense
                   hide-details
@@ -233,23 +227,8 @@
               <v-col>
                 <v-text-field
                   v-if="createdPeople && createdPeople.address"
-                  v-model="createdPeople.address.city"
+                  v-model="cityAndState"
                   label="Cidade"
-                  outlined
-                  dense
-                  hide-details
-                  style="width: 95.5%"
-                />
-              </v-col>
-
-              <v-col>
-                <v-select
-                  v-if="createdPeople && createdPeople.address"
-                  v-model="createdPeople.address.state"
-                  :items="states"
-                  item-value="acronym"
-                  item-text="name"
-                  label="Selecione o estado"
                   outlined
                   dense
                   hide-details
@@ -261,15 +240,15 @@
         <v-card-actions style="display: flex; justify-content: end">
           <v-btn
             color="primary"
-            style="font-weight: bold; margin-right: 12px"
+            style="font-weight: bold; color: white; margin-right: 16px"
             @click="closeDialog"
           >
             Cancelar
           </v-btn>
           <v-btn
             color="green"
+            style="font-weight: bold; color: white; margin-right: 16px"
             @click="saveData"
-            style="color: white; font-weight: bold; margin-right: 12px"
           >
             Criar
           </v-btn>
@@ -280,79 +259,124 @@
 </template>
 
 <script>
-import API from '@/services/module/API'
-import { states } from '@/assets/state'
+import API from "@/services/module/API";
+import { states } from "@/assets/state";
 
 export default {
-  name: 'PeopleCreate',
+  name: "PeopleCreate",
   data() {
     return {
       dialog: false,
-      createdPeople: this.getInitialPeople(),
+      createdPeople: {},
+      dateFormatted: "",
+      menu1: false,
       states,
-      menu2: false,
-    }
+    };
+  },
+  computed: {
+    cityAndState() {
+      const city = this.createdPeople.address.city || "";
+      const state = this.createdPeople.address.state || "";
+      return city && state ? `${city}, ${state}` : city || state;
+    },
+    formattedDateTitle() {
+      const date = new Date(this.createdPeople.birth_date);
+      if (isNaN(date.getTime())) return "";
+      const options = { day: "numeric", weekday: "short", month: "long" };
+      return date.toLocaleDateString("pt-BR", options);
+    },
   },
   methods: {
-    getInitialPeople() {
+    getPeople() {
       return {
-        name: '',
-        gender: '',
-        work: '',
-        identifier: '',
-        email: '',
-        birth_date: new Date().toISOString().substr(0, 10),
-        telephone: '',
-        education: '',
+        name: "",
+        identifier: "",
+        birth_date: new Date().toISOString().split("T")[0],
+        email: "",
+        telephone: "",
+        gender: "",
+        work: "",
+        education: "",
         address: {
-          zip_code: '',
-          street: '',
-          number: '',
-          complement: '',
-          neighborhood: '',
-          city: '',
-          state: '',
+          zip_code: "",
+          street: "",
+          number: "",
+          complement: "",
+          neighborhood: "",
+          city: "",
+          state: "",
         },
-      }
+      };
     },
     openDialog() {
-      this.dialog = true
+      this.dialog = true;
+      this.createdPeople = this.getPeople();
     },
     closeDialog() {
-      this.dialog = false
-      this.$emit('close')
+      this.dialog = false;
+      this.$emit("close");
+    },
+    updateFormattedDate(date) {
+      if (date) {
+        const adjustedDate = new Date(date);
+        adjustedDate.setHours(
+          adjustedDate.getHours() + adjustedDate.getTimezoneOffset() / 60
+        );
+        this.createdPeople.birth_date = adjustedDate
+          .toISOString()
+          .split("T")[0];
+        this.dateFormatted = this.formatDate(adjustedDate);
+      }
+      this.menu1 = false;
+    },
+
+    updateBirthDate() {
+      this.createdPeople.birth_date = this.parseDate(this.dateFormatted);
+    },
+
+    formatDate(date) {
+      const d = new Date(date);
+      if (isNaN(d.getTime())) return "";
+      const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+      return new Intl.DateTimeFormat("pt-BR", options).format(d);
+    },
+
+    parseDate(date) {
+      if (!date) return null;
+      const [day, month, year] = date.split("/");
+      return new Date(year, month - 1, day).toISOString().split("T")[0];
     },
     async fetchAddress() {
       try {
         const address = await API.cep.getAddressByZipcode(
           this.createdPeople.address.zip_code
-        )
+        );
         if (address && address.street) {
           this.createdPeople.address = {
             ...this.createdPeople.address,
             ...address,
-          }
+          };
         }
       } catch (error) {
-        this.$error('Erro ao buscar endereço pelo CEP:')
-        throw error
+        this.$error("Erro ao buscar endereço pelo CEP:");
+        throw error;
       }
     },
     async saveData() {
       try {
         const newAddress = {
           name: this.createdPeople.name,
-          identifier: this.createdPeople.identifier.replace(/\D/g, ''),
+          identifier: this.createdPeople.identifier.replace(/\D/g, ""),
           birth_date: this.createdPeople.birth_date,
           email: this.createdPeople.email,
           gender: this.createdPeople.gender,
-          telephone: this.createdPeople.telephone.replace(/[^0-9]/g, ''),
+          telephone: this.createdPeople.telephone.replace(/[^0-9]/g, ""),
           work: this.createdPeople.work,
           education: this.createdPeople.education,
           address: {
             zip_code: this.createdPeople.address.zip_code.replace(
               /[^0-9]/g,
-              ''
+              ""
             ),
             street: this.createdPeople.address.street,
             number: this.createdPeople.address.number,
@@ -361,19 +385,22 @@ export default {
             city: this.createdPeople.address.city,
             state: this.createdPeople.address.state,
           },
-        }
-        await this.$store.dispatch('people/create', newAddress)
-        this.$success('Registro criado!')
-        this.closeDialog()
-        this.$emit('close')
-        this.createdPeople = this.getInitialPeople()
-        return newAddress
+        };
+        await this.$store.dispatch("people/create", newAddress);
+        this.$success("Registro criado!");
+        this.closeDialog();
+        this.createdPeople = newAddress;
+        return newAddress;
       } catch (error) {
-        this.$error('Erro ao criar a pessoa!')
-        this.$error('Erro ao criar endereço!')
-        throw error
+        this.$error("Erro ao criar a pessoa!");
+        this.$error("Erro ao criar endereço!");
+        throw error;
       }
     },
   },
-}
+  mounted() {
+    const today = new Date();
+    this.dateFormatted = this.formatDate(today);
+  },
+};
 </script>

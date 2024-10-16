@@ -16,10 +16,6 @@
           Informações
           <v-icon>mdi-information-outline</v-icon>
         </v-tab>
-        <v-tab href="#tab-2">
-          Autenticação
-          <v-icon>mdi-two-factor-authentication</v-icon>
-        </v-tab>
 
         <v-tab href="#tab-3">
           Senha
@@ -32,10 +28,6 @@
           <FormMyInfo />
         </v-tab-item>
 
-        <v-tab-item value="tab-2">
-          <FormAuthendicator />
-        </v-tab-item>
-
         <v-tab-item value="tab-3">
           <FormPassword />
         </v-tab-item>
@@ -45,21 +37,19 @@
 </template>
 
 <script>
-import FormMyInfo from './FormMyInfo.vue'
-import FormAuthendicator from './FormAuthendicator.vue'
-import FormPassword from './FormPassword.vue'
+import FormMyInfo from "./FormMyInfo.vue";
+import FormPassword from "./FormPassword.vue";
 
 export default {
-  name: 'Index',
+  name: "Index",
   components: {
     FormMyInfo,
-    FormAuthendicator,
     FormPassword,
   },
   data() {
     return {
-      tab: ['tab-1', 'tab-2', 'tab-3'],
-    }
+      tab: ["tab-1", "tab-3"],
+    };
   },
-}
+};
 </script>

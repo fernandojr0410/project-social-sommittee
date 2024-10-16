@@ -9,13 +9,12 @@ import { jwtConstants } from './jwtConstants';
 import { Request } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 
-
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly prisma: PrismaService
-  ) { }
+    private readonly prisma: PrismaService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
@@ -26,7 +25,9 @@ export class AuthGuard implements CanActivate {
 
     try {
       const payload = await this.jwtService.verifyAsync(token, {
-        secret: jwtConstants.secret,
+        secret: Buffer.from(process.env.JWT_SECRET, 'base64').toString(),
+
+        algorithms: ['HS256'],
       });
 
       const tokenInDb = await this.prisma.token.findFirst({

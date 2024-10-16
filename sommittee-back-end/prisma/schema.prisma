@@ -16,10 +16,17 @@ model User {
   telephone   String       @db.Char(15)
   password    String
   role        Role
-  avatar      String?
+  avatar_url      String?
+   two_factor_secret String?
+   is_two_factor_enabled Boolean @default(false)
+   sms_verification_code String?
+   is_verification_code Boolean @default(false)
+    failed_attempts Int      @default(0)
+  account_locked  Boolean  @default(false)
   created_at  DateTime     @default(now())
   updated_at  DateTime     @default(now()) @updatedAt
   last_action String?
+  verification_codes VerificationCode[]
   tokens      Token[]
   loggers     Logger[]
   attachments Attachment[]
@@ -33,6 +40,15 @@ enum Role {
   MANAGER
   OPERATOR
 }
+
+model VerificationCode {
+  id        String   @id @default(cuid())
+  code      String
+  expiresAt DateTime
+  user      User     @relation(fields: [user_id], references: [id])
+  user_id   String   @db.Uuid()
+}
+
 
 model Token {
   id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -197,7 +213,6 @@ model Stock {
 
 model Donation {
   id                   String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  description          String
   state                String
   date_delivery        String
   observation          String?
@@ -231,9 +246,9 @@ model DonationProducts {
 model Logger {
   id         Int      @id @default(autoincrement())
   path       String?
-  data       Json?
   status     Int      @default(0)
   method     String?
+  payload Json?
   user       User?    @relation(fields: [user_id], references: [id])
   user_id    String?  @db.Uuid()
   created_at DateTime @default(now())

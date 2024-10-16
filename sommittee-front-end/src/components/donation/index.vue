@@ -2,6 +2,10 @@
   <v-container>
     <v-card>
       <v-card-text>
+        <div style="display: flex; align-items: center">
+          <DonationSearch @search="handleSearch" />
+          <DonationRefresh />
+        </div>
         <v-data-table
           :loading="loading"
           :headers="headers"
@@ -21,7 +25,7 @@
           </template>
 
           <template v-slot:[`item.date_delivery`]="{ item }">
-            <span>{{ formatDate(item.date_delivery) }}</span>
+            <span>{{ dateDelivery(item.date_delivery) }}</span>
           </template>
 
           <template v-slot:[`item.name`]="{ item }">
@@ -37,7 +41,12 @@
           </template>
 
           <template v-slot:[`item.actions`]="{ item }">
-            <v-icon class="mr-2" @click="showDetails(item)">mdi-eye</v-icon>
+            <v-icon
+              class="mr-2"
+              :color="isSelected(item) ? 'primary' : ''"
+              @click="showDetails(item)"
+              >mdi-eye</v-icon
+            >
 
             <v-icon class="mr-2" color="blue" @click="editItem(item)"
               >mdi-pencil</v-icon
@@ -48,6 +57,16 @@
             >
           </template>
         </v-data-table>
+        <DonationEdit
+          v-model="editDialog"
+          :id="updatedDonationId"
+          @save="saveUpdatedDonation"
+        />
+        <DonationDelete
+          :dialog="deleteDialog"
+          :id="itemToDelete"
+          @close="handleDeleteClose"
+        />
       </v-card-text>
     </v-card>
 
@@ -168,7 +187,7 @@
                   ]"
                   item-value="value"
                   item-text="text"
-                  label="Data de nascimento"
+                  label="Gênero"
                   class="mr-3"
                   readonly
                   outlined
@@ -329,55 +348,68 @@
             </v-row>
           </v-card>
 
-          <v-card class="elevation-4" style="padding: 16px; margin-top: 30px">
-            <div style="padding-bottom: 16px">
-              <span color="primary" style="font-weight: bold; font-size: 16px"
-                >Informações do produto:</span
+          <v-card style="padding: 14px; margin-top: 30px">
+            <v-container class="d-flex justify-space-between">
+              <v-container
+                v-if="
+                  selectedDonation &&
+                  selectedDonation.donation_products &&
+                  selectedDonation.donation_products.length === 0
+                "
               >
-            </div>
-            <v-row>
-              <v-col>
-                <v-text-field
-                  v-if="selectedDonation"
-                  v-model="selectedDonation.donation_products[0].product.name"
-                  label="Produto"
-                  class="mr-3"
-                  readonly
-                  outlined
-                  dense
-                  hide-details
-                />
-              </v-col>
-
-              <v-col>
-                <v-text-field
-                  v-if="selectedDonation"
-                  v-model="selectedDonation.donation_products[0].product.type"
-                  label="Categoria"
-                  class="mr-3"
-                  readonly
-                  outlined
-                  dense
-                  hide-details
-                />
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col>
-                <v-textarea
-                  v-if="selectedDonation"
-                  v-model="
-                    selectedDonation.donation_products[0].product.description
-                  "
-                  label="Descrição"
-                  class="mr-3"
-                  readonly
-                  outlined
-                  dense
-                  hide-details
-                />
-              </v-col>
-            </v-row>
+                <span
+                  color="primary"
+                  style="font-weight: bold; font-size: 16px"
+                >
+                  Nenhum produto adicionado
+                </span>
+              </v-container>
+              <v-container
+                v-else-if="
+                  selectedDonation &&
+                  selectedDonation.donation_products &&
+                  selectedDonation.donation_products.length > 0
+                "
+              >
+                <v-row>
+                  <v-col>
+                    <span
+                      color="primary"
+                      style="font-weight: bold; font-size: 16px"
+                    >
+                      Produto
+                    </span>
+                  </v-col>
+                </v-row>
+                <v-list>
+                  <v-list-item-group
+                    class="d-flex flex-column"
+                    style="gap: 16px"
+                  >
+                    <div
+                      v-for="item in selectedDonation.donation_products"
+                      :key="item.product.id"
+                      class="d-flex"
+                      style="
+                        padding: 6px;
+                        border-radius: 2px;
+                        border: 1px gray solid;
+                      "
+                    >
+                      <v-list-item-content>
+                        <v-list-item-title>{{
+                          item.product.name
+                        }}</v-list-item-title>
+                        <v-list-item-subtitle>
+                          {{ item.product.description }} (Quantidade:
+                          {{ item.amount }})
+                        </v-list-item-subtitle>
+                      </v-list-item-content>
+                    </div>
+                  </v-list-item-group>
+                </v-list>
+              </v-container>
+            </v-container>
           </v-card>
 
           <v-card class="elevation-4" style="padding: 16px; margin-top: 30px">
@@ -469,16 +501,32 @@
 <script>
 import { formatDate } from "@/filters";
 import DonationCreate from "./DonationCreate.vue";
+import DonationEdit from "./DonationEdit.vue";
+import DonationDelete from "./DonationDelete.vue";
+import DonationSearch from "./DonationSearch.vue";
+import DonationRefresh from "./DonationRefresh.vue";
 
 export default {
   name: "index",
-  components: { DonationCreate },
+  components: {
+    DonationCreate,
+    DonationEdit,
+    DonationDelete,
+    DonationSearch,
+    DonationRefresh,
+  },
   data() {
     return {
       loading: false,
       dialog: false,
       selectedDonation: null,
       createDialog: false,
+      editDialog: false,
+      updatedDonationId: null,
+      deleteDialog: false,
+      itemToDelete: null,
+      search: "",
+      donation_products: [],
       headers: [
         { text: "Data criação", value: "created_at" },
         { text: "Responsável família", value: "name" },
@@ -488,6 +536,7 @@ export default {
         { text: "Ações", value: "actions" },
       ],
       formatDate,
+      dateFormatted: "",
     };
   },
   computed: {
@@ -504,6 +553,11 @@ export default {
     this.loadData();
   },
   methods: {
+    dateDelivery(dateString) {
+      if (!dateString) return "";
+      const [year, month, day] = dateString.split("-");
+      return `${day}/${month}/${year}`;
+    },
     async loadData() {
       this.loading = true;
       try {
@@ -516,11 +570,18 @@ export default {
       }
     },
     async findAll() {
-      await this.$store.dispatch("donation/findAll");
+      return await this.$store.dispatch("donation/findAll");
+    },
+    async handleSearch(search) {
+      this.search = search;
     },
     showDetails(item) {
       this.selectedDonation = item;
       this.dialog = true;
+    },
+    editItem(item) {
+      this.updatedDonationId = item.id;
+      this.editDialog = true;
     },
     async createdDonation(newDonation) {
       try {
@@ -533,9 +594,38 @@ export default {
         throw error;
       }
     },
-    editItem(item) {},
+
+    async saveUpdatedDonation(updatedDonation) {
+      try {
+        const response = await this.$store.dispatch(
+          "donation/update",
+          updatedDonation
+        );
+        this.loadData();
+        this.editDialog = false;
+        return response;
+      } catch (error) {
+        this.$error("Erro ao criar registro!");
+        throw error;
+      }
+    },
+
     closeDialog() {
       this.dialog = false;
+    },
+    isSelected(item) {
+      return this.updatedDonationId === item.id;
+    },
+    confirmDelete(item) {
+      this.itemToDelete = item.id;
+      this.deleteDialog = false;
+      this.$nextTick(() => {
+        this.deleteDialog = true;
+      });
+    },
+    handleDeleteClose() {
+      this.deleteDialog = false;
+      this.itemToDelete = null;
     },
   },
 };

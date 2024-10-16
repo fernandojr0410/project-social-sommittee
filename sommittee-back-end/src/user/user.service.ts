@@ -2,56 +2,74 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from './repositories/user.repository';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { NotFoundError } from '../common/errors/types/notFoundError';
+import { QueryUserDto } from './dto/query-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import * as bcrypt from 'bcryptjs';
+import { UserEntity } from './entities/user.entity';
+import { PasswordService } from 'src/password/password.service';
+import { EmailService } from 'src/email/email.service';
 @Injectable()
 export class UserService {
   constructor(
     private readonly repository: UserRepository,
-  ) { }
+    passwordService: PasswordService,
+  ) {}
+
+  async unlockUserAccount(userId: string): Promise<void> {
+    await this.repository.unlockAccount(userId);
+  }
+
+  async create(createUserDto: CreateUserDto) {
+    return this.repository.create(createUserDto);
+  }
 
   async updateLastAction(userId: string, lastAction: string) {
     return this.repository.updateLastAction(userId, lastAction);
   }
 
-  async findAll() {
-    const users = await this.repository.findAll();
-    return users.map(e => {
+  async findAll(queryDto: QueryUserDto = {}) {
+    const query = {};
+
+    if (queryDto.searchField && queryDto.search) {
+      query[queryDto.searchField] = {
+        contains: queryDto.search,
+        mode: 'insensitive',
+      };
+    }
+
+    const users = await this.repository.findAll(query);
+
+    return users.map((e) => {
       const { password, ...result } = e;
       return result;
     });
   }
 
-  async findOne(id: string) {
-    const user = await this.repository.findOne(id);
+  async findById(id: string) {
+    const user = await this.repository.findById(id);
     if (!user) {
       throw new NotFoundError('Usuário não encontrado!');
     }
     const { password, ...result } = user;
-    return result
+    return result;
   }
 
-  // async update(id: string, updateUserDto: UpdateUserDto) {
-  //   return this.repository.update(id, updateUserDto);
-  // }
-  async update(id: string, updateUserDto: UpdateUserDto) {
-    // if (updateUserDto.password) {
-    //   const passwordValidationErrors = await validatePassword(updateUserDto.password);
-    //   if (passwordValidationErrors.length > 0) {
-    //     throw new Error
-    //   }
-    //   updateUserDto.password = await this.passwordService.hashPassword(updateUserDto.password);
-    // }
-    return this.repository.update(id, updateUserDto);
-  }
+  async updateUserProfileAndPassword(
+    user_id: string,
+    updateUserDto: UpdateUserDto,
+  ) {
+    console.log('Dados recebidos no serviço:', updateUserDto);
 
-  async findProfile(email: string) {
-    const userEmail = await this.repository.findProfile(email);
-    if (!userEmail) {
-      throw new NotFoundException('Usuário não encontrado!');
-    }
-    return userEmail;
+    const response = await this.repository.updateUserProfileAndPassword(
+      user_id,
+      updateUserDto,
+    );
+
+    console.log('Response no serviço:', response);
+    return response;
   }
 
   async remove(id: string) {
-    return await this.repository.remove(id)
+    return await this.repository.remove(id);
   }
 }

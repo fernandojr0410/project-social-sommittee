@@ -9,6 +9,10 @@ class Received extends Http {
     return await this.post("register", data);
   }
 
+  async getLatestReceived() {
+    return await this.get("latest");
+  }
+
   async findAll(query) {
     return await this.get("", query);
   }

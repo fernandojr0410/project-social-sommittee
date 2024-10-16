@@ -29,6 +29,12 @@ export class DonationController {
   }
 
   @UseGuards(AuthGuard)
+  @Get('latest')
+  async getLatestDonations() {
+    return await this.service.findLatestDonations();
+  }
+
+  @UseGuards(AuthGuard)
   @Get()
   async getAll(@Query() query: QueryDonationDto) {
     return await this.service.findAll(query);
@@ -44,11 +50,20 @@ export class DonationController {
     return donation;
   }
 
-  // @UseGuards(AuthGuard)
-  // @Patch(':id')
-  // async updateData(@Param('id') id: string, @Body() updateDonationDto: UpdateDonationDto) {
-  //   return await this.service.update(id, updateDonationDto)
-  // }
+  @UseGuards(AuthGuard)
+  @Patch(':id')
+  async updateData(
+    @Param('id') id: string,
+    @Body() updateDonationDto: UpdateDonationDto,
+    @Body('products')
+    updatedDonationProducts: { product_id: string; amount: number }[],
+  ) {
+    return await this.service.update(
+      id,
+      updateDonationDto,
+      updatedDonationProducts,
+    );
+  }
 
   @UseGuards(AuthGuard)
   @Delete(':id')

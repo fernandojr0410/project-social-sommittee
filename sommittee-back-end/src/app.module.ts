@@ -22,17 +22,36 @@ import { ReceivedModule } from './received/received.module';
 import { CepService } from './cep/cep.service';
 import { CepModule } from './cep/cep.module';
 import { HttpModule } from '@nestjs/axios';
+import { UploadModule } from './photo/upload/photo-upload.module';
+import { SmsController } from './auth/sms/sms.controller';
+import { SmsService } from './auth/sms/sms.service';
 @Module({
-  imports: [ConfigModule.forRoot(), UserModule, AuthModule, AddressModule, PasswordModule, EmailModule, PeopleModule, FamilyModule, PeopleFamilyModule, DonorModule, DonationModule, ProductModule, StockModule, LogModule, AttachmentModule, ReceivedModule, HttpModule, CepModule
+  imports: [
+    ConfigModule.forRoot(),
+    UserModule,
+    AuthModule,
+    AddressModule,
+    PasswordModule,
+    EmailModule,
+    PeopleModule,
+    FamilyModule,
+    PeopleFamilyModule,
+    DonorModule,
+    DonationModule,
+    ProductModule,
+    StockModule,
+    LogModule,
+    AttachmentModule,
+    ReceivedModule,
+    HttpModule,
+    CepModule,
+    UploadModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, PrismaService, CepService],
+  controllers: [AppController, SmsController],
+  providers: [AppService, PrismaService, CepService, SmsService],
 })
-
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(LoggerMiddleware)
-      .forRoutes('*');
+    consumer.apply(LoggerMiddleware).forRoutes('*');
   }
 }

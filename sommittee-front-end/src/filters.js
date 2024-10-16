@@ -1,6 +1,63 @@
 import Vue from "vue";
 import { format } from "date-fns";
 
+export const statusUser = [
+  { text: "Sim", value: true },
+  { text: "Não", value: false },
+];
+
+Vue.filter("statusUser", (value) => {
+  const statusUserMap = {
+    true: "Sim",
+    false: "Não",
+  };
+  return statusUserMap[value] || value;
+});
+
+export const roleUser = [
+  { text: "Administrador", value: "ADMIN" },
+  { text: "Gerenete", value: "MANAGER" },
+  { text: "Usuário padrão", value: "OPERATOR" },
+];
+
+Vue.filter("roleUser", (value) => {
+  const roleUserMap = {
+    ADMIN: "Administrador",
+    MANAGER: "Gerente",
+    OPERATOR: "Usuário padrão",
+  };
+  return roleUserMap[value] || value;
+});
+
+export const productCategories = [
+  { text: "Roupas", value: "clothes" },
+  { text: "Calçados", value: "shoes" },
+  { text: "Acessórios", value: "accessories" },
+  { text: "Beleza e Cuidados Pessoais", value: "beauty" },
+  { text: "Alimentos e Bebidas", value: "food" },
+  { text: "Eletrônicos", value: "electronics" },
+  { text: "Casa e Decoração", value: "home" },
+  { text: "Esportes e Lazer", value: "sports" },
+  { text: "Brinquedos e Jogos", value: "toys" },
+  { text: "Saúde e Bem-estar", value: "health" },
+];
+
+Vue.filter("productCategory", (value) => {
+  const categoryMap = {
+    clothes: "Roupas",
+    shoes: "Calçados",
+    accessories: "Acessórios",
+    beauty: "Beleza e Cuidados Pessoais",
+    food: "Alimentos e Bebidas",
+    electronics: "Eletrônicos",
+    home: "Casa e Decoração",
+    sports: "Esportes e Lazer",
+    toys: "Brinquedos e Jogos",
+    health: "Saúde e Bem-estar",
+  };
+  return categoryMap[value] || value;
+});
+
 export const conditionProduct = [
   { value: "NEW", text: "Novo" },
   { value: "USED", text: "Usado" },

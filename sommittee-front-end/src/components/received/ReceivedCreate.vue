@@ -26,14 +26,15 @@
                   color="primary"
                   style="font-weight: bold; font-size: 16px"
                 >
-                  Informações recebimento:
+                  Informações do recebimento:
                 </span>
               </v-col>
             </v-row>
             <v-row>
               <v-col>
                 <v-menu
-                  v-model="menu2"
+                  ref="menu1"
+                  v-model="menu1"
                   :close-on-content-click="false"
                   :nudge-right="40"
                   transition="scale-transition"
@@ -42,19 +43,23 @@
                 >
                   <template v-slot:activator="{ on, attrs }">
                     <v-text-field
-                      v-model="date"
+                      v-model="dateFormatted"
                       label="Data recebimento"
                       prepend-icon="mdi-calendar"
-                      readonly
                       v-bind="attrs"
+                      @blur="updateBirthDate"
                       v-on="on"
+                      outlined
+                      dense
+                      hide-details
                     ></v-text-field>
                   </template>
                   <v-date-picker
                     color="secondary"
-                    v-model="date"
+                    v-model="createdReceived.date"
                     locale="pt"
-                    @input="menu2 = false"
+                    @input="updateFormattedDate"
+                    :title="formattedDateTitle"
                   ></v-date-picker>
                 </v-menu>
               </v-col>
@@ -64,7 +69,7 @@
                   :items="userListFormatted"
                   item-text="name"
                   item-value="id"
-                  label="Nome do responsável pela recepção"
+                  label="Nome do responsável pelo recebimento"
                   :loading="loading"
                   :rules="[rules.required]"
                   return-object
@@ -101,6 +106,9 @@
                   label="Condição do produto"
                   class="mr-3"
                   :rules="[rules.required]"
+                  outlined
+                  dense
+                  hide-details
                 />
               </v-col>
             </v-row>
@@ -109,12 +117,89 @@
                 <v-textarea
                   v-if="createdReceived"
                   v-model="createdReceived.description"
-                  label="Descrição"
+                  label="Descrição (opcional)"
                   class="mr-3"
-                  :rules="[rules.required]"
+                  outlined
+                  dense
+                  hide-details
                 />
               </v-col>
             </v-row>
+          </v-card>
+
+          <v-card style="padding: 14px; margin-top: 30px">
+            <v-container class="d-flex justify-space-between">
+              <div v-if="products.length === 0">
+                <span
+                  color="primary"
+                  style="font-weight: bold; font-size: 16px"
+                >
+                  Nenhum produto adicionado
+                </span>
+              </div>
+              <v-container v-else>
+                <v-row>
+                  <v-col>
+                    <span
+                      color="primary"
+                      style="font-weight: bold; font-size: 16px"
+                    >
+                      Informações do produto:
+                    </span>
+                  </v-col>
+                </v-row>
+                <v-list>
+                  <v-list-item-group
+                    class="d-flex flex-column"
+                    style="gap: 16px"
+                  >
+                    <div
+                      v-for="(item, index) in products"
+                      :key="item.id"
+                      class="d-flex"
+                      style="
+                        padding: 6px;
+                        border-radius: 2px;
+                        border: 1px gray solid;
+                      "
+                    >
+                      <v-list-item-content>
+                        <v-list-item-title>
+                          {{ item.product.name }}
+                        </v-list-item-title>
+                        <v-list-item-subtitle>
+                          {{ item.product.description }} (Quantidade:
+                          {{ item.amount }})
+                        </v-list-item-subtitle>
+                      </v-list-item-content>
+                      <v-list-item-action :disabled="false">
+                        <v-btn
+                          icon
+                          color="blue"
+                          @click.stop="editProduct(index)"
+                        >
+                          <v-icon>mdi-pencil</v-icon>
+                        </v-btn>
+                        <v-btn
+                          icon
+                          color="red"
+                          @click.stop="removeProduct(index)"
+                        >
+                          <v-icon>mdi-delete</v-icon>
+                        </v-btn>
+                      </v-list-item-action>
+                    </div>
+                  </v-list-item-group>
+                </v-list>
+              </v-container>
+              <v-btn
+                color="green"
+                @click="openProductDialog"
+                style="color: white; font-weight: bold"
+              >
+                ADICIONAR
+              </v-btn>
+            </v-container>
           </v-card>
 
           <v-card style="padding: 14px; margin-top: 30px">
@@ -124,7 +209,7 @@
                   color="primary"
                   style="font-weight: bold; font-size: 16px"
                 >
-                  Informações de doador:
+                  Informações do doador:
                 </span>
               </v-col>
             </v-row>
@@ -143,6 +228,7 @@
                   outlined
                   dense
                   hide-details
+                  style="width: 97.6%"
                 />
               </v-col>
             </v-row>
@@ -169,6 +255,7 @@
                   outlined
                   dense
                   hide-details
+                  style="width: 95%"
                 />
               </v-col>
             </v-row>
@@ -200,6 +287,7 @@
                   outlined
                   dense
                   hide-details
+                  style="width: 95%"
                 />
               </v-col>
             </v-row>
@@ -214,67 +302,10 @@
                   outlined
                   dense
                   hide-details
+                  style="width: 97.6%"
                 />
               </v-col>
             </v-row>
-          </v-card>
-
-          <v-card style="padding: 14px; margin-top: 30px">
-            <v-container class="d-flex justify-space-between">
-              <div v-if="products.length === 0">
-                <span
-                  color="primary"
-                  style="font-weight: bold; font-size: 16px"
-                >
-                  Nenhum produto adicionado
-                </span>
-              </div>
-              <v-container v-else>
-                <v-row>
-                  <v-col>
-                    <span
-                      color="primary"
-                      style="font-weight: bold; font-size: 16px"
-                    >
-                      Produto
-                    </span>
-                  </v-col>
-                </v-row>
-                <v-list>
-                  <v-list-item-group>
-                    <v-list-item
-                      v-for="(product, index) in products"
-                      :key="product.id"
-                    >
-                      <v-list-item-content>
-                        <v-list-item-title>
-                          {{ product.name }}
-                        </v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ product.description }} (Quantidade:
-                          {{ product.amount }})
-                        </v-list-item-subtitle>
-                      </v-list-item-content>
-                      <v-list-item-action>
-                        <v-btn icon @click="editProduct(index)">
-                          <v-icon>mdi-pencil</v-icon>
-                        </v-btn>
-                        <v-btn icon @click="removeProduct(index)">
-                          <v-icon>mdi-delete</v-icon>
-                        </v-btn>
-                      </v-list-item-action>
-                    </v-list-item>
-                  </v-list-item-group>
-                </v-list>
-              </v-container>
-              <v-btn
-                color="green"
-                @click="openProductDialog"
-                style="color: white; font-weight: bold"
-              >
-                ADICIONAR
-              </v-btn>
-            </v-container>
           </v-card>
         </v-card-text>
         <v-card-actions>
@@ -295,7 +326,7 @@
           </v-btn>
 
           <SelectedProduct
-            :dialog.sync="productDialog"
+            :value="productDialog"
             @add-product="addProductToList"
           />
         </v-card-actions>
@@ -309,7 +340,12 @@ import SelectedProduct from "./SelectedProduct.vue";
 
 export default {
   name: "ReceivedCreate",
-  props: ["value", "label"],
+  props: {
+    value: {
+      type: Boolean,
+      required: true,
+    },
+  },
   components: { SelectedProduct },
   data() {
     return {
@@ -323,27 +359,19 @@ export default {
       products: [],
       productList: [],
       editingIndex: null,
-      conditionOptions: [
-        { text: "Novo", value: "NEW" },
-        { text: "Usado", value: "USED" },
-        { text: "Danificado", value: "DAMAGED" },
-      ],
       donorList: [],
       search: "",
       items: [],
       id: null,
       loading: false,
-      date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
-        .toISOString()
-        .substr(0, 10),
-      menu: false,
-      modal: false,
-      menu2: false,
+      dateFormatted: "",
+      menu1: false,
       rules: {
         required: (value) => !!value || "Campo obrigatório.",
       },
     };
   },
+
   computed: {
     userListFormatted() {
       return this.userList.map((user) => ({
@@ -351,6 +379,12 @@ export default {
         name: `${user.name}`,
         identifier: user.identifier,
       }));
+    },
+    formattedDateTitle() {
+      const date = new Date(this.createdReceived.date);
+      if (isNaN(date.getTime())) return "";
+      const options = { day: "numeric", weekday: "short", month: "long" };
+      return date.toLocaleDateString("pt-BR", options);
     },
   },
 
@@ -381,9 +415,10 @@ export default {
     },
     selectedUser(newValue) {
       if (newValue) {
-        this.createdReceived.user = { ...newValue };
+        this.createdReceived.userColaborator = { ...newValue };
       } else {
-        this.createdReceived.user = this.getReceived().user;
+        this.createdReceived.userColaborator =
+          this.getReceived().userColaborator;
       }
     },
     selectedDonor(newValue) {
@@ -398,11 +433,11 @@ export default {
   methods: {
     getReceived() {
       return {
-        date: "",
+        date: new Date().toISOString().split("T")[0],
         condition_product: "",
         description: "",
         products: [],
-        user: {},
+        userColaborator: {},
         stock: {
           amount: "",
         },
@@ -427,6 +462,34 @@ export default {
     closeDialog() {
       this.dialog = false;
     },
+    updateFormattedDate(date) {
+      if (date) {
+        const adjustedDate = new Date(date);
+        adjustedDate.setHours(
+          adjustedDate.getHours() + adjustedDate.getTimezoneOffset() / 60
+        );
+        this.createdReceived.date = adjustedDate.toISOString().split("T")[0];
+        this.dateFormatted = this.formatDate(adjustedDate);
+      }
+      this.menu1 = false;
+    },
+
+    updateBirthDate() {
+      this.createdReceived.date = this.parseDate(this.dateFormatted);
+    },
+
+    formatDate(date) {
+      const d = new Date(date);
+      if (isNaN(d.getTime())) return "";
+      const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+      return new Intl.DateTimeFormat("pt-BR", options).format(d);
+    },
+
+    parseDate(date) {
+      if (!date) return null;
+      const [day, month, year] = date.split("/");
+      return new Date(year, month - 1, day).toISOString().split("T")[0];
+    },
 
     formatCPF(identifier) {
       if (!identifier) return "";
@@ -440,6 +503,7 @@ export default {
       } else {
         this.products.push(product);
       }
+      this.productDialog = false;
     },
 
     editProduct(index) {
@@ -459,7 +523,7 @@ export default {
     },
 
     removeProduct(index) {
-      this.products.splice(index, 1);
+      this.donation_products.splice(index, 1);
       this.$success("Produto removido!");
     },
 
@@ -470,9 +534,13 @@ export default {
         });
         return responseDonor;
       } else if (type === "user") {
-        const responseUser = await this.$store.dispatch("user/findAll", {
-          search,
-        });
+        const responseUser = await this.$store.dispatch(
+          "userColaborator/findAll",
+          {
+            search,
+          }
+        );
+
         return responseUser;
       }
     },
@@ -481,7 +549,10 @@ export default {
       this.userList = [];
       try {
         const response = await this.findAll(search, "user");
-        if (
+
+        if (response && Array.isArray(response)) {
+          this.userList = response;
+        } else if (
           response &&
           response.dataUsers &&
           Array.isArray(response.dataUsers)
@@ -489,11 +560,10 @@ export default {
           this.userList = response.dataUsers;
         }
       } catch (error) {
-        this.error("Erro ao selecionar doador!");
+        this.$error("Erro ao selecionar usuário!");
         throw error;
       }
     },
-
     async fetchDonor(search = "") {
       this.loading = true;
       try {
@@ -509,7 +579,7 @@ export default {
 
     async createReceived() {
       const receivedData = {
-        date: this.date,
+        date: this.createdReceived.date,
         condition_product: this.createdReceived.condition_product,
         description: this.createdReceived.description,
         user_id: this.selectedUser.id,
@@ -522,10 +592,10 @@ export default {
           type_donor: this.createdReceived.donor.type_donor,
         },
 
-        products: this.products.map((product) => ({
-          product_id: product.id,
-          type: product.type,
-          amount: product.amount,
+        products: this.products.map((item) => ({
+          product_id: item.product.id,
+          type: item.product.type,
+          amount: item.amount,
         })),
       };
 
@@ -537,10 +607,11 @@ export default {
 
         if (response) {
           this.$success("Registro criado!");
-          this.selectedProduct = "";
-          this.selectedDonor = "";
-          this.closeDialog();
+          this.$store.dispatch("received/findAll");
           this.createdReceived = this.getReceived();
+          this.selectedProduct = null;
+          this.selectedDonor = null;
+          this.closeDialog();
         } else {
           this.$error("Erro ao criar recebimento!");
         }
@@ -564,6 +635,10 @@ export default {
         this.donorList = [];
       }
     },
+  },
+  mounted() {
+    const today = new Date();
+    this.dateFormatted = this.formatDate(today);
   },
 };
 </script>

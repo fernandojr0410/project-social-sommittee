@@ -1,33 +1,46 @@
 import { $Enums } from '@prisma/client';
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator'
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateUserDto {
+  @IsString()
+  @IsNotEmpty()
+  name: string;
 
   @IsString()
   @IsNotEmpty()
-  name: string
+  identifier: string;
 
   @IsString()
   @IsNotEmpty()
-  identifier: string
+  email: string;
 
   @IsString()
   @IsNotEmpty()
-  email: string
+  telephone: string;
 
   @IsString()
   @IsNotEmpty()
-  telephone: string
+  password: string;
 
   @IsString()
   @IsNotEmpty()
-  password: string
+  role: $Enums.Role;
 
-  @IsString()
+  @IsNumber()
   @IsNotEmpty()
-  role: $Enums.Role
+  failed_attempts: number;
+
+  @IsBoolean()
+  @IsNotEmpty()
+  account_locked: boolean;
 
   @IsString()
   @IsOptional()
-  avatar: string
+  avatar_url?: string;
 }

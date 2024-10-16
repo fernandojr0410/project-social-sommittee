@@ -49,14 +49,6 @@
             <span>{{ item.address?.neighborhood }}</span>
           </template>
 
-          <template v-slot:[`item.address`]="{ item }">
-            <span>{{ formatAddress(item.address) }}</span>
-          </template>
-
-          <template v-slot:[`item.states`]="{ item }">
-            <span>{{ item.states | state }}</span>
-          </template>
-
           <template v-slot:[`item.actions`]="{ item }">
             <v-icon
               class="mr-2"
@@ -75,7 +67,7 @@
         </v-data-table>
 
         <PeopleEdit
-          :dialog="editDialog"
+          v-model="editDialog"
           :id="updatedPeopleId"
           @close="editDialog = false"
           @save="saveUpdatedPeople"
@@ -119,7 +111,7 @@
                   outlined
                   dense
                   hide-details
-                  style="width: 100%;"
+                  style="width: 100%"
                 />
               </v-col>
             </v-row>
@@ -136,7 +128,7 @@
                   outlined
                   dense
                   hide-details
-                  style="width: 100%;"
+                  style="width: 100%"
                 />
               </v-col>
               <v-col>
@@ -164,7 +156,7 @@
                   outlined
                   dense
                   hide-details
-                  style="width: 100%;"
+                  style="width: 100%"
                 />
               </v-col>
               <v-col>
@@ -198,7 +190,7 @@
                   outlined
                   dense
                   hide-details
-              />
+                />
               </v-col>
               <v-col>
                 <v-select
@@ -319,21 +311,9 @@
               <v-col>
                 <v-text-field
                   v-if="selectedPeople?.address"
-                  v-model="selectedPeople.address.city"
+                  v-model="cityAndState"
                   label="Cidade"
-                  readonly
-                  outlined
-                  dense
-                  hide-details
-                  style="width: 96%"
-                />
-              </v-col>
-
-              <v-col>
-                <v-text-field
-                  v-if="selectedPeople?.address"
-                  v-model="selectedPeople.address.state"
-                  label="Estado"
+                  class="mr-3"
                   readonly
                   outlined
                   dense
@@ -355,16 +335,16 @@
 </template>
 
 <script>
-import { formatDate } from '@/filters'
-import { states } from '@/assets/state'
-import PeopleEdit from './PeopleEdit.vue'
-import PeopleCreate from './PeopleCreate.vue'
-import PeopleSearch from './PeopleSearch.vue'
-import PeopleRefresh from './PeopleRefresh.vue'
-import PeopleDelete from './PeopleDelete.vue'
+import { formatDate } from "@/filters";
+import { states } from "@/assets/state";
+import PeopleEdit from "./PeopleEdit.vue";
+import PeopleCreate from "./PeopleCreate.vue";
+import PeopleSearch from "./PeopleSearch.vue";
+import PeopleRefresh from "./PeopleRefresh.vue";
+import PeopleDelete from "./PeopleDelete.vue";
 
 export default {
-  name: 'index',
+  name: "index",
   components: {
     PeopleEdit,
     PeopleCreate,
@@ -382,92 +362,104 @@ export default {
       itemToDelete: null,
       selectedPeople: null,
       createDialog: false,
-      search: '',
+      search: "",
       headers: [
-        { text: 'Data criação', value: 'created_at' },
-        { text: 'Nome completo', value: 'name' },
-        { text: 'CPF', value: 'identifier' },
-        { text: 'CEP', value: 'zip_code' },
-        { text: 'Rua', value: 'street' },
-        { text: 'Número', value: 'number' },
-        { text: 'Bairro', value: 'neighborhood' },
-        { text: 'Ações', value: 'actions' },
+        { text: "Data criação", value: "created_at" },
+        { text: "Nome completo", value: "name" },
+        { text: "CPF", value: "identifier" },
+        { text: "CEP", value: "zip_code" },
+        { text: "Rua", value: "street" },
+        { text: "Bairro", value: "neighborhood" },
+
+        { text: "Ações", value: "actions" },
       ],
       states,
       formatDate,
-    }
+    };
   },
   computed: {
     people() {
-      return this.$store.state.people.people
+      return this.$store.state.people.people;
+    },
+    cityAndState() {
+      const city = this.selectedPeople?.address.city || "";
+      const state = this.selectedPeople?.address.state || "";
+      return city && state ? `${city}, ${state}` : city || state;
+    },
+    user() {
+      return this.$store.state.auth.user;
     },
   },
   created() {
-    this.loadData()
+    this.loadData();
   },
   methods: {
     async loadData() {
-      this.loading = true
+      this.loading = true;
       try {
-        await this.findAll()
+        await this.findAll();
       } catch (error) {
-        this.$error('Erro ao carregar dados!')
-        throw error
+        this.$error("Erro ao carregar dados!");
+        throw error;
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
     async findAll() {
-      await this.$store.dispatch('people/findAll')
+      await this.$store.dispatch("people/findAll");
     },
     async handleSearch(search) {
-      this.search = search
+      this.search = search;
     },
     showDetails(item) {
-      this.selectedPeople = item
-      this.dialog = true
+      this.selectedPeople = item;
+      this.dialog = true;
     },
     editItem(item) {
-      this.updatedPeopleId = item.id
-      this.editDialog = true
+      this.updatedPeopleId = item.id;
+      this.editDialog = true;
     },
     async saveUpdatedPeople(updatedPeople) {
       try {
-        await this.$store.dispatch('people/update', updatedPeople)
-        this.loadData()
-        await this.fetchPeople()
-        this.editDialog = false
+        await this.$store.dispatch("people/update", updatedPeople);
+        this.loadData();
+        await this.fetchPeople();
+        this.editDialog = false;
       } catch (error) {
-        this.$error('Erro ao salvar pessoa:')
-        throw error
+        this.$error("Erro ao salvar pessoa:");
+        throw error;
       }
     },
     async createdPeople(newPerson) {
       try {
-        await this.$store.dispatch('people/create', newPerson)
-        this.loadData()
-        this.createDialog = false
+        await this.$store.dispatch("people/create", newPerson);
+        this.loadData();
+        this.createDialog = false;
       } catch (error) {
-        console.error('Erro ao criar pessoa:', error)
+        console.error("Erro ao criar pessoa:", error);
       }
     },
     formatAddress(address) {
-      return `${address.street}, ${address.number}, ${address.neighborhood}, ${address.city} - ${address.state}`
+      return `${address.street}, ${address.number}, ${address.neighborhood}, ${address.city} - ${address.state}`;
     },
     isSelected(item) {
-      return this.updatedPeopleId === item.id
+      return this.updatedPeopleId === item.id;
     },
     closeDialog() {
-      this.dialog = false
+      this.dialog = false;
     },
     confirmDelete(item) {
-      this.itemToDelete = item.id
-      this.deleteDialog = true
+      if (this.user.role === "OPERATOR") {
+        this.$error("Você não tem permissão para deletar registros!");
+      } else {
+        this.itemToDelete = item.id;
+        this.deleteDialog = true;
+      }
     },
     handleDeleteClose() {
-      this.deleteDialog = false
-      this.itemToDelete = null
+      this.deleteDialog = false;
+      this.itemToDelete = null;
     },
   },
-}
+};
 </script>

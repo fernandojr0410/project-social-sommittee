@@ -1,16 +1,24 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateFamilyDto } from './create-family.dto';
-import { IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+
+class RemovedMemberDto {
+  @IsString()
+  @IsNotEmpty()
+  people_id: string;
+}
 
 export class UpdateFamilyDto extends PartialType(CreateFamilyDto) {
-
-  @IsString()
-  people_id: string;
-
-  @IsString()
-  address_id: string;
-
   @IsOptional()
-  @IsString()
-  function?: string;
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => RemovedMemberDto)
+  removedMembers?: RemovedMemberDto[];
 }

@@ -23,34 +23,81 @@
 
             <v-text-field
               outlined
+              @keyup.enter="handleLogin"
               :type="showPassword ? 'text' : 'password'"
               :append-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
               v-model="inputPassword"
               label="Senha"
               @click:append="togglePasswordVisibility"
             />
-
-            <div class="my-password">
-              <span>Esqueci minha senha</span>
-            </div>
           </div>
 
           <v-btn
-            @click="fetchData"
+            @click="handleLogin"
             color="primary"
             block
             dark
             style="display: flex; width: 50%"
+            :disabled="isSubmitting"
           >
-            Entrar
+            {{ isSubmitting ? "Entrando..." : "Entrar" }}
           </v-btn>
+
           <Modal
-            :value="showModal"
-            @input="showModal = $event"
+            :value="showErrorModal"
+            @input="showErrorModal = $event"
             :title="modalTitle"
             :text="modalText"
             :button="modalButton"
           />
+
+          <v-dialog v-model="show2FAModal" width="460">
+            <v-card>
+              <v-card-title>
+                Por favor, verifique seu e-mail para o código de verificação.
+              </v-card-title>
+              <v-card-text>
+                <v-otp-input
+                  v-model="otpCode"
+                  label="Digite o código 2FA"
+                  outlined
+                />
+              </v-card-text>
+              <v-card-actions>
+                <v-btn
+                  @click="submitOtpCode"
+                  color="primary"
+                  block
+                  :disabled="isSubmitting"
+                >
+                  Validar
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+
+          <v-dialog v-model="showSmsModal" width="460">
+            <v-card>
+              <v-card-title>Verificação por SMS</v-card-title>
+              <v-card-text>
+                <v-otp-input
+                  v-model="smsCode"
+                  label="Digite o código enviado via SMS"
+                  outlined
+                />
+              </v-card-text>
+              <v-card-actions>
+                <v-btn
+                  @click="submitSmsCode"
+                  color="primary"
+                  block
+                  :disabled="isSubmitting"
+                >
+                  Validar
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
         </v-card>
       </div>
     </v-container>
@@ -58,54 +105,183 @@
 </template>
 
 <script>
-import Modal from '@/components/modal/Modal.vue'
+import Modal from "@/components/modal/Modal.vue";
+import router from "@/router";
 
 export default {
-  name: 'FormLogin',
+  name: "FormLogin",
   components: {
     Modal,
   },
   data() {
     return {
-      inputEmail: '',
-      inputPassword: '',
+      inputEmail: "",
+      inputPassword: "",
+      otpCode: "",
+      smsCode: "",
       showPassword: false,
-      visible: false,
-      modalTitle: '',
-      modalText: '',
+      modalTitle: "",
+      modalText: "",
       modalButton: false,
-      showModal: false,
-    }
+      showErrorModal: false,
+      show2FAModal: false,
+      showSmsModal: false,
+      userId: null,
+      isSubmitting: false,
+      loginAttempts: 0,
+    };
   },
   methods: {
     togglePasswordVisibility() {
-      this.showPassword = !this.showPassword
+      this.showPassword = !this.showPassword;
     },
-    async fetchData() {
-      const requestBody = {
-        email: this.inputEmail,
-        password: this.inputPassword,
-      }
+
+    resetModals() {
+      this.showErrorModal = false;
+      this.show2FAModal = false;
+      this.showSmsModal = false;
+    },
+
+    async handleLogin() {
+      this.isSubmitting = true;
+      this.resetModals();
+
       try {
-        const response = await this.$store.dispatch('auth/login', requestBody)
-        await this.$store.dispatch('auth/fetchUser')
-        this.$router.push(this.$route.query.redirect || '/')
-        return response
+        const token = await grecaptcha.execute(
+          process.env.VUE_APP_RECAPTCHA_SITE_KEY,
+          { action: "login" }
+        );
+
+        const requestBody = {
+          email: this.inputEmail,
+          password: this.inputPassword,
+          recaptchaToken: token,
+        };
+
+        const response = await this.$store.dispatch("auth/login", requestBody);
+
+        if (response && response.accountLocked) {
+          this.openErrorModal(
+            "Conta bloqueada",
+            "Sua conta foi bloqueada devido a várias tentativas de login mal-sucedidas. Por favor, entre em contato com o administrador."
+          );
+          return;
+        }
+
+        if (response && response.two_factor) {
+          this.userId = response.user_id;
+          this.show2FAModal = true;
+          this.loginAttempts = 0;
+        } else {
+          router.push({ name: "dashboard" });
+        }
       } catch (error) {
-        this.openModal(
-          'Conta não encontrada!',
-          'Email ou senha não encontrado! Verifique suas credenciais e tente novamente.'
-        )
-        throw error
+        if (error.response && error.response.status === 404) {
+          const errorMessage = error.response.data.message;
+
+          if (errorMessage === "Usuário não encontrado!") {
+            this.openErrorModal(
+              "Usuário não encontrado",
+              "O e-mail informado não corresponde a nenhuma conta. Verifique o e-mail e tente novamente."
+            );
+            this.loginAttempts = 0;
+          } else if (errorMessage === "Credenciais inválidas!") {
+            this.loginAttempts += 1;
+
+            if (this.loginAttempts >= 3) {
+              this.openErrorModal(
+                "Conta bloqueada",
+                "Sua conta foi bloqueada devido a várias tentativas de login mal-sucedidas. Por favor, entre em contato com o administrador."
+              );
+            } else {
+              this.openErrorModal(
+                "Credenciais inválidas",
+                "A senha informada está incorreta. Por favor, tente novamente."
+              );
+            }
+          } else if (
+            errorMessage ===
+            "Conta bloqueada. Entre em contato com o administrador."
+          ) {
+            this.openErrorModal(
+              "Conta bloqueada",
+              "Sua conta foi bloqueada devido a várias tentativas de login mal-sucedidas. Por favor, entre em contato com o administrador."
+            );
+          }
+        } else {
+          this.openErrorModal(
+            "Erro de autenticação",
+            "Houve um problema ao tentar fazer login. Tente novamente mais tarde."
+          );
+        }
+      } finally {
+        this.isSubmitting = false;
       }
     },
-    openModal(title, text) {
-      this.modalTitle = title
-      this.modalText = text
-      this.showModal = true
+
+    async submitOtpCode() {
+      this.isSubmitting = true;
+
+      try {
+        const response = await this.$store.dispatch("auth/verifyTwoFactor", {
+          code: this.otpCode,
+          user_id: this.userId,
+        });
+
+        if (response && response.success) {
+          this.show2FAModal = false;
+          this.showSmsModal = true;
+          console.log("response.success", response.success);
+        } else {
+          this.openErrorModal(
+            "Erro de autenticação",
+            "Código 2FA inválido. Tente novamente."
+          );
+        }
+      } catch (error) {
+        this.openErrorModal(
+          "Erro de autenticação",
+          "Ocorreu um erro ao verificar o código 2FA."
+        );
+      } finally {
+        this.isSubmitting = false;
+      }
+    },
+
+    async submitSmsCode() {
+      this.isSubmitting = true;
+
+      try {
+        const response = await this.$store.dispatch("auth/verifySmsCode", {
+          user_id: this.userId,
+          smsCode: this.smsCode,
+        });
+
+        if (response.success) {
+          router.push("/");
+        } else {
+          this.openErrorModal(
+            "Erro de autenticação",
+            "Código SMS inválido. Tente novamente."
+          );
+        }
+      } catch (error) {
+        this.openErrorModal(
+          "Erro de autenticação",
+          "Ocorreu um erro ao verificar o código SMS."
+        );
+      } finally {
+        this.isSubmitting = false;
+      }
+    },
+
+    openErrorModal(title, text) {
+      this.modalTitle = title;
+      this.modalText = text;
+      this.showErrorModal = true;
     },
   },
-}
+};
 </script>
 
 <style scoped>
@@ -130,19 +306,5 @@ export default {
   inset: 0;
   background: linear-gradient(to bottom, #fbbf24, #fb923c);
   opacity: 0.6;
-}
-
-.line-divider {
-  width: 50%;
-  height: 2px;
-  background-color: black;
-  margin-bottom: 20px;
-}
-
-.my-password {
-  display: flex;
-  justify-content: end;
-  margin-bottom: 40px;
-  font-weight: bold;
 }
 </style>

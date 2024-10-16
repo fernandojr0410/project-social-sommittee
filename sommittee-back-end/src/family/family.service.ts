@@ -1,18 +1,23 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { FamilyRepository } from "./repositories/family.repository";
-import { CreateFamilyDto } from "./dto/create-family.dto";
-import { UpdateFamilyDto } from "./dto/update-family.dto";
-import { QueryFamilyDto } from "./dto/query-family.dto";
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { FamilyRepository } from './repositories/family.repository';
+import { CreateFamilyDto } from './dto/create-family.dto';
+import { UpdateFamilyDto } from './dto/update-family.dto';
+import { QueryFamilyDto } from './dto/query-family.dto';
 
 @Injectable()
 export class FamilyService {
-  constructor(private readonly repository: FamilyRepository) { }
+  constructor(private readonly repository: FamilyRepository) {}
 
   async create(createFamilyDto: CreateFamilyDto) {
-    if (!createFamilyDto.address_id || !createFamilyDto.people_id) {
-      throw new BadRequestException('Both address_id and people_id must be provided');
+    if (!createFamilyDto.members || !createFamilyDto.members.length) {
+      throw new BadRequestException(
+        'At least one family member must be provided',
+      );
     }
-    return await this.repository.create(createFamilyDto);
+
+    const familyEntity = await this.repository.create(createFamilyDto.members);
+
+    return familyEntity;
   }
 
   async findAll(queryDto: QueryFamilyDto = {}) {
@@ -24,17 +29,13 @@ export class FamilyService {
   }
 
   async update(id: string, updateFamilyDto: UpdateFamilyDto) {
-    const { function: familyFunction, people_id, address_id } = updateFamilyDto;
-
-    if (!people_id || !address_id) {
-      throw new BadRequestException('Both people_id and address_id are required');
+    if (!updateFamilyDto.members || !updateFamilyDto.members.length) {
+      throw new BadRequestException(
+        'At least one family member must be provided',
+      );
     }
 
-    return await this.repository.update(id, {
-      people_id,
-      address_id,
-      function: familyFunction,
-    });
+    return await this.repository.update(id, updateFamilyDto);
   }
 
   async remove(id: string) {

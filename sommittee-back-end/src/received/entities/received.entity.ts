@@ -1,4 +1,4 @@
-import { $Enums, Received } from "@prisma/client";
+import { $Enums, Received } from '@prisma/client';
 export class ReceivedEntity implements Received {
   id: string;
   date: string;

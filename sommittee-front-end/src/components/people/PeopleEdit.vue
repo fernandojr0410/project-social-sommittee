@@ -1,5 +1,9 @@
 <template>
-  <v-dialog v-model="dialog" max-width="900px">
+  <v-dialog
+    :value="value"
+    @input="(value) => $emit('input', value)"
+    max-width="900px"
+  >
     <v-card>
       <v-card-title class="flex justify-space-between items-center">
         <span class="headline">Editar registro</span>
@@ -42,9 +46,10 @@
                 hide-details
               />
             </v-col>
-            <v-col cols="6">
+            <v-col>
               <v-menu
-                v-model="menu2"
+                ref="menu1"
+                v-model="menu1"
                 :close-on-content-click="false"
                 :nudge-right="40"
                 transition="scale-transition"
@@ -53,23 +58,23 @@
               >
                 <template v-slot:activator="{ on, attrs }">
                   <v-text-field
-                    v-model="date"
-                    label="Data recebimento"
+                    v-model="dateFormatted"
+                    label="Data de nascimento"
                     prepend-icon="mdi-calendar"
-                    readonly
                     v-bind="attrs"
+                    @blur="updateBirthDate"
                     v-on="on"
                     outlined
                     dense
                     hide-details
-                    style="width: 100%"
                   ></v-text-field>
                 </template>
                 <v-date-picker
                   color="secondary"
-                  v-model="date"
+                  v-model="updatedPeople.birth_date"
                   locale="pt"
-                  @input="menu2 = false"
+                  @input="updateFormattedDate"
+                  :title="formattedDateTitle"
                 ></v-date-picker>
               </v-menu>
             </v-col>
@@ -81,7 +86,6 @@
                 v-model="updatedPeople.email"
                 label="E-mail"
                 class="mr-3"
-                readonly
                 outlined
                 dense
                 hide-details
@@ -205,7 +209,7 @@
           </v-row>
 
           <v-row>
-            <v-col cols="12">
+            <v-col>
               <v-text-field
                 v-if="updatedPeople && updatedPeople.address"
                 v-model="updatedPeople.address.complement"
@@ -222,23 +226,10 @@
             <v-col>
               <v-text-field
                 v-if="updatedPeople && updatedPeople.address"
-                v-model="updatedPeople.address.city"
+                v-model="cityAndState"
                 label="Cidade"
-                outlined
-                dense
-                hide-details
-                style="width: 96.2%"
-              />
-            </v-col>
-
-            <v-col>
-              <v-select
-                v-if="updatedPeople && updatedPeople.address"
-                v-model="updatedPeople.address.state"
-                :items="states"
-                item-value="acronym"
-                item-text="name"
-                label="Selecione o estado"
+                class="mr-3"
+                readonly
                 outlined
                 dense
                 hide-details
@@ -267,13 +258,13 @@
 </template>
 
 <script>
-import API from '@/services/module/API'
-import { states } from '@/assets/state'
+import API from "@/services/module/API";
+import { states } from "@/assets/state";
 
 export default {
-  name: 'PeopleEdit',
+  name: "PeopleEdit",
   props: {
-    dialog: {
+    value: {
       type: Boolean,
       required: true,
     },
@@ -284,64 +275,113 @@ export default {
 
   data() {
     return {
-      updatedPeople: {
-        id: '',
-        name: '',
-        identifier: '',
-        email: '',
-        birth_date: '',
-        gender: '',
-        telephone: '',
-        work: '',
-        education: '',
-        address: {
-          zip_code: '',
-          street: '',
-          number: '',
-          complement: '',
-          neighborhood: '',
-          city: '',
-          state: '',
-        },
-      },
+      updatedPeople: {},
       states,
-      date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
-        .toISOString()
-        .substr(0, 10),
-      menu: false,
-      modal: false,
-      menu2: false,
-    }
+      dateFormatted: "",
+      menu1: false,
+    };
+  },
+  computed: {
+    formattedDateTitle() {
+      const date = new Date(this.updatedPeople.birth_date);
+      if (isNaN(date.getTime())) return "";
+      const options = { day: "numeric", weekday: "short", month: "long" };
+      return date.toLocaleDateString("pt-BR", options);
+    },
+    cityAndState() {
+      const city = this.updatedPeople?.address.city || "";
+      const state = this.updatedPeople?.address.state || "";
+      return city && state ? `${city}, ${state}` : city || state;
+    },
   },
   watch: {
     id: {
       immediate: true,
       handler: async function (id) {
         if (id) {
-          this.updatedPeople = await this.$store.dispatch('people/findById', id)
+          this.updatedPeople = await this.$store.dispatch(
+            "people/findById",
+            id
+          );
+          if (this.updatedPeople.birth_date) {
+            this.dateFormatted = this.formatDate(this.updatedPeople.birth_date);
+          }
         }
       },
     },
   },
   methods: {
-    closeDialog() {
-      this.$emit('close')
+    getPeople() {
+      return {
+        id: "",
+        name: "",
+        identifier: "",
+        email: "",
+        birth_date: "",
+        gender: "",
+        telephone: "",
+        work: "",
+        education: "",
+        address: {
+          zip_code: "",
+          street: "",
+          number: "",
+          complement: "",
+          neighborhood: "",
+          city: "",
+          state: "",
+        },
+      };
     },
+    closeDialog() {
+      this.$emit("input", false);
+    },
+    updateFormattedDate(date) {
+      if (date) {
+        const adjustedDate = new Date(date);
+        adjustedDate.setHours(
+          adjustedDate.getHours() + adjustedDate.getTimezoneOffset() / 60
+        );
+        this.updatedPeople.birth_date = adjustedDate
+          .toISOString()
+          .split("T")[0];
+        this.dateFormatted = this.formatDate(adjustedDate);
+      }
+      this.menu1 = false;
+    },
+
+    updateBirthDate() {
+      this.updatedPeople.birth_date = this.parseDate(this.dateFormatted);
+    },
+
+    formatDate(date) {
+      const d = new Date(date);
+      if (isNaN(d.getTime())) return "";
+      const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+      return new Intl.DateTimeFormat("pt-BR", options).format(d);
+    },
+
+    parseDate(date) {
+      if (!date) return null;
+      const [day, month, year] = date.split("/");
+      return new Date(year, month - 1, day).toISOString().split("T")[0];
+    },
+    
     async fetchAddress() {
       try {
         const address = await API.cep.getAddressByZipcode(
           this.updatedPeople.address.zip_code
-        )
+        );
         if (address) {
           this.updatedPeople.address = {
             ...this.updatedPeople.address,
             ...address,
-          }
+          };
         } else {
-          console.error('Endereço não encontrado')
+          console.error("Endereço não encontrado");
         }
       } catch (error) {
-        console.error('Erro ao buscar endereço pelo CEP:', error)
+        console.error("Erro ao buscar endereço pelo CEP:", error);
       }
     },
     async saveChanges() {
@@ -351,11 +391,15 @@ export default {
           name: this.updatedPeople.name,
           birth_date: this.updatedPeople.birth_date,
           gender: this.updatedPeople.gender,
-          telephone: this.updatedPeople.telephone.replace(/[^0-9]/g, ''),
+          telephone: this.updatedPeople.telephone.replace(/[^0-9]/g, ""),
           work: this.updatedPeople.work,
           education: this.updatedPeople.education,
           address: {
-            zip_code: this.updatedPeople.address.zip_code.replace(/[ˆ0-9]/g),
+            zip_code: this.updatedPeople.address.zip_code.replace(
+              /[^0-9]/g,
+              ""
+            ),
+
             street: this.updatedPeople.address.street,
             number: this.updatedPeople.address.number,
             complement: this.updatedPeople.address.complement,
@@ -364,19 +408,19 @@ export default {
             state: this.updatedPeople.address.state,
           },
         },
-      }
+      };
 
-      this.$loading('Carregando...')
+      this.$loading("Carregando...");
       try {
-        await this.$store.dispatch('people/update', updateData)
-        this.$success('Registro atualizado!')
-        this.$emit('close')
-        return updateData
+        await this.$store.dispatch("people/update", updateData);
+        this.$success("Registro atualizado!");
+        this.$emit("close");
+        return updateData;
       } catch (error) {
-        this.$error('Erro ao atualizar!')
-        throw error
+        this.$error("Erro ao atualizar!");
+        throw error;
       }
     },
   },
-}
+};
 </script>

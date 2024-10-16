@@ -5,12 +5,13 @@ const state = {
 }
 
 const mutations = {
-  CREATE_FAMILY(state, newFamily) {
-    state.family.push(newFamily)
-  },
 
   SET_FAMILY(state, family) {
     state.family = family
+  },
+
+  CREATE_FAMILY(state, newFamily) {
+    state.family.push(newFamily)
   },
 
   UPDATE_FAMILY(state, updatedFamily) {
@@ -45,6 +46,7 @@ const actions = {
 
   async findById({ commit }, id) {
     const response = await API.family.findById(id)
+    console.log("findById store", response)
     commit('UPDATE_FAMILY', response)
     return response
   },

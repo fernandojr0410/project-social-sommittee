@@ -1,44 +1,92 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { PrismaService } from "../../prisma/prisma.service";
-import { CreateFamilyDto } from "../dto/create-family.dto";
-import { FamilyEntity } from "../entities/family.entity";
-import { UpdateFamilyDto } from "../dto/update-family.dto";
-
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
+import { FamilyEntity } from '../entities/family.entity';
+import { UpdateFamilyDto } from '../dto/update-family.dto';
+import { FamilyMemberDto } from '../dto/create-family.dto';
 @Injectable()
 export class FamilyRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-  async create(createFamilyDto: CreateFamilyDto): Promise<FamilyEntity> {
-    const { address_id, people_id, function: peopleFunction } = createFamilyDto;
-
+  async create(createFamilyDto: FamilyMemberDto[]): Promise<any> {
     return await this.prisma.$transaction(async (prisma) => {
+      const firstMember = createFamilyDto[0];
 
       const createdFamily = await prisma.family.create({
         data: {
-          address: {
-            connect: { id: address_id },
-          },
           people: {
-            connect: { id: people_id },
+            connect: { id: firstMember.people_id },
           },
-        },
-        include: {
-          address: true,
-          people: true,
+          address: {
+            connect: { id: firstMember.address_id },
+          },
         },
       });
 
-      if (peopleFunction) {
+      for (const member of createFamilyDto) {
         await prisma.people_Family.create({
           data: {
-            people_id: people_id,
+            people_id: member.people_id,
             family_id: createdFamily.id,
-            function: peopleFunction,
+            function: member.people_family?.function,
+          },
+        });
+
+        await prisma.address.update({
+          where: { id: member.address_id },
+          data: {
+            zip_code: member.address?.zip_code,
+            street: member.address?.street,
+            number: member.address?.number,
+            complement: member.address?.complement,
+            neighborhood: member.address?.neighborhood,
+            city: member.address?.city,
+            state: member.address?.state,
           },
         });
       }
 
-      return createdFamily;
+      const familyWithMembers = await prisma.family.findUnique({
+        where: { id: createdFamily.id },
+        include: {
+          people_family: {
+            include: {
+              people: true,
+            },
+          },
+          address: true,
+        },
+      });
+
+      const familyResult = {
+        id: familyWithMembers.id,
+        created_at: familyWithMembers.created_at,
+        updated_at: familyWithMembers.updated_at,
+        address: familyWithMembers.address,
+        members: familyWithMembers.people_family.map((pf) => ({
+          people_id: pf.people.id,
+          address_id: familyWithMembers.address.id,
+          address: familyWithMembers.address,
+          people: {
+            name: pf.people.name,
+            identifier: pf.people.identifier,
+            email: pf.people.email,
+            birth_date: pf.people.birth_date,
+            gender: pf.people.gender,
+            telephone: pf.people.telephone,
+            education: pf.people.education,
+            work: pf.people.work,
+          },
+          people_family: {
+            function: pf.function,
+          },
+        })),
+      };
+
+      return familyResult;
     });
   }
 
@@ -56,21 +104,21 @@ export class FamilyRepository {
             state: true,
           },
         },
-        people: {
-          select: {
-            name: true,
-            identifier: true,
-            email: true,
-            birth_date: true,
-            gender: true,
-            telephone: true,
-            work: true,
-            education: true,
-          },
-        },
         people_family: {
           select: {
             function: true,
+            people: {
+              select: {
+                name: true,
+                identifier: true,
+                email: true,
+                birth_date: true,
+                gender: true,
+                telephone: true,
+                work: true,
+                education: true,
+              },
+            },
           },
         },
       },
@@ -94,49 +142,141 @@ export class FamilyRepository {
     return await this.prisma.family.findFirst({
       where: { id },
       include: {
-        address: true,
-        people: true,
-        people_family: true,
+        address: {
+          select: {
+            zip_code: true,
+            street: true,
+            number: true,
+            complement: true,
+            neighborhood: true,
+            city: true,
+            state: true,
+          },
+        },
+        people_family: {
+          select: {
+            function: true,
+            people_id: true,
+            people: {
+              select: {
+                name: true,
+                identifier: true,
+                email: true,
+                birth_date: true,
+                gender: true,
+                telephone: true,
+                work: true,
+                education: true,
+              },
+            },
+          },
+        },
       },
     });
   }
 
-  async update(id: string, updateFamilyDto: Partial<UpdateFamilyDto>): Promise<FamilyEntity> {
-    const { people_id, address_id, function: familyFunction } = updateFamilyDto;
+  async update(
+    id: string,
+    updateFamilyDto: Partial<UpdateFamilyDto>,
+  ): Promise<FamilyEntity> {
+    const { members, removedMembers } = updateFamilyDto;
 
-    const updatedFamily = await this.prisma.family.update({
-      where: { id },
-      data: {
-        address: {
-          connect: { id: address_id },
+    return await this.prisma.$transaction(async (prisma) => {
+      const updatedFamily = await prisma.family.update({
+        where: { id },
+        data: {
+          updated_at: new Date(),
         },
-        people: {
-          connect: { id: people_id },
+      });
+
+      for (const member of members) {
+        const { people_id, address_id, people_family } = member;
+
+        await prisma.address.update({
+          where: { id: address_id },
+          data: {
+            zip_code: member.address?.zip_code,
+            street: member.address?.street,
+            number: member.address?.number,
+            complement: member.address?.complement,
+            neighborhood: member.address?.neighborhood,
+            city: member.address?.city,
+            state: member.address?.state,
+          },
+        });
+
+        const existingMember = await prisma.people_Family.findFirst({
+          where: {
+            people_id: people_id,
+            family_id: id,
+          },
+        });
+
+        if (existingMember) {
+          await prisma.people_Family.update({
+            where: { id: existingMember.id },
+            data: {
+              function: people_family?.function,
+            },
+          });
+        } else {
+          await prisma.people_Family.create({
+            data: {
+              family_id: id,
+              people_id: people_id,
+              function: people_family?.function,
+            },
+          });
+        }
+      }
+
+      if (removedMembers && removedMembers.length > 0) {
+        for (const member of removedMembers) {
+          await prisma.people_Family.deleteMany({
+            where: {
+              people_id: member.people_id,
+              family_id: id,
+            },
+          });
+        }
+      }
+
+      const familyWithMembers = await prisma.family.findUnique({
+        where: { id: updatedFamily.id },
+        include: {
+          address: true,
+          people_family: {
+            include: {
+              people: true,
+            },
+          },
         },
-      },
-      include: {
-        address: true,
-        people: true,
-        people_family: true,
-      },
-    });
+      });
 
-    await this.prisma.people_Family.update({
-      where: {
-        id: updatedFamily.people_family[0].id,
-      },
-      data: {
-        function: familyFunction,
-      },
-    });
-
-    return this.prisma.family.findUnique({
-      where: { id },
-      include: {
-        address: true,
-        people: true,
-        people_family: true,
-      },
+      return {
+        id: familyWithMembers.id,
+        created_at: familyWithMembers.created_at,
+        updated_at: familyWithMembers.updated_at,
+        address_id: familyWithMembers.address.id,
+        address: familyWithMembers.address,
+        people_id:
+          familyWithMembers.people_family.length > 0
+            ? familyWithMembers.people_family[0].people.id
+            : null,
+        people_family: familyWithMembers.people_family.map((pf) => ({
+          function: pf.function,
+          people: {
+            name: pf.people.name,
+            identifier: pf.people.identifier,
+            email: pf.people.email,
+            birth_date: pf.people.birth_date,
+            gender: pf.people.gender,
+            telephone: pf.people.telephone,
+            work: pf.people.work,
+            education: pf.people.education,
+          },
+        })),
+      };
     });
   }
 
