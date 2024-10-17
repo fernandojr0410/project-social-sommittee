@@ -33,11 +33,11 @@
                   >
                     <template v-slot:activator="{ on, attrs }">
                       <v-text-field
-                        v-model="d"
-                        label="Data de entrega"
+                        v-model="dateFormatted"
+                        label="Data entrega"
                         prepend-icon="mdi-calendar"
                         v-bind="attrs"
-                        @blur="updateDateDelivery"
+                        @blur="updateDataDelivery"
                         v-on="on"
                         outlined
                         dense
@@ -336,7 +336,12 @@
 
             <v-card style="padding: 14px; margin-top: 30px">
               <v-container class="d-flex justify-space-between">
-                <div v-if="updatedDonation.donation_products.length === 0">
+                <div
+                  v-if="
+                    updatedDonation?.donation_products &&
+                    updatedDonation.donation_products.length === 0
+                  "
+                >
                   <span
                     color="primary"
                     style="font-weight: bold; font-size: 16px"
@@ -546,7 +551,7 @@ export default {
       productDialog: false,
       loading: false,
       dialog: false,
-      updatedDonation: this.getDonation(),
+      updatedDonation: {},
       search: "",
       peopleList: [],
       productList: [],
@@ -595,9 +600,11 @@ export default {
           this.selectedPeople = this.updatedDonation.people;
           this.selectedProduct = this.updatedDonation.donation_products;
           this.selectedDonor = this.updatedDonation.donor;
-          this.dateFormatted = this.formatDate(
-            this.updatedDonation.date_delivery
-          );
+          if (this.updatedDonation.date_delivery) {
+            this.dateFormatted = this.formatDate(
+              this.updatedDonation.date_delivery
+            );
+          }
         }
       },
     },
@@ -627,7 +634,7 @@ export default {
   methods: {
     getDonation() {
       return {
-        date_delivery: new Date().toISOString().split("T")[0],
+        date_delivery: "",
         state: "",
         observation: "",
         people: {
@@ -667,24 +674,38 @@ export default {
 
     updateFormattedDate(date) {
       if (date) {
-        const [year, month, day] = date.split("-");
-        const adjustedDate = new Date(Date.UTC(year, month - 1, day));
+        const adjustedDate = new Date(date);
+
+        adjustedDate.setHours(
+          adjustedDate.getHours() + adjustedDate.getTimezoneOffset() / 60
+        );
+
         this.updatedDonation.date_delivery = adjustedDate
           .toISOString()
           .split("T")[0];
+
         this.dateFormatted = this.formatDate(adjustedDate);
       }
       this.menu1 = false;
     },
-    updateDateDelivery() {
+
+    updateDataDelivery() {
       this.updatedDonation.date_delivery = this.parseDate(this.dateFormatted);
     },
 
     formatDate(date) {
-      if (!date) return "";
-      const [year, month, day] = date.split("-");
-      return `${day}/${month}/${year}`;
+      if (date instanceof Date) {
+        date = date.toISOString();
+      }
+
+      if (typeof date === "string") {
+        const [year, month, day] = date.split("T")[0].split("-");
+        return `${day.padStart(2, "0")}/${month.padStart(2, "0")}/${year}`;
+      }
+
+      return "";
     },
+
     parseDate(date) {
       if (!date) return null;
       const [day, month, year] = date.split("/");

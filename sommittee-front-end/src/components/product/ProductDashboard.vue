@@ -136,7 +136,7 @@ export default {
     startPolling() {
       this.pollInterval = setInterval(() => {
         this.fetchDashboardData();
-      }, 5000);
+      }, 600000);
     },
   },
   mounted() {

@@ -16,16 +16,12 @@
             'show-current-page': true,
           }"
         >
-          <template v-slot:[`item.created_at`]="{ item }">
-            <span>{{ formatDate(item.created_at) }}</span>
+          <template v-slot:[`item.date_delivery`]="{ item }">
+            <span>{{ formatDate(item.date_delivery) }}</span>
           </template>
 
           <template v-slot:[`item.state`]="{ item }">
             <span>{{ item.state | stateDonation }}</span>
-          </template>
-
-          <template v-slot:[`item.date_delivery`]="{ item }">
-            <span>{{ dateDelivery(item.date_delivery) }}</span>
           </template>
 
           <template v-slot:[`item.name`]="{ item }">
@@ -90,7 +86,7 @@
               <v-col>
                 <v-text-field
                   v-if="selectedDonation"
-                  v-model="selectedDonation.date_delivery"
+                  :value="formatDate(selectedDonation.date_delivery)"
                   type="date"
                   label="Data entrega"
                   class="mr-3"
@@ -499,7 +495,6 @@
 </template>
 
 <script>
-import { formatDate } from "@/filters";
 import DonationCreate from "./DonationCreate.vue";
 import DonationEdit from "./DonationEdit.vue";
 import DonationDelete from "./DonationDelete.vue";
@@ -528,15 +523,12 @@ export default {
       search: "",
       donation_products: [],
       headers: [
-        { text: "Data criação", value: "created_at" },
+        { text: "Data entrega", value: "date_delivery" },
         { text: "Responsável família", value: "name" },
         { text: "Telefone responsável", value: "telephone" },
         { text: "Estado", value: "state" },
-        { text: "Data entrega", value: "date_delivery" },
         { text: "Ações", value: "actions" },
       ],
-      formatDate,
-      dateFormatted: "",
     };
   },
   computed: {
@@ -553,10 +545,12 @@ export default {
     this.loadData();
   },
   methods: {
-    dateDelivery(dateString) {
-      if (!dateString) return "";
-      const [year, month, day] = dateString.split("-");
-      return `${day}/${month}/${year}`;
+    formatDate(date) {
+      if (!date) return "";
+
+      const [year, month, day] = date.split("T")[0].split("-");
+
+      return `${day.padStart(2, "0")}/${month.padStart(2, "0")}/${year}`;
     },
     async loadData() {
       this.loading = true;

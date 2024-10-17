@@ -114,6 +114,39 @@
 
           <v-row>
             <v-col>
+              <v-text-field
+                v-if="updatedUser"
+                v-model="updatedUser.failed_attempts"
+                label="Tentativas de login"
+                class="mr-3"
+                type="number"
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+
+            <v-col>
+              <v-select
+                v-if="updatedUser"
+                v-model="updatedUser.account_locked"
+                label="Conta bloqueada"
+                class="mr-3"
+                :items="[
+                  { value: true, text: 'Sim' },
+                  { value: false, text: 'Não' },
+                ]"
+                item-value="value"
+                item-text="text"
+                outlined
+                dense
+                hide-details
+              />
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col>
               <v-checkbox
                 v-model="enablePasswordEdit"
                 label="Habilitar edição da senha"
@@ -198,15 +231,16 @@ export default {
             this.updatedUser.telephone
           );
 
+          this.$set(
+            this.updatedUser,
+            "failed_attempts",
+            this.updatedUser.failed_attempts
+          );
+
           this.updatedUser.password = "*****";
           this.enablePasswordEdit = false;
         }
       },
-    },
-    "updatedUser.account_locked": function (newVal) {
-      if (newVal === false) {
-        this.updatedUser.failed_attempts = 0;
-      }
     },
   },
   methods: {

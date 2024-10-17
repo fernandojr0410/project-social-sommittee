@@ -1,10 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
 import { UnauthorizedInterception } from './common/errors/interceptors/unauthorized.interceptor';
 import { ConflictInterception } from './common/errors/interceptors/conflict.interceptors';
 import { DatabaseInterception } from './common/errors/interceptors/database.interceptors';
 import { NotFoundInterception } from './common/errors/interceptors/notFound.interceptors';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
