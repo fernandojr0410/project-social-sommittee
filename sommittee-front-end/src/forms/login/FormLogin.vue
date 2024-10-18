@@ -142,6 +142,11 @@ export default {
       this.showSmsModal = false;
     },
 
+    handleLogoutAndRedirect() {
+      localStorage.removeItem("@sommittee.access_token");
+      router.push("/login");
+    },
+
     async handleLogin() {
       this.isSubmitting = true;
       this.resetModals();
@@ -235,13 +240,13 @@ export default {
         } else {
           this.openErrorModal(
             "Erro de autenticação",
-            "Código 2FA inválido. Tente novamente."
+            "Código inválido. Tente novamente."
           );
         }
       } catch (error) {
         this.openErrorModal(
           "Erro de autenticação",
-          "Ocorreu um erro ao verificar o código 2FA."
+          "Ocorreu um erro ao verificar o código."
         );
       } finally {
         this.isSubmitting = false;

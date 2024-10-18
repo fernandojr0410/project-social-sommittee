@@ -306,6 +306,14 @@ export default {
           if (this.updatedPeople.birth_date) {
             this.dateFormatted = this.formatDate(this.updatedPeople.birth_date);
           }
+
+          this.updatedPeople.identifier = this.formatIdentifier(
+            this.updatedPeople.identifier
+          );
+
+          this.updatedPeople.telephone = this.formatTelephone(
+            this.updatedPeople.telephone
+          );
         }
       },
     },
@@ -335,6 +343,21 @@ export default {
     },
     closeDialog() {
       this.$emit("input", false);
+    },
+    formatIdentifier(value) {
+      if (!value) return "";
+      return value
+        .replace(/\D/g, "")
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    },
+    formatTelephone(value) {
+      if (!value) return "";
+      return value
+        .replace(/\D/g, "")
+        .replace(/(\d{2})(\d)/, "($1) $2")
+        .replace(/(\d{5})(\d{4})$/, "$1-$2");
     },
     updateFormattedDate(date) {
       if (date) {
@@ -366,7 +389,7 @@ export default {
       const [day, month, year] = date.split("/");
       return new Date(year, month - 1, day).toISOString().split("T")[0];
     },
-    
+
     async fetchAddress() {
       try {
         const address = await API.cep.getAddressByZipcode(

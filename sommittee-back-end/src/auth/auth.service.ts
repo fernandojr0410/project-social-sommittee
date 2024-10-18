@@ -238,7 +238,7 @@ export class AuthService {
 
     const payload = { id: userId, email: user.email, name: user.name };
     const accessToken = await this.jwtService.signAsync(payload, {
-      expiresIn: '5d',
+      expiresIn: '60s',
       secret: Buffer.from(process.env.JWT_SECRET, 'base64').toString(),
       algorithm: 'HS256',
     });

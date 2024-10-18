@@ -11,6 +11,8 @@ import Donation from "@/views/Donation.vue";
 import Product from "@/views/Product.vue";
 import User from "@/views/User.vue";
 import Logger from "@/views/Logger.vue";
+import { jwtDecode } from "jwt-decode";
+import store from "@/store";
 
 Vue.use(VueRouter);
 
@@ -81,13 +83,33 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem("@sommittee.access_token");
 
-  if (!token && to.path !== "/login") {
-    next("/login");
-  } else if (token && to.path === "/login") {
-    next("/");
-  } else {
-    next();
+  if (to.path === "/login") {
+    store.dispatch("auth/setSessionExpired", false);
+    if (!token) {
+      return next();
+    } else {
+      return next("/");
+    }
   }
+
+  if (token) {
+    try {
+      const decodedToken = jwtDecode(token);
+      const currentTime = Date.now() / 1000;
+
+      if (decodedToken.exp < currentTime) {
+        store.dispatch("auth/setSessionExpired", true);
+        return;
+      }
+
+      return next();
+    } catch (error) {
+      localStorage.removeItem("@sommittee.access_token");
+      return next("/login");
+    }
+  }
+
+  next();
 });
 
 export default router;

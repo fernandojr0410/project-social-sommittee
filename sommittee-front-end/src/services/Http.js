@@ -1,7 +1,8 @@
 import axios from "axios";
+import store from "@/store";
 
-// axios.defaults.timeout = 300000
-axios.defaults.timeout = 24 * 60 * 60 * 1000;
+axios.defaults.timeout = 60000;
+// axios.defaults.timeout = 24 * 60 * 60 * 1000;
 axios.defaults.baseURL = process.env.VUE_APP_API_URL;
 
 class Http {
@@ -17,14 +18,18 @@ class Http {
     };
   }
 
-  loggout() {
+  logout() {
     localStorage.removeItem("@sommittee.access_token");
-    window.location.reload();
+    store.dispatch("auth/setSessionExpired", true);
   }
 
   checkExpires(error) {
-    if (error.response && error.response.data.type === "expires_token") {
-      this.loggout();
+    if (
+      error.response &&
+      error.response.status === 401 &&
+      error.response.data.message === "Unauthorized"
+    ) {
+      this.logout();
     }
   }
 

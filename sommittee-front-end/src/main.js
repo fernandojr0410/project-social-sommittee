@@ -6,11 +6,13 @@ import store from "./store";
 import "./filters";
 import vuetify from "./plugins/vuetify";
 import { VueMaskDirective } from "v-mask";
+import "./plugins/axios";
 
 Vue.directive("mask", VueMaskDirective);
 
 Vue.filter("capitalize", function (value) {
   if (!value) return "";
+  d;
   value = value.toString();
   return value.charAt(0).toUpperCase() + value.slice(1);
 });

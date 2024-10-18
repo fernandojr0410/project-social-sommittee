@@ -19,7 +19,9 @@ export class AuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
+
     if (!token) {
+      console.log('Token não encontrado');
       throw new UnauthorizedException('Token not found');
     }
 
@@ -30,6 +32,8 @@ export class AuthGuard implements CanActivate {
         algorithms: ['HS256'],
       });
 
+      console.log('Token JWT válido:', payload);
+
       const tokenInDb = await this.prisma.token.findFirst({
         where: {
           access_token: token,
@@ -37,13 +41,20 @@ export class AuthGuard implements CanActivate {
       });
 
       if (!tokenInDb || tokenInDb.is_revoked) {
+        console.log('Token revogado');
         throw new UnauthorizedException('Token Revogado!');
       }
 
       request.user = payload;
       return true;
-    } catch {
-      throw new UnauthorizedException('Token Inválido!');
+    } catch (error) {
+      if (error.name === 'TokenExpiredError') {
+        console.log('Token expirado');
+        throw new UnauthorizedException('Token expirado');
+      }
+
+      console.log('Token inválido');
+      throw new UnauthorizedException('Token inválido');
     }
   }
 

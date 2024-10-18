@@ -4,17 +4,21 @@ import API from "@/services/module/API";
 
 const state = {
   user: null,
+  sessionExpired: false,
+  token: localStorage.getItem("@sommittee.access_token") || null,
 };
 
 const mutations = {
+  SET_SESSION_EXPIRED(state, value) {
+    state.sessionExpired = value;
+  },
+
   SET_USER(state, payload) {
     state.user = { ...state.user, ...payload };
   },
 
   SET_TOKEN(state, token) {
     state.token = token;
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    localStorage.setItem("@sommittee.access_token", token);
   },
 };
 
@@ -25,6 +29,15 @@ const getters = {
 };
 
 const actions = {
+  setSessionExpired({ commit }, value) {
+    commit("SET_SESSION_EXPIRED", value);
+    if (value) {
+      commit("SET_USER", null);
+      commit("SET_TOKEN", null);
+      localStorage.removeItem("@sommittee.access_token");
+    }
+  },
+
   async login({ commit }, requestBody) {
     const response = await API.auth.login(requestBody);
     console.log("Login response:", response);
@@ -90,8 +103,22 @@ const actions = {
   },
 
   async fetchUser({ commit }) {
-    const user = await API.auth.profile();
-    commit("SET_USER", user);
+    const token = localStorage.getItem("@sommittee.access_token");
+    if (token) {
+      commit("SET_TOKEN", token);
+      try {
+        const user = await Auth.profile();
+        commit("SET_USER", user);
+      } catch (error) {
+        if (error.response && error.response.status === 401) {
+          commit("SET_USER", null);
+          commit("SET_TOKEN", null);
+          localStorage.removeItem("@sommittee.access_token");
+        } else {
+          console.error("Erro ao buscar o perfil do usuário:", error);
+        }
+      }
+    }
   },
 
   async logout({ commit }) {
@@ -99,6 +126,14 @@ const actions = {
     commit("SET_USER", null);
     localStorage.removeItem("@sommittee.access_token");
     location.reload();
+  },
+
+  setSessionExpired({ commit }, value) {
+    if (value) {
+      localStorage.removeItem("@sommittee.access_token");
+      commit("SET_USER", null);
+    }
+    commit("SET_SESSION_EXPIRED", value);
   },
 
   async updateProfile({ commit }, payload) {

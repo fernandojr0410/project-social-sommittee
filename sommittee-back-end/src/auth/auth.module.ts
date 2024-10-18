@@ -27,11 +27,11 @@ import { HttpModule, HttpService } from '@nestjs/axios';
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '24h' },
+      signOptions: { expiresIn: '60s' },
     }),
     UserModule,
     EmailModule,
-    HttpModule
+    HttpModule,
   ],
   providers: [
     AuthService,
