@@ -281,9 +281,7 @@ export default {
       formatDate,
       menu2: false,
       selectedPeopleFamily: {
-        people: {
-          birth_date: new Date().toISOString().substr(0, 10),
-        },
+        people: {},
       },
       states,
     };

@@ -16,7 +16,7 @@ import { ReCaptchaService } from './recaptcha.service';
 import { ConfigModule } from '@nestjs/config';
 import { EmailModule } from 'src/email/email.module';
 import { SmsService } from './sms/sms.service';
-import { HttpModule, HttpService } from '@nestjs/axios';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -27,7 +27,7 @@ import { HttpModule, HttpService } from '@nestjs/axios';
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '60s' },
+      signOptions: { expiresIn: '24h' },
     }),
     UserModule,
     EmailModule,

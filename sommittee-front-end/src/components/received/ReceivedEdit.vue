@@ -595,14 +595,14 @@ export default {
       }
     },
     async searchUser(search) {
-      if (search && search.length > 2) {
+      if (search) {
         this.fetchUser(search);
       } else {
         this.userList = [];
       }
     },
     async searchDonor(search) {
-      if (search && search.length > 2) {
+      if (search) {
         this.fetchDonor(search);
       } else {
         this.donorList = [];

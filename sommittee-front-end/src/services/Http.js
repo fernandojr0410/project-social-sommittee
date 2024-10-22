@@ -1,8 +1,8 @@
 import axios from "axios";
 import store from "@/store";
 
-axios.defaults.timeout = 60000;
-// axios.defaults.timeout = 24 * 60 * 60 * 1000;
+// axios.defaults.timeout = 60000;
+axios.defaults.timeout = 24 * 60 * 60 * 1000;
 axios.defaults.baseURL = process.env.VUE_APP_API_URL;
 
 class Http {

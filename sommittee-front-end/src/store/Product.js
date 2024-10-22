@@ -41,17 +41,6 @@ const getters = {
 };
 
 const actions = {
-  async fetchDashboardData({ commit }, category) {
-    try {
-      const response = await API.product.getDashboardData(category);
-      commit("SET_DASHBOARD_DATA", response);
-      return response;
-    } catch (error) {
-      console.error("Erro ao buscar dados da dashboard:", error);
-      throw error;
-    }
-  },
-
   async create({ commit }, payload) {
     const response = await API.product.create(payload);
     commit("CREATE_PRODUCT", response);
@@ -80,6 +69,17 @@ const actions = {
     const response = await API.product.delete(id);
     commit("DELETE_PRODUCT", id);
     return response;
+  },
+
+  async fetchDashboardData({ commit }, category) {
+    try {
+      const response = await API.product.getDashboardData(category);
+      commit("SET_DASHBOARD_DATA", response);
+      return response;
+    } catch (error) {
+      console.error("Erro ao buscar dados da dashboard:", error);
+      throw error;
+    }
   },
 };
 

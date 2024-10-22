@@ -7,4 +7,3 @@ export class FamilyEntity implements Family {
   created_at: Date;
   updated_at: Date;
 }
- 

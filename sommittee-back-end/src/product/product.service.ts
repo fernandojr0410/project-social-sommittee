@@ -1,9 +1,9 @@
-import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ProductRepository } from './repositories/product.repository';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { QueryProductDto } from './dto/query-product.dto';
-import { ProductDashboardDto } from './dto/dashboard-product.dto';
+
 @Injectable()
 export class ProductService {
   constructor(private readonly repository: ProductRepository) {}
@@ -13,7 +13,15 @@ export class ProductService {
   }
 
   async findAll(queryDto: QueryProductDto = {}) {
-    return await this.repository.findAll(queryDto);
+    const query = {};
+
+    if (queryDto.searchField && queryDto.search) {
+      query[queryDto.searchField] = {
+        contains: queryDto.search,
+        mode: 'insensitive',
+      };
+    }
+    return await this.repository.findAll(query);
   }
 
   async getDashboardData(): Promise<any> {

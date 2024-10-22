@@ -90,7 +90,7 @@ model People {
   telephone     String
   work          Boolean
   education     String
-  created_at    DateTime        @default(now())
+  created_at    DateTime        @default(now()) 
   updated_at    DateTime        @default(now()) @updatedAt
   address       Address         @relation(fields: [address_id], references: [id])
   address_id    String          @db.Uuid()

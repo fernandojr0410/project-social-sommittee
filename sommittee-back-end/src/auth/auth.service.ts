@@ -33,14 +33,7 @@ export class AuthService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const hashedPassword = await bcrypt.hash(
-      createUserDto.password,
-      await bcrypt.genSalt(),
-    );
-    createUserDto.password = hashedPassword;
-    const newUser = await this.userRepository.create(createUserDto);
-    newUser.password = undefined;
-    return newUser;
+    return await this.userRepository.create(createUserDto);
   }
 
   async login(
@@ -238,7 +231,7 @@ export class AuthService {
 
     const payload = { id: userId, email: user.email, name: user.name };
     const accessToken = await this.jwtService.signAsync(payload, {
-      expiresIn: '60s',
+      expiresIn: '24H',
       secret: Buffer.from(process.env.JWT_SECRET, 'base64').toString(),
       algorithm: 'HS256',
     });
@@ -350,6 +343,7 @@ export class AuthService {
     await this.userRepository.updateLastAction(user.id, 'login');
     const payload = { id: user.id, name: user.name, email: user.email };
     const accessToken = await this.jwtService.signAsync(payload, {
+      expiresIn: '24h',
       secret: jwtConstants.secret,
     });
     return { access_token: accessToken };

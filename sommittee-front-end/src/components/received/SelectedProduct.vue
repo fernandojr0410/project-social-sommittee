@@ -107,7 +107,7 @@ export default {
     },
 
     async searchProduct(search) {
-      if (search && search.length > 2) {
+      if (search) {
         this.fetchProduct(search);
       } else {
         this.productList = [];

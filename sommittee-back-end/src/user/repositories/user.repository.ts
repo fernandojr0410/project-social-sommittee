@@ -17,108 +17,18 @@ export class UserRepository {
     private readonly emailService: EmailService,
   ) {}
 
-  // async create(createUserDto: CreateUserDto): Promise<any> {
-  //   let generatedPassword = '';
-
-  //   if (!createUserDto.password) {
-  //     generatedPassword = this.passwordService.generateRandomPassword();
-  //     createUserDto.password = generatedPassword;
-  //   }
-
-  //   const validationErrors = this.passwordService.validatePassword(
-  //     createUserDto.password,
-  //   );
-  //   if (validationErrors.length) {
-  //     throw new UnauthorizedException('Senha inválida');
-  //   }
-
-  //   createUserDto.password = await this.passwordService.hashPassword(
-  //     createUserDto.password,
-  //   );
-
-  //   const newUser = await this.prisma.user.create({
-  //     data: createUserDto,
-  //   });
-
-  //   return {
-  //     ...newUser,
-  //     plainPassword: generatedPassword,
-  //   };
-  // }
-  // async create(createUserDto: CreateUserDto): Promise<UserEntity> {
-  //   console.log(`Senha recebida no repositório: ${createUserDto.password}`);
-
-  //   if (!createUserDto.password) {
-  //     throw new Error('A senha é necessária para criar o usuário.');
-  //   }
-
-  //   // Gera o hash da senha recebida
-  //   const hashedPassword = await bcrypt.hash(
-  //     createUserDto.password,
-  //     await bcrypt.genSalt(),
-  //   );
-
-  //   const originalPassword = createUserDto.password;
-  //   createUserDto.password = hashedPassword;
-
-  //   const newUser = await this.prisma.user.create({
-  //     data: createUserDto,
-  //   });
-
-  //   console.log(`Usuário criado: ${newUser.name}`);
-  //   console.log(`Senha original: ${originalPassword}`);
-
-  //   const templatePath = path.resolve(
-  //     process.cwd(),
-  //     'src',
-  //     'email',
-  //     'html',
-  //     'NewUser.html',
-  //   );
-
-  //   const template = fs.readFileSync(templatePath, 'utf8');
-
-  //   const htmlContent = template
-  //     .replace('{{name}}', newUser.name)
-  //     .replace('{{newPassword}}', originalPassword);
-
-  //   try {
-  //     await this.emailService.sendEmailUser(
-  //       newUser.email,
-  //       'Sua conta foi criada com sucesso!',
-  //       htmlContent,
-  //     );
-  //     console.log('E-mail enviado com sucesso!');
-  //   } catch (error) {
-  //     console.error('Erro ao enviar o e-mail:', error);
-  //   }
-
-  //   return newUser;
-  // }
-
   async create(createUserDto: CreateUserDto): Promise<UserEntity> {
-    console.log(`Senha recebida no repositório: ${createUserDto.password}`);
-
     if (!createUserDto.password) {
       throw new Error('A senha é necessária para criar o usuário.');
     }
 
-    const hashedPassword = await bcrypt.hash(
-      createUserDto.password,
-      await bcrypt.genSalt(),
-    );
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
-    const originalPassword = createUserDto.password;
     createUserDto.password = hashedPassword;
 
-    const newUser = await this.prisma.user.create({
+    return await this.prisma.user.create({
       data: createUserDto,
     });
-
-    console.log(`Usuário criado: ${newUser.name}`);
-    console.log(`Senha original: ${originalPassword}`);
-
-    return newUser;
   }
 
   async findAll(query: any): Promise<UserEntity[]> {
@@ -211,6 +121,7 @@ export class UserRepository {
   async verifyUserPassword(email: string, password: string): Promise<boolean> {
     const user = await this.findUserByEmail(email);
     if (!user) return false;
+    console.log('senha', user);
     return bcrypt.compare(password, user.password);
   }
 

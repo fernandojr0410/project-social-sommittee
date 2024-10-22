@@ -144,8 +144,7 @@ export default {
         console.log("Response:", response);
         if (response) {
           this.$success("Registro criado!");
-          this.$store.dispatch("product/findAll");
-          this.createdProduct = "";
+          this.createdProduct = this.getProduct();
           this.closeDialog();
         } else {
           this.$error("Erro ao criar produto!");

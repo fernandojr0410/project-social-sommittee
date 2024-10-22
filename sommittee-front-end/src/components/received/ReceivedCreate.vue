@@ -461,6 +461,12 @@ export default {
     },
     closeDialog() {
       this.dialog = false;
+      this.createdReceived = this.getReceived();
+      this.selectedProduct = [];
+      this.selectedDonor = null;
+      this.selectedUser = null;
+      this.dateFormatted = this.formatDate(new Date());
+      this.products = [];
     },
     updateFormattedDate(date) {
       if (date) {
@@ -609,8 +615,10 @@ export default {
           this.$success("Registro criado!");
           this.$store.dispatch("received/findAll");
           this.createdReceived = this.getReceived();
-          this.selectedProduct = null;
+          this.selectedProduct = [];
           this.selectedDonor = null;
+          this.selectedUser = null;
+          this.dateFormatted = this.formatDate(new Date());
           this.closeDialog();
         } else {
           this.$error("Erro ao criar recebimento!");
@@ -621,7 +629,7 @@ export default {
       }
     },
     async searchUser(search) {
-      if (search && search.length > 2) {
+      if (search) {
         this.fetchUser(search);
       } else {
         this.userList = [];
@@ -629,7 +637,7 @@ export default {
     },
 
     async searchDonor(search) {
-      if (search && search.length > 2) {
+      if (search) {
         this.fetchDonor(search);
       } else {
         this.donorList = [];

@@ -419,7 +419,7 @@ export default {
     searchPeople(search) {
       this.peopleList = [];
 
-      if (search && search.length > 2) {
+      if (search) {
         this.fetchPeople(search);
       }
     },

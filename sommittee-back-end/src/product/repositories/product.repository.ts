@@ -61,14 +61,15 @@ export class ProductRepository {
   }
 
   async findById(id: string): Promise<ProductEntity | null> {
-    const product = await this.prisma.product.findUnique({
+    const product = await this.prisma.product.findFirst({
       where: { id },
       include: {
         stocks: true,
       },
     });
 
-    return product;
+    // return JSON.parse(JSON.stringify(product));
+    return product
   }
 
   async update(productId: string, updateProductDto: UpdateProductDto) {

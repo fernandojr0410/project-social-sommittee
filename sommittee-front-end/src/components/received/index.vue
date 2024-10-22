@@ -164,26 +164,47 @@
                 v-for="(item, index) in selectedReceived.products"
                 :key="index"
               >
-                <v-list-item>
+                <v-list-item
+                  :disabled="true"
+                  dense
+                  style="border: solid 1px black; padding: 6px"
+                >
                   <v-list-item-content style="gap: 6px">
-                    <v-list-item-title>
-                      <span style="font-weight: bold">Produto:</span>
-                      {{ item.product.name }}
+                    <v-list-item-title style="display: flex; gap: 6px">
+                      <span
+                        style="font-weight: bold; color: black; color: black"
+                        >Produto:</span
+                      >
+                      <span style="font-weight: 500; color: black">{{
+                        item.product.name
+                      }}</span>
                     </v-list-item-title>
 
-                    <v-list-item-subtitle>
-                      <span style="font-weight: bold">Categoria:</span>
-                      {{ item.product.type | productCategory }}
+                    <v-list-item-subtitle style="display: flex; gap: 6px">
+                      <span style="font-weight: bold; color: black"
+                        >Categoria:</span
+                      >
+                      <span style="font-weight: 500; color: black">{{
+                        item.product.type | productCategory
+                      }}</span>
                     </v-list-item-subtitle>
 
-                    <v-list-item-subtitle>
-                      <span style="font-weight: bold">Descrição:</span>
-                      {{ item.product.description }}
+                    <v-list-item-subtitle style="display: flex; gap: 6px">
+                      <span style="font-weight: bold; color: black"
+                        >Descrição:</span
+                      >
+                      <span style="font-weight: 500; color: black">{{
+                        item.product.description
+                      }}</span>
                     </v-list-item-subtitle>
 
-                    <v-list-item-subtitle>
-                      <span style="font-weight: bold">Quantidade estoque:</span>
-                      {{ item.amount }}
+                    <v-list-item-subtitle style="display: flex; gap: 6px">
+                      <span style="font-weight: bold; color: black"
+                        >Quantidade estoque:</span
+                      >
+                      <span style="font-weight: 500; color: black">{{
+                        item.amount.d ? `${item.amount.d[0]}` : "null"
+                      }}</span>
                     </v-list-item-subtitle>
                   </v-list-item-content>
                 </v-list-item>
@@ -306,7 +327,7 @@ export default {
       deleteDialog: false,
       itemToDelete: null,
       headers: [
-        { text: "Data recebimento", value: "date" },
+        { text: " Data recebimento", value: "date" },
         { text: "Nome doador", value: "name" },
         { text: "Contato doador", value: "telephone" },
         { text: "Tipo doador", value: "type_donor" },

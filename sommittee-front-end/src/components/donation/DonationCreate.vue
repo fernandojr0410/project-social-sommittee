@@ -842,21 +842,21 @@ export default {
     },
 
     searchPeople(search) {
-      if (search && search.length > 2) {
+      if (search) {
         this.fetchPeople(search);
       } else {
         this.peopleList = [];
       }
     },
     searchProduct(search) {
-      if (search && search.length > 2) {
+      if (search) {
         this.fetchProduct(search);
       } else {
         this.productList = [];
       }
     },
     searchDonor(search) {
-      if (search && search.length > 2) {
+      if (search) {
         this.fetchDonor(search);
       } else {
         this.donorList = [];

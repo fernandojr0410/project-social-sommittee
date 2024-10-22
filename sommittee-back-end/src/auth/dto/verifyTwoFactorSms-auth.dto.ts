@@ -5,7 +5,6 @@ export class SendSmsDto {
   @IsNotEmpty()
   user_id: string;
 }
-
 export class VerifySmsDto {
   @IsString()
   @IsNotEmpty()

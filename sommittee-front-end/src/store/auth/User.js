@@ -1,5 +1,4 @@
 import axios from "axios";
-import router from "@/router";
 import API from "@/services/module/API";
 
 const state = {
@@ -107,7 +106,7 @@ const actions = {
     if (token) {
       commit("SET_TOKEN", token);
       try {
-        const user = await Auth.profile();
+        const user = await API.auth.profile();
         commit("SET_USER", user);
       } catch (error) {
         if (error.response && error.response.status === 401) {

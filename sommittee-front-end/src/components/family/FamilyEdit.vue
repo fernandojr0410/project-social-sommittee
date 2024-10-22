@@ -437,7 +437,7 @@ export default {
     },
 
     searchPeople(search) {
-      if (search && search.length > 2) {
+      if (search) {
         this.fetchPeople(search);
       } else {
         this.peopleList = [];
