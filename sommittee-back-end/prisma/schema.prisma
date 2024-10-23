@@ -9,28 +9,28 @@ datasource db {
 }
 
 model User {
-  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  name        String
-  identifier  String @unique
-  email       String       @unique
-  telephone   String       @db.Char(15)
-  password    String
-  role        Role
-  avatar_url      String?
-   two_factor_secret String?
-   is_two_factor_enabled Boolean @default(false)
-   sms_verification_code String?
-   is_verification_code Boolean @default(false)
-    failed_attempts Int      @default(0)
-  account_locked  Boolean  @default(false)
-  created_at  DateTime     @default(now())
-  updated_at  DateTime     @default(now()) @updatedAt
-  last_action String?
-  verification_codes VerificationCode[]
-  tokens      Token[]
-  loggers     Logger[]
-  attachments Attachment[]
-  receiveds Received[]
+  id                    String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  name                  String
+  identifier            String             @unique
+  email                 String             @unique
+  telephone             String             @db.Char(15)
+  password              String
+  role                  Role
+  avatar_url            String?
+  two_factor_secret     String?
+  is_two_factor_enabled Boolean            @default(false)
+  sms_verification_code String?
+  is_verification_code  Boolean            @default(false)
+  failed_attempts       Int                @default(0)
+  account_locked        Boolean            @default(false)
+  created_at            DateTime           @default(now())
+  updated_at            DateTime           @default(now()) @updatedAt
+  last_action           String?
+  verification_codes    VerificationCode[]
+  tokens                Token[]
+  loggers               Logger[]
+  attachments           Attachment[]
+  receiveds             Received[]
 
   @@map("users")
 }
@@ -48,7 +48,6 @@ model VerificationCode {
   user      User     @relation(fields: [user_id], references: [id])
   user_id   String   @db.Uuid()
 }
-
 
 model Token {
   id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
@@ -90,13 +89,13 @@ model People {
   telephone     String
   work          Boolean
   education     String
-  created_at    DateTime        @default(now()) 
+  created_at    DateTime        @default(now())
   updated_at    DateTime        @default(now()) @updatedAt
   address       Address         @relation(fields: [address_id], references: [id])
   address_id    String          @db.Uuid()
   families      Family[]
   People_Family People_Family[]
-  donations Donation[]
+  donations     Donation[]
 
   @@map("people")
 }
@@ -115,7 +114,8 @@ model Family {
   address       Address         @relation(fields: [address_id], references: [id])
   address_id    String          @db.Uuid()
   people_family People_Family[]
-  donations Donation[]
+  donations     Donation[]
+
   @@map("families")
 }
 
@@ -135,9 +135,9 @@ model People_Family {
 model Donor {
   id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
   name       String
-  identifier String      @unique @db.Char(14)
+  identifier String     @unique @db.Char(14)
   email      String     @unique
-  telephone    String     @db.Char(15)
+  telephone  String     @db.Char(15)
   type_donor Type_donor
   created_at DateTime   @default(now())
   updated_at DateTime   @default(now()) @updatedAt
@@ -153,30 +153,31 @@ enum Type_donor {
 }
 
 model Product {
-  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  name        String
-  description String
-  type        String
-  created_at  DateTime   @default(now())
-  updated_at  DateTime   @default(now()) @updatedAt
-  donations   Donation[]
-  stocks      Stock[]
+  id                String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  name              String
+  description       String
+  type              String
+  created_at        DateTime           @default(now())
+  updated_at        DateTime           @default(now()) @updatedAt
+  donations         Donation[]
+  stocks            Stock[]
   donation_products DonationProducts[]
   receivedsProducts ReceivedProduct[]
+
   @@map("products")
 }
 
 model Received {
-  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  date        String
+  id                String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  date              String
   condition_product Condition_product
-  description String?
-  created_at  DateTime   @default(now())
-  updated_at  DateTime   @updatedAt
-  user        User       @relation(fields: [user_id], references: [id])
-  user_id     String     @db.Uuid()
-  donor       Donor      @relation(fields: [donor_id], references: [id])
-  donor_id    String     @db.Uuid()
+  description       String?
+  created_at        DateTime          @default(now())
+  updated_at        DateTime          @updatedAt
+  user              User              @relation(fields: [user_id], references: [id])
+  user_id           String            @db.Uuid()
+  donor             Donor             @relation(fields: [donor_id], references: [id])
+  donor_id          String            @db.Uuid()
   products          ReceivedProduct[]
 
   @@map("receiveds")
@@ -188,57 +189,57 @@ enum Condition_product {
   DAMAGED
 }
 
-
 model ReceivedProduct {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  received  Received @relation(fields: [received_id], references: [id])
-  received_id String @db.Uuid()
-  product    Product    @relation(fields: [product_id], references: [id])
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  received    Received @relation(fields: [received_id], references: [id])
+  received_id String   @db.Uuid()
+  product     Product  @relation(fields: [product_id], references: [id])
   product_id  String   @db.Uuid()
-  amount    Decimal
+  amount      Decimal
 
   @@map("received_products")
 }
 
 model Stock {
-  id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
   product    Product  @relation(fields: [product_id], references: [id])
   product_id String   @db.Uuid()
-  amount     Decimal @default(0)
-  created_at DateTime   @default(now())
-  updated_at DateTime   @default(now()) @updatedAt
+  amount     Decimal  @default(0)
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
 
   @@map("stocks")
 }
 
 model Donation {
-  id                   String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  state                String
-  date_delivery        String
-  observation          String?
-  created_at           DateTime     @default(now())
-  updated_at           DateTime     @default(now()) @updatedAt
-  donor                Donor        @relation(fields: [donor_id], references: [id])
-  donor_id             String       @db.Uuid()
-  people               People      @relation(fields: [people_id], references: [id])
-  people_id            String      @db.Uuid()
-  family               Family      @relation(fields: [family_id], references: [id])
-  family_id            String       @db.Uuid()
-  products             Product[]     @relation()
-  attachments          Attachment[]
+  id                String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  state             String
+  date_delivery     String
+  observation       String?
+  created_at        DateTime           @default(now())
+  updated_at        DateTime           @default(now()) @updatedAt
+  donor             Donor              @relation(fields: [donor_id], references: [id])
+  donor_id          String             @db.Uuid()
+  people            People             @relation(fields: [people_id], references: [id])
+  people_id         String             @db.Uuid()
+  family            Family             @relation(fields: [family_id], references: [id])
+  family_id         String             @db.Uuid()
+  products          Product[]          @relation()
+  attachments       Attachment[]
   donation_products DonationProducts[]
 
   @@map("donations")
 }
+
 model DonationProducts {
-  id                   String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  created_at           DateTime     @default(now())
-  updated_at           DateTime     @default(now()) @updatedAt
-  product              Product     @relation(fields: [product_id], references: [id])
-  product_id           String       @db.Uuid()
-  donation              Donation      @relation(fields: [donation_id], references: [id])
-  donation_id           String       @db.Uuid()
-  amount Decimal @default(0)
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now()) @updatedAt
+  product     Product  @relation(fields: [product_id], references: [id])
+  product_id  String   @db.Uuid()
+  donation    Donation @relation(fields: [donation_id], references: [id])
+  donation_id String   @db.Uuid()
+  amount      Decimal  @default(0)
 
   @@map("donation_products")
 }
@@ -248,7 +249,7 @@ model Logger {
   path       String?
   status     Int      @default(0)
   method     String?
-  payload Json?
+  payload    Json?
   user       User?    @relation(fields: [user_id], references: [id])
   user_id    String?  @db.Uuid()
   created_at DateTime @default(now())
