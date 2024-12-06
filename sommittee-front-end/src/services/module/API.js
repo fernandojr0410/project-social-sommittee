@@ -1,5 +1,4 @@
 import Auth from "../Auth";
-
 import Received from "../Received";
 import People from "../People";
 import Cep from "../Cep";

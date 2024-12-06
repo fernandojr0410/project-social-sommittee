@@ -27,7 +27,7 @@ export class AuthService {
     private readonly userRepository: UserRepository,
     private readonly passwordService: PasswordService,
     private readonly jwtService: JwtService,
-    private readonly emailService: EmailService,
+
     private readonly recaptchaService: ReCaptchaService,
     private readonly smsService: SmsService,
   ) {}
